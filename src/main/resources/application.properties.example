@@ -1,0 +1,10 @@
+spring.datasource.url=jdbc:postgresql://localhost:5432/database
+spring.datasource.username=user
+spring.datasource.password=password
+
+sql.album-birthday-scripts[0]=album_birthday_script1.sql
+sql.album-birthday-scripts[1]=album_birthday_script2.sql
+sql.album-birthday-scripts[2]=album_birthday_script3.sql
+sql.album-collection-scripts[0]=album_collection_script1.sql
+
+filesystem.album-collection-path=/path/to/music/collection
