@@ -78,6 +78,12 @@
 			</plugin>
 
 			<plugin>
+				<groupId>org.flywaydb</groupId>
+				<artifactId>flyway-maven-plugin</artifactId>
+				<version>6.4.4</version>
+			</plugin>
+
+			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<!-- annotationProcessorPaths requires maven-compiler-plugin version 3.5 or higher -->
