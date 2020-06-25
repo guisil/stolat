@@ -12,6 +12,7 @@ import io.zonky.test.db.AutoConfigureEmbeddedDatabase;
 
 @ExtendWith(SpringExtension.class)
 @AutoConfigureEmbeddedDatabase(beanName = "dataSource")
+@TestPropertySource("classpath:test-application.properties")
 public class DatasourcePropertiesTest {
 
     @Autowired

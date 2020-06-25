@@ -1,6 +1,7 @@
 package stolat.bootstrap;
 
 
+import io.zonky.test.db.AutoConfigureEmbeddedDatabase;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -13,6 +14,7 @@ import static picocli.CommandLine.IFactory;
 import static picocli.CommandLine.ParseResult;
 
 @SpringBootTest
+@AutoConfigureEmbeddedDatabase
 @TestPropertySource("classpath:test-application.properties")
 class StoLatBootstrapApplicationTests {
 

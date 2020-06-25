@@ -1,4 +1,4 @@
-INSERT INTO album_birthday
+INSERT INTO stolat.album_birthday
 SELECT
     DISTINCT ON (album_mbid)
     *
@@ -11,10 +11,10 @@ FROM (
         release_country.date_day AS album_day,
         now() AS last_updated
     FROM
-        release,
-        release_group,
-        release_country,
-        artist
+        musicbrainz.release,
+        musicbrainz.release_group,
+        musicbrainz.release_country,
+        musicbrainz.artist
     WHERE release.id = release_country.release
     AND release.release_group = release_group.id
     AND artist.id = release_group.artist_credit
@@ -27,10 +27,10 @@ UNION
         release_unknown_country.date_day AS album_day,
         now() AS last_updated
     FROM
-        release,
-        release_group,
-        release_unknown_country,
-        artist
+        musicbrainz.release,
+        musicbrainz.release_group,
+        musicbrainz.release_unknown_country,
+        musicbrainz.artist
     WHERE release.id = release_unknown_country.release
     AND release.release_group = release_group.id
     AND artist.id = release_group.artist_credit
