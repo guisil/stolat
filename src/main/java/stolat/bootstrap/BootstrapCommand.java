@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.concurrent.Callable;
 
 import static picocli.CommandLine.Command;
@@ -24,23 +25,17 @@ public class BootstrapCommand implements Callable<Integer> {
     @Option(names = "--spring.config.location", hidden = true)
     private String springConfigLocation;
 
-    @Option(names = {"-b", "--album-birthday"}, description = "refer to album birthday database structures")
+    @Option(names = {"-b", "--album-birthday"}, description = "populate the album birthday database structures")
     boolean albumBirthday;
 
-    @Option(names = {"-a", "--album-collection"}, description = "refer to album collection database structures")
+    @Option(names = {"-c", "--album-collection"}, description = "populate the album collection database structures")
     boolean albumCollection;
 
-    @Option(names = {"-c", "--create"}, description = "create and populate selected database structures")
-    boolean create;
+    @Option(names = {"-f", "--force"}, description = "truncate table(s) before starting")
+    boolean force;
 
-    @Option(names = {"-u", "--update"}, description = "update selected database structures")
-    boolean update;
-
-    @Option(names = {"-r", "--remove"}, description = "remove albums from database when not present in filesystem anymore")
-    boolean remove;
-
-    @Option(names = {"-f", "--folder"}, description = "overrides the folder where the album collections is to be fetched")
-    File folder;
+    @Option(names = {"-p", "--path"}, description = "overrides the path where the album collection is to be fetched")
+    Path path;
 
 //    @Option(names = {"-h", "--help"}, usageHelp = true, description = "display a help message")
 //    private boolean help;

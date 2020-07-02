@@ -1,18 +1,6 @@
--- ALBUM BIRTHDAY
+\set ON_ERROR_STOP 1
 
-CREATE TABLE stolat.album_birthday (
-    album_mbid UUID PRIMARY KEY,
-    artist_mbid UUID NOT NULL,
-    album_year INTEGER,
-    album_month INTEGER,
-    album_day INTEGER,
-    last_updated TIMESTAMP
-);
-
-CREATE INDEX IF NOT EXISTS idx_album_birthday_month
-    ON album_birthday(album_month, album_day);
-
--- ALBUM COLLECTION
+BEGIN;
 
 CREATE TABLE local_collection_album (
     album_mbid UUID PRIMARY KEY,
@@ -33,3 +21,5 @@ CREATE TABLE local_collection_track (
     album_mbid UUID REFERENCES local_collection_album(album_mbid),
     last_updated TIMESTAMP
 );
+
+COMMIT;

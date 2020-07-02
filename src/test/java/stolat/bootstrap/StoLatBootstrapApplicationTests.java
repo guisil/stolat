@@ -5,11 +5,11 @@ import io.zonky.test.db.AutoConfigureEmbeddedDatabase;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.TestPropertySource;
 import picocli.CommandLine;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 import static picocli.CommandLine.IFactory;
 import static picocli.CommandLine.ParseResult;
 
@@ -18,26 +18,46 @@ import static picocli.CommandLine.ParseResult;
 @TestPropertySource("classpath:test-application.properties")
 class StoLatBootstrapApplicationTests {
 
-	@Autowired
-	private IFactory factory;
+    @Autowired
+    private IFactory factory;
 
-	@Autowired
-	private BootstrapCommand command;
-
-	@Test
-	void contextLoads() {
-	}
+    @Autowired
+    private BootstrapCommand command;
 
     @Test
-    void shouldParsingCommandLineArgs() {
-        ParseResult parseResult = new CommandLine(command, factory)
-                .parseArgs("-b", "-c");
-        assertTrue(command.albumBirthday);
-        assertTrue(command.create);
+    void contextLoads() {
     }
 
-	@Test
-	void otherCommandLineArgs() {
-		fail("not tested yet");
-	}
+    @Test
+    void shouldParseAlbumBirthdayCommandLineOption() {
+        ParseResult parseResult = new CommandLine(command, factory)
+                .parseArgs("-b");
+        assertTrue(command.albumBirthday);
+    }
+
+    @Test
+    void shouldParseAlbumCollectionCommandLineOption() {
+        ParseResult parseResult = new CommandLine(command, factory)
+                .parseArgs("-c");
+        assertTrue(command.albumCollection);
+    }
+
+    @Test
+    void shouldParsePathCommandLineOption() {
+        ParseResult parseResult = new CommandLine(command, factory)
+                .parseArgs("-p");
+        assertNotNull(command.path);
+    }
+
+    @Test
+    void shouldParseForceCommandLineOption() {
+        ParseResult parseResult = new CommandLine(command, factory)
+                .parseArgs("-f");
+        assertTrue(command.force);
+    }
+
+    @Test
+    void otherCommandLineArgs() {
+        fail("not tested yet");
+    }
 }

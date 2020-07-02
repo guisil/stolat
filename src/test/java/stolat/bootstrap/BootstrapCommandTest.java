@@ -15,32 +15,32 @@ public class BootstrapCommandTest {
     }
 
     @Test
-    void shouldCreateAndPopulateAlbumBirthdayDataWhenBirthdayAndCreateOptionsSelected() {
+    void shouldPopulateAlbumBirthdayDataWhenBirthdayOptionSelected() {
         fail("not tested yet");
     }
 
     @Test
-    void shouldUpdateAlbumBirthdayDataWhenBirthdayAndUpdateOptionsSelected() {
+    void shouldIgnorePathOptionWhenBirthdayOptionSelected() {
         fail("not tested yet");
     }
 
     @Test
-    void shouldCreateAndPopulateAlbumCollectionDataWhenCollectionAndCreateOptionsSelected() {
+    void shouldIgnoreForceOptionWhenBirthdayOptionSelected() {
         fail("not tested yet");
     }
 
     @Test
-    void shouldUpdateAlbumCollectionDataWhenCollectionAndUpdateOptionsSelected() {
+    void shouldPopulateAlbumCollectionDataWhenCollectionOptionSelected() {
         fail("not tested yet");
     }
 
     @Test
-    void shouldUpdateAlbumCollectionDataAndRemoveNonExistingDataWhenCollectionAndUpdateWithRemovalOptionsSelected() {
+    void shouldPopulateAlbumCollectionDataFromFolderWhenCollectionAndPathOptionsSelected() {
         fail("not tested yet");
     }
 
     @Test
-    void shouldUpdateAlbumCollectionDataFromFolderWhenCollectionAndUpdateWithFolderOptionsSelected() {
+    void shouldTruncateAndPopulateAlbumCollectionDataWhenCollectionAndForceOptionsSelected() {
         fail("not tested yet");
     }
 }
