@@ -7,10 +7,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.Collections;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(SpringExtension.class)
 @EnableConfigurationProperties(value = SqlProperties.class)
@@ -21,16 +18,8 @@ class SqlPropertiesTest {
     private SqlProperties sqlProperties;
 
     @Test
-    void shouldGetAlbumBirthdayScripts() {
-        assertEquals(
-                List.of("album_birthday_script1.sql", "album_birthday_script2.sql", "album_birthday_script3.sql"),
-                sqlProperties.getAlbumBirthdayScripts());
-    }
-
-    @Test
-    void getAlbumCollectionScripts() {
-        assertEquals(
-                List.of("album_collection_script1.sql"),
-                sqlProperties.getAlbumCollectionScripts());
+    void shouldGetPopulateAlbumBirthdayScript() {
+        assertEquals("album_birthday_script1.sql",
+                sqlProperties.getPopulateAlbumBirthdayScript());
     }
 }

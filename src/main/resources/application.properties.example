@@ -1,3 +1,5 @@
+spring.profiles.active=jaudiotagger
+
 spring.datasource.driver-class-name=org.postgresql.Driver
 spring.datasource.url=jdbc:postgresql://localhost:5432/database
 spring.datasource.username=user
@@ -6,9 +8,8 @@ spring.datasource.password=password
 spring.flyway.default-schema=stolat
 spring.flyway.schemas=stolat
 
-sql.album-birthday-scripts[0]=album_birthday_script1.sql
-sql.album-birthday-scripts[1]=album_birthday_script2.sql
-sql.album-birthday-scripts[2]=album_birthday_script3.sql
-sql.album-collection-scripts[0]=album_collection_script1.sql
+sql.populate-album-birthday-script=populate_album_birthday_table.sql
 
 filesystem.album-collection-path=/path/to/music/collection
+filesystem.music-file-extensions[0]=flac
+filesystem.music-file-extensions[1]=ogg

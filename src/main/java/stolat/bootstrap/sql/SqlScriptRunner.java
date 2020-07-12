@@ -24,7 +24,7 @@ public class SqlScriptRunner {
     @Autowired
     private DataSource dataSource;
 
-    public void runInitialisationScripts(String scriptFilename) throws SQLException {
+    public void runSqlScript(String scriptFilename) throws SQLException {
         Resource script = context.getResource(scriptFilename);
         EncodedResource encodedResource = new EncodedResource(script, StandardCharsets.UTF_8);
         ScriptUtils.executeSqlScript(dataSource.getConnection(), encodedResource);

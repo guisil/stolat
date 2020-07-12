@@ -5,6 +5,8 @@ import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.List;
+
 @Configuration
 @ConfigurationProperties("filesystem")
 @Getter
@@ -12,4 +14,6 @@ import org.springframework.context.annotation.Configuration;
 public class FileSystemProperties {
 
     private String albumCollectionPath;
+
+    private List<String> musicFileExtensions;
 }

@@ -1,32 +1,51 @@
 package stolat.bootstrap;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import stolat.bootstrap.dao.AlbumBirthdayDao;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.io.File;
 
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+
+@ExtendWith(MockitoExtension.class)
 public class BootstrapCommandTest {
 
-    private BootstrapCommand command;
+    @Mock
+    private AlbumBirthdayDao mockAlbumBirthdayDao;
 
-    @BeforeEach
-    void setUp() {
-        command = new BootstrapCommand();
-    }
+    @InjectMocks
+    private BootstrapCommand command;
 
     @Test
     void shouldPopulateAlbumBirthdayDataWhenBirthdayOptionSelected() {
-        fail("not tested yet");
+        command.albumBirthday = true;
+        command.call();
+        verify(mockAlbumBirthdayDao).populateAlbumBirthdays();
+        verifyNoMoreInteractions(mockAlbumBirthdayDao);
     }
 
     @Test
     void shouldIgnorePathOptionWhenBirthdayOptionSelected() {
-        fail("not tested yet");
+        command.albumBirthday = true;
+        command.path = new File("/some/path").toPath();
+        command.call();
+        verify(mockAlbumBirthdayDao).populateAlbumBirthdays();
+        verifyNoMoreInteractions(mockAlbumBirthdayDao);
     }
 
     @Test
     void shouldIgnoreForceOptionWhenBirthdayOptionSelected() {
-        fail("not tested yet");
+        command.albumBirthday = true;
+        command.force = true;
+        command.call();
+        verify(mockAlbumBirthdayDao).populateAlbumBirthdays();
+        verifyNoMoreInteractions(mockAlbumBirthdayDao);
     }
 
     @Test
@@ -41,6 +60,11 @@ public class BootstrapCommandTest {
 
     @Test
     void shouldTruncateAndPopulateAlbumCollectionDataWhenCollectionAndForceOptionsSelected() {
+        fail("not tested yet");
+    }
+
+    @Test
+    void shouldPopulateAlbumBirthdayAndAlbumCollectionWhenBothOptionsSelected() {
         fail("not tested yet");
     }
 }

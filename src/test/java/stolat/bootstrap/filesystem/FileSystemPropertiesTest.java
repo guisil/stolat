@@ -6,9 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import stolat.bootstrap.sql.SqlProperties;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(SpringExtension.class)
 @EnableConfigurationProperties(value = FileSystemProperties.class)
@@ -23,5 +24,10 @@ class FileSystemPropertiesTest {
         assertEquals(
                 "/path/to/music/collection",
                 fileSystemProperties.getAlbumCollectionPath());
+    }
+
+    @Test
+    void shouldGetMusicFileExtensions() {
+        assertEquals(List.of("flac", "ogg"), fileSystemProperties.getMusicFileExtensions());
     }
 }
