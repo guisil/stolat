@@ -8,6 +8,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import picocli.CommandLine;
 
+import java.io.File;
+import java.nio.file.Path;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static picocli.CommandLine.IFactory;
 import static picocli.CommandLine.ParseResult;
@@ -43,8 +46,9 @@ class StoLatBootstrapApplicationTests {
 
     @Test
     void shouldParsePathCommandLineOption() {
+        String path = Path.of(File.separator, "some", "path", "to", "the", "collection").toString();
         ParseResult parseResult = new CommandLine(command, factory)
-                .parseArgs("-p /some/path/to/the/collection");
+                .parseArgs("-p", path);
         assertNotNull(command.path);
     }
 

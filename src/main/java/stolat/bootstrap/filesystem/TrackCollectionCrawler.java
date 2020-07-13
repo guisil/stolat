@@ -11,8 +11,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -26,7 +26,7 @@ public class TrackCollectionCrawler {
     @Autowired
     private TagInfoReader tagInfoReader;
 
-    public List<Track> fetchTrackCollection(Path rootPath) {
+    public Set<Track> fetchTrackCollection(Path rootPath) {
         log.info("Fetching track collection from root path '{}'", rootPath);
 
         try (Stream<Path> walk = Files.walk(rootPath)) {
@@ -36,11 +36,11 @@ public class TrackCollectionCrawler {
                     .map(tagInfoReader::getTrackInfo)
                     .filter(Optional::isPresent)
                     .map(Optional::get)
-                    .collect(Collectors.toList());
+                    .collect(Collectors.toSet());
         } catch (IOException ex) {
             log.warn("Error occurred while fetching the track collection", ex);
         }
-        return Collections.emptyList();
+        return Collections.emptySet();
     }
 
     private boolean fileWithAcceptableExtension(File file) {
@@ -50,7 +50,7 @@ public class TrackCollectionCrawler {
         return acceptable;
     }
 
-    public List<Track> fetchTrackCollection() {
+    public Set<Track> fetchTrackCollection() {
         return fetchTrackCollection(Path.of(fileSystemProperties.getAlbumCollectionPath()));
     }
 }

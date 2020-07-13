@@ -20,6 +20,7 @@ import stolat.bootstrap.model.Track;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -32,8 +33,8 @@ import static org.mockito.Mockito.lenient;
 @ExtendWith(MockitoExtension.class)
 class JAudioTaggerFlacTagInfoReaderTest {
 
-    private static final String COLLECTION_ROOT_PATH = "/some/path/music/";
-    private static final String AUDIO_FILE_RELATIVE_PATH = "The Awesome Musicians/That Great Album/Great to Listen.flac";
+    private static final String COLLECTION_ROOT_PATH = Path.of(File.separator, "some", "path", "music").toString();
+    private static final String AUDIO_FILE_RELATIVE_PATH = Path.of("The Awesome Musicians", "That Great Album", "Great to Listen.flac").toString();
     private static final Instant FIXED_INSTANT = Instant.now();
 
     private static final UUID ALBUM_MBID = UUID.randomUUID();

@@ -17,6 +17,7 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -102,20 +103,20 @@ class TrackCollectionCrawlerTest {
                 UUID.randomUUID().toString(), "Some Artist");
         firstAlbumFirstTrack = new Track(
                 UUID.randomUUID().toString(), "1", "1", "Some Track",
-                123, "Some Artist/First Album/Some Track.flac", firstAlbum, Instant.now());
+                123, Path.of(SOME_ARTIST_FOLDER, FIRST_ALBUM_FOLDER, FIRST_ALBUM_FIRST_TRACK).toString(), firstAlbum, Instant.now());
         firstAlbumSecondTrack = new Track(
                 UUID.randomUUID().toString(), "1", "2", "Some Other Track",
-                132, "Some Artist/First Album/Some Other Track.flac", firstAlbum, Instant.now());
+                132, Path.of(SOME_ARTIST_FOLDER, FIRST_ALBUM_FOLDER, FIRST_ALBUM_SECOND_TRACK).toString(), firstAlbum, Instant.now());
 
         final Album secondAlbum = new Album(
                 UUID.randomUUID().toString(), "Second Album",
                 UUID.randomUUID().toString(), "Some other Artist");
         secondAlbumFirstTrack = new Track(
                 UUID.randomUUID().toString(), "1", "1", "Something Else",
-                111, "Some other Artist/Second Album/Something Else.flac", secondAlbum, Instant.now());
+                111, Path.of(SOME_OTHER_ARTIST_FOLDER, SECOND_ALBUM_FOLDER, SECOND_ALBUM_FIRST_TRACK).toString(), secondAlbum, Instant.now());
         secondAlbumSecondTrack = new Track(
                 UUID.randomUUID().toString(), "1", "2", "Yet Another Track",
-                222, "Some other Artist/Second Album/yetanothertrack.flac", secondAlbum, Instant.now());
+                222, Path.of(SOME_OTHER_ARTIST_FOLDER, SECOND_ALBUM_FOLDER, SECOND_ALBUM_SECOND_TRACK).toString(), secondAlbum, Instant.now());
 
         lenient().when(mockTagInfoReader.getTrackInfo(firstAlbumFirstTrackFile)).thenReturn(Optional.of(firstAlbumFirstTrack));
         lenient().when(mockTagInfoReader.getTrackInfo(firstAlbumSecondTrackFile)).thenReturn(Optional.of(firstAlbumSecondTrack));
@@ -125,25 +126,25 @@ class TrackCollectionCrawlerTest {
 
     @Test
     void shouldFetchTrackCollectionFromConfiguredPath() {
-        final List<Track> expected =
-                List.of(firstAlbumFirstTrack, firstAlbumSecondTrack, secondAlbumFirstTrack, secondAlbumSecondTrack);
-        final List<Track> actual = trackCollectionCrawler.fetchTrackCollection();
+        final Set<Track> expected =
+                Set.of(firstAlbumFirstTrack, firstAlbumSecondTrack, secondAlbumFirstTrack, secondAlbumSecondTrack);
+        final Set<Track> actual = trackCollectionCrawler.fetchTrackCollection();
 
         assertEquals(expected, actual);
     }
 
     @Test
     void shouldFetchTrackCollectionFromGivenPath() {
-        final List<Track> expected =
-                List.of(secondAlbumFirstTrack, secondAlbumSecondTrack);
-        final List<Track> actual = trackCollectionCrawler.fetchTrackCollection(someOtherArtistFolder.toPath());
+        final Set<Track> expected =
+                Set.of(secondAlbumFirstTrack, secondAlbumSecondTrack);
+        final Set<Track> actual = trackCollectionCrawler.fetchTrackCollection(someOtherArtistFolder.toPath());
 
         assertEquals(expected, actual);
     }
 
     @Test
     void shouldNotFetchTrackCollectionWhenRootFolderDoesNotExist() {
-        final List<Track> actual = trackCollectionCrawler.fetchTrackCollection(Path.of("/some/non/existing/path"));
+        final Set<Track> actual = trackCollectionCrawler.fetchTrackCollection(Path.of("/some/non/existing/path"));
 
         assertTrue(actual.isEmpty());
     }
