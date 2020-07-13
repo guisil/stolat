@@ -30,9 +30,6 @@ import java.util.Optional;
 public class JAudioTaggerFlacTagInfoReader implements TagInfoReader {
 
     @Autowired
-    private Clock clock;
-
-    @Autowired
     private FileSystemProperties fileSystemProperties;
 
     @Autowired
@@ -56,14 +53,12 @@ public class JAudioTaggerFlacTagInfoReader implements TagInfoReader {
             Path other = file.toPath();
             final String relativePath = rootCollectionPath.relativize(other).toString();
 
-            final Instant lastUpdated = Instant.now(clock);
-
             final Track track = new Track(
                     tag.getFirst(FieldKey.MUSICBRAINZ_TRACK_ID),
                     tag.getFirst(FieldKey.DISC_NO),
                     tag.getFirst(FieldKey.TRACK),
                     tag.getFirst(FieldKey.TITLE),
-                    audioHeader.getTrackLength(), relativePath, album, lastUpdated);
+                    audioHeader.getTrackLength(), relativePath, album);
 
             return Optional.of(track);
 

@@ -103,20 +103,20 @@ class TrackCollectionCrawlerTest {
                 UUID.randomUUID().toString(), "Some Artist");
         firstAlbumFirstTrack = new Track(
                 UUID.randomUUID().toString(), "1", "1", "Some Track",
-                123, Path.of(SOME_ARTIST_FOLDER, FIRST_ALBUM_FOLDER, FIRST_ALBUM_FIRST_TRACK).toString(), firstAlbum, Instant.now());
+                123, Path.of(SOME_ARTIST_FOLDER, FIRST_ALBUM_FOLDER, FIRST_ALBUM_FIRST_TRACK).toString(), firstAlbum);
         firstAlbumSecondTrack = new Track(
                 UUID.randomUUID().toString(), "1", "2", "Some Other Track",
-                132, Path.of(SOME_ARTIST_FOLDER, FIRST_ALBUM_FOLDER, FIRST_ALBUM_SECOND_TRACK).toString(), firstAlbum, Instant.now());
+                132, Path.of(SOME_ARTIST_FOLDER, FIRST_ALBUM_FOLDER, FIRST_ALBUM_SECOND_TRACK).toString(), firstAlbum);
 
         final Album secondAlbum = new Album(
                 UUID.randomUUID().toString(), "Second Album",
                 UUID.randomUUID().toString(), "Some other Artist");
         secondAlbumFirstTrack = new Track(
                 UUID.randomUUID().toString(), "1", "1", "Something Else",
-                111, Path.of(SOME_OTHER_ARTIST_FOLDER, SECOND_ALBUM_FOLDER, SECOND_ALBUM_FIRST_TRACK).toString(), secondAlbum, Instant.now());
+                111, Path.of(SOME_OTHER_ARTIST_FOLDER, SECOND_ALBUM_FOLDER, SECOND_ALBUM_FIRST_TRACK).toString(), secondAlbum);
         secondAlbumSecondTrack = new Track(
                 UUID.randomUUID().toString(), "1", "2", "Yet Another Track",
-                222, Path.of(SOME_OTHER_ARTIST_FOLDER, SECOND_ALBUM_FOLDER, SECOND_ALBUM_SECOND_TRACK).toString(), secondAlbum, Instant.now());
+                222, Path.of(SOME_OTHER_ARTIST_FOLDER, SECOND_ALBUM_FOLDER, SECOND_ALBUM_SECOND_TRACK).toString(), secondAlbum);
 
         lenient().when(mockTagInfoReader.getTrackInfo(firstAlbumFirstTrackFile)).thenReturn(Optional.of(firstAlbumFirstTrack));
         lenient().when(mockTagInfoReader.getTrackInfo(firstAlbumSecondTrackFile)).thenReturn(Optional.of(firstAlbumSecondTrack));

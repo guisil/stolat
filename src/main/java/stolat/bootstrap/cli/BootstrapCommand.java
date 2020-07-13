@@ -1,10 +1,8 @@
-package stolat.bootstrap;
+package stolat.bootstrap.cli;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import stolat.bootstrap.dao.AlbumBirthdayDao;
-import stolat.bootstrap.filesystem.TrackCollectionCrawler;
 
 import java.nio.file.Path;
 import java.util.concurrent.Callable;
@@ -23,22 +21,22 @@ import static picocli.CommandLine.Option;
 public class BootstrapCommand implements Callable<Integer> {
 
     @Option(names = {"-b", "--album-birthday"}, description = "populate the album birthday database structures")
-    boolean albumBirthday;
+    public boolean albumBirthday;
 
     @Option(names = {"-c", "--album-collection"}, description = "populate the album collection database structures")
-    boolean albumCollection;
+    public boolean albumCollection;
 
     @Option(names = {"-f", "--force"}, description = "truncate table(s) before starting")
-    boolean force;
+    public boolean force;
 
     @Option(names = {"-p", "--path"}, description = "overrides the path where the album collection is to be fetched")
-    Path path;
+    public Path path;
 
     @Autowired
-    private AlbumBirthdayDao albumBirthdayDao;
+    private AlbumBirthdayCommand albumBirthdayCommand;
 
     @Autowired
-    private TrackCollectionCrawler trackCollectionCrawler;
+    private AlbumCollectionCommand albumCollectionCommand;
 
     @Option(names = "--spring.config.location", hidden = true)
     private String springConfigLocation;
@@ -50,10 +48,32 @@ public class BootstrapCommand implements Callable<Integer> {
     public Integer call() {
 
         if (albumBirthday) {
-            log.debug("Triggered option to populate album birthdays.");
-            albumBirthdayDao.populateAlbumBirthdays();
+            triggerAlbumBirthdayUpdate();
+        }
+        if (albumCollection) {
+            triggerAlbumCollectionUpdate();
+        }
+        if (!albumBirthday && !albumCollection) {
+            triggerAlbumBirthdayUpdate();
+            triggerAlbumCollectionUpdate();
         }
 
         return 0;
+    }
+
+    private void triggerAlbumBirthdayUpdate() {
+        log.debug("Triggered option to update album birthdays.");
+        albumBirthdayCommand.updateAlbumBirthdayDatabase();
+    }
+
+    private void triggerAlbumCollectionUpdate() {
+        String truncateAnd = force ? "truncate and " : "";
+        if (path != null) {
+            log.debug("Triggered option to {}update album collection from path {}.", truncateAnd, path);
+            albumCollectionCommand.updateAlbumCollectionDatabase(force, path);
+        } else {
+            log.debug("Triggered option to {}update album collection from root path.", truncateAnd);
+            albumCollectionCommand.updateAlbumCollectionDatabase(force);
+        }
     }
 }

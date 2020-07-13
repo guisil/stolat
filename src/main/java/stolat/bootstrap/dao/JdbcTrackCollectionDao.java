@@ -6,11 +6,16 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import stolat.bootstrap.model.Track;
 
+import java.time.Clock;
 import java.util.List;
+import java.util.Set;
 
 @Repository
 @Slf4j
 public class JdbcTrackCollectionDao implements TrackCollectionDao {
+
+    @Autowired
+    private Clock clock;
 
     @Autowired
     private NamedParameterJdbcTemplate jdbcTemplate;
@@ -21,7 +26,7 @@ public class JdbcTrackCollectionDao implements TrackCollectionDao {
     }
 
     @Override
-    public void populateTrackCollection(List<Track> trackCollection) {
+    public void populateTrackCollection(Set<Track> trackCollection) {
         throw new UnsupportedOperationException("not implemented yet");
     }
 }

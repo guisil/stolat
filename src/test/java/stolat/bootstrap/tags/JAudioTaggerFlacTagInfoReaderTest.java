@@ -48,9 +48,6 @@ class JAudioTaggerFlacTagInfoReaderTest {
     private static final int TRACK_LENGTH = 234;
 
     @Mock
-    private Clock mockClock;
-
-    @Mock
     private FileSystemProperties mockFileSystemProperties;
 
     @Mock
@@ -73,14 +70,12 @@ class JAudioTaggerFlacTagInfoReaderTest {
     @BeforeEach
     void setUp() throws ReadOnlyFileException, IOException, TagException, InvalidAudioFrameException, CannotReadException {
 
-        final Clock fixedClock = Clock.fixed(FIXED_INSTANT, ZoneId.systemDefault());
         audioFile = new File(COLLECTION_ROOT_PATH, AUDIO_FILE_RELATIVE_PATH);
 
         lenient().when(mockAudioFileProvider.getAudioFile(audioFile)).thenReturn(mockAudioFile);
         lenient().when(mockAudioFile.getTag()).thenReturn(mockTag);
         lenient().when(mockAudioFile.getAudioHeader()).thenReturn(mockAudioHeader);
 
-        lenient().when(mockClock.instant()).thenReturn(fixedClock.instant());
         lenient().when(mockFileSystemProperties.getAlbumCollectionPath()).thenReturn(COLLECTION_ROOT_PATH);
     }
 
@@ -103,7 +98,7 @@ class JAudioTaggerFlacTagInfoReaderTest {
         final Album album = new Album(ALBUM_MBID.toString(), ALBUM_NAME, ARTIST_MBID.toString(), ARTIST_NAME);
         final Track expected = new Track(
                 TRACK_MBID.toString(), Integer.toString(DISC_NUMBER), Integer.toString(TRACK_NUMBER), TRACK_NAME,
-                TRACK_LENGTH, AUDIO_FILE_RELATIVE_PATH, album, FIXED_INSTANT);
+                TRACK_LENGTH, AUDIO_FILE_RELATIVE_PATH, album);
         initialiseTagMocks(TRACK_MBID.toString(), Integer.toString(DISC_NUMBER), Integer.toString(TRACK_NUMBER), TRACK_NAME,
                 TRACK_LENGTH, ALBUM_MBID.toString(), ALBUM_NAME, ARTIST_MBID.toString(), ARTIST_NAME);
 
@@ -148,7 +143,7 @@ class JAudioTaggerFlacTagInfoReaderTest {
         final Album album = new Album(ALBUM_MBID.toString(), ALBUM_NAME, ARTIST_MBID.toString(), ARTIST_NAME);
         final Track expected = new Track(
                 TRACK_MBID.toString(), Integer.toString(DISC_NUMBER), Integer.toString(TRACK_NUMBER), TRACK_NAME,
-                TRACK_LENGTH, AUDIO_FILE_RELATIVE_PATH, album, FIXED_INSTANT);
+                TRACK_LENGTH, AUDIO_FILE_RELATIVE_PATH, album);
         initialiseTagMocks(TRACK_MBID.toString(), null, Integer.toString(TRACK_NUMBER), TRACK_NAME,
                 TRACK_LENGTH, ALBUM_MBID.toString(), ALBUM_NAME, ARTIST_MBID.toString(), ARTIST_NAME);
 
@@ -163,7 +158,7 @@ class JAudioTaggerFlacTagInfoReaderTest {
         final Album album = new Album(ALBUM_MBID.toString(), ALBUM_NAME, ARTIST_MBID.toString(), ARTIST_NAME);
         final Track expected = new Track(
                 TRACK_MBID.toString(), Integer.toString(DISC_NUMBER), Integer.toString(TRACK_NUMBER), TRACK_NAME,
-                TRACK_LENGTH, AUDIO_FILE_RELATIVE_PATH, album, FIXED_INSTANT);
+                TRACK_LENGTH, AUDIO_FILE_RELATIVE_PATH, album);
         initialiseTagMocks(TRACK_MBID.toString(), "", Integer.toString(TRACK_NUMBER), TRACK_NAME,
                 TRACK_LENGTH, ALBUM_MBID.toString(), ALBUM_NAME, ARTIST_MBID.toString(), ARTIST_NAME);
 

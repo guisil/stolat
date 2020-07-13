@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import picocli.CommandLine;
+import stolat.bootstrap.cli.BootstrapCommand;
 
 import java.io.File;
 import java.nio.file.Path;

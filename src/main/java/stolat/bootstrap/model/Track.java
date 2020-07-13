@@ -19,18 +19,17 @@ public class Track {
     private final int trackLength;
     private final String trackRelativePath;
     private final Album album;
-    private final Instant lastUpdated;
     private int discNumber = 1;
 
     public Track(
             String trackMbidTag, String trackNumberTag,
-            String trackNameTag, int trackLength, String trackRelativePath, Album album, Instant lastUpdated) {
-        this(trackMbidTag, "", trackNumberTag, trackNameTag, trackLength, trackRelativePath, album, lastUpdated);
+            String trackNameTag, int trackLength, String trackRelativePath, Album album) {
+        this(trackMbidTag, "", trackNumberTag, trackNameTag, trackLength, trackRelativePath, album);
     }
 
     public Track(
             String trackMbidTag, String discNumberTag, String trackNumberTag,
-            String trackNameTag, int trackLength, String trackRelativePath, Album album, Instant lastUpdated) {
+            String trackNameTag, int trackLength, String trackRelativePath, Album album) {
 
         this.trackMusicBrainzId = TagValidator.getUUID(FieldKey.MUSICBRAINZ_TRACK_ID.name(), trackMbidTag);
         if (discNumberTag != null && !discNumberTag.isBlank()) {
@@ -41,7 +40,5 @@ public class Track {
         this.trackLength = TagValidator.getPositiveInteger("track length", Integer.toString(trackLength));
         this.trackRelativePath = TagValidator.getString("track relative path", trackRelativePath);
         this.album = album;
-
-        this.lastUpdated = lastUpdated;
     }
 }
