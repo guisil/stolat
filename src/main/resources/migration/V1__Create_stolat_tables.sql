@@ -25,6 +25,7 @@ CREATE TABLE local_collection_album (
 
 CREATE TABLE local_collection_track (
     track_mbid UUID PRIMARY KEY,
+    disc_number INTEGER NOT NULL,
     track_number INTEGER NOT NULL,
     track_name VARCHAR NOT NULL,
     track_length INTEGER NOT NULL,
