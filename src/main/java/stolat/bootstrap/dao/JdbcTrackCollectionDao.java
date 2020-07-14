@@ -2,6 +2,7 @@ package stolat.bootstrap.dao;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import stolat.bootstrap.model.Track;
@@ -14,15 +15,19 @@ import java.util.Set;
 @Slf4j
 public class JdbcTrackCollectionDao implements TrackCollectionDao {
 
-    @Autowired
-    private Clock clock;
+    private static final String SCHEMA_NAME = "stolat";
+    private static final String ALBUM_TABLE_NAME = "local_collection_album";
+    private static final String TRACK_TABLE_NAME = "local_collection_track";
+
+//    @Autowired
+//    private Clock clock;
 
     @Autowired
-    private NamedParameterJdbcTemplate jdbcTemplate;
+    private JdbcTemplate jdbcTemplate;
 
     @Override
     public void clearTrackCollection() {
-        throw new UnsupportedOperationException("not implemented yet");
+        jdbcTemplate.execute("TRUNCATE TABLE " + SCHEMA_NAME + "." + ALBUM_TABLE_NAME + " CASCADE");
     }
 
     @Override
