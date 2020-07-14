@@ -26,7 +26,7 @@ public class JdbcTrackCollectionDao implements TrackCollectionDao {
     }
 
     @Override
-    public void populateTrackCollection(Set<Track> trackCollection) {
+    public void populateTrackCollection(Set<Track> trackCollection, boolean force) {
         throw new UnsupportedOperationException("not implemented yet");
     }
 }

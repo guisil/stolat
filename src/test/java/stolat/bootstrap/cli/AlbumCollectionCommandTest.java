@@ -45,33 +45,41 @@ class AlbumCollectionCommandTest {
     @Test
     void shouldUpdateAlbumCollection() {
         when(mockTrackCollectionCrawler.fetchTrackCollection()).thenReturn(TRACK_COLLECTION);
-        albumCollectionCommand.updateAlbumCollectionDatabase(false);
-        verify(mockTrackCollectionDao).populateTrackCollection(TRACK_COLLECTION);
+        albumCollectionCommand.updateAlbumCollectionDatabase(false, false);
+        verify(mockTrackCollectionDao).populateTrackCollection(TRACK_COLLECTION, false);
         verifyNoMoreInteractions(mockTrackCollectionDao);
     }
 
     @Test
     void shouldRecreateAlbumCollection() {
         when(mockTrackCollectionCrawler.fetchTrackCollection()).thenReturn(TRACK_COLLECTION);
-        albumCollectionCommand.updateAlbumCollectionDatabase(true);
+        albumCollectionCommand.updateAlbumCollectionDatabase(true, false);
         verify(mockTrackCollectionDao).clearTrackCollection();
-        verify(mockTrackCollectionDao).populateTrackCollection(TRACK_COLLECTION);
+        verify(mockTrackCollectionDao).populateTrackCollection(TRACK_COLLECTION, false);
+    }
+
+    @Test
+    void shouldForceUpdateAlbumCollection() {
+        when(mockTrackCollectionCrawler.fetchTrackCollection()).thenReturn(TRACK_COLLECTION);
+        albumCollectionCommand.updateAlbumCollectionDatabase(false, true);
+        verify(mockTrackCollectionDao).populateTrackCollection(TRACK_COLLECTION, true);
+        verifyNoMoreInteractions(mockTrackCollectionDao);
     }
 
     @Test
     void shouldUpdateAlbumCollectionFromFolder() {
         when(mockTrackCollectionCrawler.fetchTrackCollection(SOME_PATH)).thenReturn(TRACK_COLLECTION);
-        albumCollectionCommand.updateAlbumCollectionDatabase(false, SOME_PATH);
-        verify(mockTrackCollectionDao).populateTrackCollection(TRACK_COLLECTION);
+        albumCollectionCommand.updateAlbumCollectionDatabase(false, SOME_PATH, false);
+        verify(mockTrackCollectionDao).populateTrackCollection(TRACK_COLLECTION, false);
         verifyNoMoreInteractions(mockTrackCollectionDao);
     }
 
     @Test
     void shouldRecreateAlbumCollectionFromFolder() {
         when(mockTrackCollectionCrawler.fetchTrackCollection(SOME_PATH)).thenReturn(TRACK_COLLECTION);
-        albumCollectionCommand.updateAlbumCollectionDatabase(true, SOME_PATH);
+        albumCollectionCommand.updateAlbumCollectionDatabase(true, SOME_PATH, false);
         verify(mockTrackCollectionDao).clearTrackCollection();
-        verify(mockTrackCollectionDao).populateTrackCollection(TRACK_COLLECTION);
+        verify(mockTrackCollectionDao).populateTrackCollection(TRACK_COLLECTION, false);
         verifyNoMoreInteractions(mockTrackCollectionDao);
     }
 }

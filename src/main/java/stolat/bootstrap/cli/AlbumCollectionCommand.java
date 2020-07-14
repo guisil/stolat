@@ -22,20 +22,20 @@ public class AlbumCollectionCommand {
     @Autowired
     private TrackCollectionCrawler trackCollectionCrawler;
 
-    public void updateAlbumCollectionDatabase(boolean recreate) {
+    public void updateAlbumCollectionDatabase(boolean truncate, boolean force) {
         Set<Track> trackCollection = trackCollectionCrawler.fetchTrackCollection();
-        updateTrackCollection(recreate, trackCollection);
+        updateTrackCollection(truncate, trackCollection, force);
     }
 
-    public void updateAlbumCollectionDatabase(boolean recreate, Path rootPath) {
+    public void updateAlbumCollectionDatabase(boolean truncate, Path rootPath, boolean force) {
         Set<Track> trackCollection = trackCollectionCrawler.fetchTrackCollection(rootPath);
-        updateTrackCollection(recreate, trackCollection);
+        updateTrackCollection(truncate, trackCollection, force);
     }
 
-    private void updateTrackCollection(boolean recreate, Set<Track> trackCollection) {
-        if (recreate) {
+    private void updateTrackCollection(boolean truncate, Set<Track> trackCollection, boolean force) {
+        if (truncate) {
             trackCollectionDao.clearTrackCollection();
         }
-        trackCollectionDao.populateTrackCollection(trackCollection);
+        trackCollectionDao.populateTrackCollection(trackCollection, force);
     }
 }

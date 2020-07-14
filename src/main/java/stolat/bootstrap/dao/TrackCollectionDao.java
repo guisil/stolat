@@ -8,5 +8,5 @@ public interface TrackCollectionDao {
 
     void clearTrackCollection();
 
-    void populateTrackCollection(Set<Track> trackCollection);
+    void populateTrackCollection(Set<Track> trackCollection, boolean force);
 }

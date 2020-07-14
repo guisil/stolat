@@ -26,7 +26,10 @@ public class BootstrapCommand implements Callable<Integer> {
     @Option(names = {"-c", "--album-collection"}, description = "populate the album collection database structures")
     public boolean albumCollection;
 
-    @Option(names = {"-f", "--force"}, description = "truncate table(s) before starting")
+    @Option(names = {"-t", "--truncate"}, description = "truncate table(s) before starting")
+    public boolean truncate;
+
+    @Option(names = {"-f", "--force"}, description = "forces an update when an album/track entry already exists")
     public boolean force;
 
     @Option(names = {"-p", "--path"}, description = "overrides the path where the album collection is to be fetched")
@@ -67,13 +70,14 @@ public class BootstrapCommand implements Callable<Integer> {
     }
 
     private void triggerAlbumCollectionUpdate() {
-        String truncateAnd = force ? "truncate and " : "";
+        String truncateAnd = truncate ? "truncate and " : "";
+        String forceUpdate = force ? "force update" : "update";
         if (path != null) {
-            log.debug("Triggered option to {}update album collection from path {}.", truncateAnd, path);
-            albumCollectionCommand.updateAlbumCollectionDatabase(force, path);
+            log.debug("Triggered option to {}{} album collection from path {}.", truncateAnd, forceUpdate, path);
+            albumCollectionCommand.updateAlbumCollectionDatabase(truncate, path, force);
         } else {
-            log.debug("Triggered option to {}update album collection from root path.", truncateAnd);
-            albumCollectionCommand.updateAlbumCollectionDatabase(force);
+            log.debug("Triggered option to {}{} album collection from root path.", truncateAnd, forceUpdate);
+            albumCollectionCommand.updateAlbumCollectionDatabase(truncate, force);
         }
     }
 }

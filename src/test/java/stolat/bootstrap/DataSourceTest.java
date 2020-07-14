@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @SpringBootTest
 @AutoConfigureEmbeddedDatabase
 @TestPropertySource("classpath:test-application.properties")
-public class DataSourcePropertiesTest {
+public class DataSourceTest {
 
     @Autowired
     private DataSource dataSource;

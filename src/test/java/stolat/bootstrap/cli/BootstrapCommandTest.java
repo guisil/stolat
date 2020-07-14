@@ -43,6 +43,16 @@ public class BootstrapCommandTest {
     }
 
     @Test
+    void shouldIgnoreTruncateOptionWhenBirthdayOptionSelected() {
+        command.albumBirthday = true;
+        command.truncate = true;
+        command.call();
+        verify(mockAlbumBirthdayCommand).updateAlbumBirthdayDatabase();
+        verifyNoMoreInteractions(mockAlbumBirthdayCommand);
+        verifyNoInteractions(mockAlbumCollectionCommand);
+    }
+
+    @Test
     void shouldIgnoreForceOptionWhenBirthdayOptionSelected() {
         command.albumBirthday = true;
         command.force = true;
@@ -56,7 +66,7 @@ public class BootstrapCommandTest {
     void shouldUpdateAlbumCollectionDatabaseWhenCollectionOptionSelected() {
         command.albumCollection = true;
         command.call();
-        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(false);
+        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(false, false);
         verifyNoMoreInteractions(mockAlbumCollectionCommand);
         verifyNoInteractions(mockAlbumBirthdayCommand);
     }
@@ -67,29 +77,51 @@ public class BootstrapCommandTest {
         command.albumCollection = true;
         command.path = path;
         command.call();
-        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(false, path);
+        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(false, path, false);
         verifyNoMoreInteractions(mockAlbumCollectionCommand);
         verifyNoInteractions(mockAlbumBirthdayCommand);
     }
 
     @Test
-    void shouldTruncateAndUpdateAlbumCollectionDatabaseWhenCollectionAndForceOptionsSelected() {
+    void shouldTruncateAndUpdateAlbumCollectionDatabaseWhenCollectionAndTruncateOptionsSelected() {
+        command.albumCollection = true;
+        command.truncate = true;
+        command.call();
+        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(true, false);
+        verifyNoMoreInteractions(mockAlbumCollectionCommand);
+        verifyNoInteractions(mockAlbumBirthdayCommand);
+    }
+
+    @Test
+    void shouldForceUpdateAlbumCollectionDatabaseWhenCollectionAndForceOptionsSelected() {
         command.albumCollection = true;
         command.force = true;
         command.call();
-        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(true);
+        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(false, true);
         verifyNoMoreInteractions(mockAlbumCollectionCommand);
         verifyNoInteractions(mockAlbumBirthdayCommand);
     }
 
     @Test
-    void shouldTruncateAndUpdateAlbumCollectionDatabaseFromFolderWhenCollectionAndForceAndPathOptionsSelected() {
+    void shouldTruncateAndUpdateAlbumCollectionDatabaseFromFolderWhenCollectionAndTruncateAndPathOptionsSelected() {
+        final Path path = Path.of(File.separator, "some", "other", "path");
+        command.albumCollection = true;
+        command.truncate = true;
+        command.path = path;
+        command.call();
+        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(true, path, false);
+        verifyNoMoreInteractions(mockAlbumCollectionCommand);
+        verifyNoInteractions(mockAlbumBirthdayCommand);
+    }
+
+    @Test
+    void shouldForceUpdateAlbumCollectionDatabaseFromFolderWhenCollectionAndForceAndPathOptionsSelected() {
         final Path path = Path.of(File.separator, "some", "other", "path");
         command.albumCollection = true;
         command.force = true;
         command.path = path;
         command.call();
-        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(true, path);
+        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(false, path, true);
         verifyNoMoreInteractions(mockAlbumCollectionCommand);
         verifyNoInteractions(mockAlbumBirthdayCommand);
     }
@@ -100,18 +132,41 @@ public class BootstrapCommandTest {
         command.albumCollection = true;
         command.call();
         verify(mockAlbumBirthdayCommand).updateAlbumBirthdayDatabase();
-        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(false);
+        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(false, false);
         verifyNoMoreInteractions(mockAlbumBirthdayCommand, mockAlbumCollectionCommand);
     }
 
     @Test
-    void shouldUpdateAlbumBirthdayAndTruncateAndUpdateAlbumCollectionWhenBothOptionsAndForceOptionSelected() {
+    void shouldUpdateAlbumBirthdayAndTruncateAndUpdateAlbumCollectionWhenBothOptionsAndTruncateOptionSelected() {
+        command.albumBirthday = true;
+        command.albumCollection = true;
+        command.truncate = true;
+        command.call();
+        verify(mockAlbumBirthdayCommand).updateAlbumBirthdayDatabase();
+        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(true, false);
+        verifyNoMoreInteractions(mockAlbumBirthdayCommand, mockAlbumCollectionCommand);
+    }
+
+    @Test
+    void shouldUpdateAlbumBirthdayAndForceUpdateAlbumCollectionWhenBothOptionsAndForceOptionSelected() {
         command.albumBirthday = true;
         command.albumCollection = true;
         command.force = true;
         command.call();
         verify(mockAlbumBirthdayCommand).updateAlbumBirthdayDatabase();
-        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(true);
+        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(false, true);
+        verifyNoMoreInteractions(mockAlbumBirthdayCommand, mockAlbumCollectionCommand);
+    }
+
+    @Test
+    void shouldUpdateAlbumBirthdayAndTruncateAndForceUpdateAlbumCollectionWhenBothOptionsAndTruncateAndForceOptionSelected() {
+        command.albumBirthday = true;
+        command.albumCollection = true;
+        command.truncate = true;
+        command.force = true;
+        command.call();
+        verify(mockAlbumBirthdayCommand).updateAlbumBirthdayDatabase();
+        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(true, true);
         verifyNoMoreInteractions(mockAlbumBirthdayCommand, mockAlbumCollectionCommand);
     }
 
@@ -123,20 +178,34 @@ public class BootstrapCommandTest {
         command.path = path;
         command.call();
         verify(mockAlbumBirthdayCommand).updateAlbumBirthdayDatabase();
-        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(false, path);
+        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(false, path, false);
         verifyNoMoreInteractions(mockAlbumBirthdayCommand, mockAlbumCollectionCommand);
     }
 
     @Test
-    void shouldUpdateAlbumBirthdayAndTruncateAndUpdateAlbumCollectionFromFolderWhenBothOptionsAndPathAndForceOptionSelected() {
+    void shouldUpdateAlbumBirthdayAndTruncateAndUpdateAlbumCollectionFromFolderWhenBothOptionsAndPathAndTruncateOptionSelected() {
         final Path path = Path.of(File.separator, "some", "other", "path");
         command.albumBirthday = true;
         command.albumCollection = true;
+        command.truncate = true;
+        command.path = path;
+        command.call();
+        verify(mockAlbumBirthdayCommand).updateAlbumBirthdayDatabase();
+        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(true, path, false);
+        verifyNoMoreInteractions(mockAlbumBirthdayCommand, mockAlbumCollectionCommand);
+    }
+
+    @Test
+    void shouldUpdateAlbumBirthdayAndTruncateAndForceUpdateAlbumCollectionFromFolderWhenBothOptionsAndPathAndTruncateAndForceOptionSelected() {
+        final Path path = Path.of(File.separator, "some", "other", "path");
+        command.albumBirthday = true;
+        command.albumCollection = true;
+        command.truncate = true;
         command.force = true;
         command.path = path;
         command.call();
         verify(mockAlbumBirthdayCommand).updateAlbumBirthdayDatabase();
-        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(true, path);
+        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(true, path, true);
         verifyNoMoreInteractions(mockAlbumBirthdayCommand, mockAlbumCollectionCommand);
     }
 
@@ -144,16 +213,35 @@ public class BootstrapCommandTest {
     void shouldUpdateAlbumBirthdayAndAlbumCollectionWhenNoOptionsSelected() {
         command.call();
         verify(mockAlbumBirthdayCommand).updateAlbumBirthdayDatabase();
-        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(false);
+        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(false, false);
         verifyNoMoreInteractions(mockAlbumBirthdayCommand, mockAlbumCollectionCommand);
     }
 
     @Test
-    void shouldUpdateAlbumBirthdayAndTruncateAndUpdateAlbumCollectionWhenOnlyForceOptionSelected() {
+    void shouldUpdateAlbumBirthdayAndTruncateAndUpdateAlbumCollectionWhenOnlyTruncateOptionSelected() {
+        command.truncate = true;
+        command.call();
+        verify(mockAlbumBirthdayCommand).updateAlbumBirthdayDatabase();
+        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(true, false);
+        verifyNoMoreInteractions(mockAlbumBirthdayCommand, mockAlbumCollectionCommand);
+    }
+
+    @Test
+    void shouldUpdateAlbumBirthdayAndForceUpdateAlbumCollectionWhenOnlyForceOptionSelected() {
         command.force = true;
         command.call();
         verify(mockAlbumBirthdayCommand).updateAlbumBirthdayDatabase();
-        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(true);
+        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(false, true);
+        verifyNoMoreInteractions(mockAlbumBirthdayCommand, mockAlbumCollectionCommand);
+    }
+
+    @Test
+    void shouldUpdateAlbumBirthdayAndTruncateAndForceUpdateAlbumCollectionWhenOnlyTruncateAndForceOptionsSelected() {
+        command.truncate = true;
+        command.force = true;
+        command.call();
+        verify(mockAlbumBirthdayCommand).updateAlbumBirthdayDatabase();
+        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(true, true);
         verifyNoMoreInteractions(mockAlbumBirthdayCommand, mockAlbumCollectionCommand);
     }
 
@@ -163,18 +251,41 @@ public class BootstrapCommandTest {
         command.path = path;
         command.call();
         verify(mockAlbumBirthdayCommand).updateAlbumBirthdayDatabase();
-        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(false, path);
+        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(false, path, false);
         verifyNoMoreInteractions(mockAlbumBirthdayCommand, mockAlbumCollectionCommand);
     }
 
     @Test
-    void shouldUpdateAlbumBirthdayAndTruncateAndUpdateAlbumCollectionFromFolderWhenOnlyPathAndForceOptionSelected() {
+    void shouldUpdateAlbumBirthdayAndTruncateAndUpdateAlbumCollectionFromFolderWhenOnlyPathAndTruncateOptionSelected() {
+        final Path path = Path.of(File.separator, "some", "other", "path");
+        command.path = path;
+        command.truncate = true;
+        command.call();
+        verify(mockAlbumBirthdayCommand).updateAlbumBirthdayDatabase();
+        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(true, path, false);
+        verifyNoMoreInteractions(mockAlbumBirthdayCommand, mockAlbumCollectionCommand);
+    }
+
+    @Test
+    void shouldUpdateAlbumBirthdayAndForceUpdateAlbumCollectionFromFolderWhenOnlyPathAndForceOptionSelected() {
         final Path path = Path.of(File.separator, "some", "other", "path");
         command.path = path;
         command.force = true;
         command.call();
         verify(mockAlbumBirthdayCommand).updateAlbumBirthdayDatabase();
-        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(true, path);
+        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(false, path, true);
+        verifyNoMoreInteractions(mockAlbumBirthdayCommand, mockAlbumCollectionCommand);
+    }
+
+    @Test
+    void shouldUpdateAlbumBirthdayAndTruncateAndForceUpdateAlbumCollectionFromFolderWhenOnlyPathAndTruncateAndForceOptionSelected() {
+        final Path path = Path.of(File.separator, "some", "other", "path");
+        command.path = path;
+        command.truncate = true;
+        command.force = true;
+        command.call();
+        verify(mockAlbumBirthdayCommand).updateAlbumBirthdayDatabase();
+        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(true, path, true);
         verifyNoMoreInteractions(mockAlbumBirthdayCommand, mockAlbumCollectionCommand);
     }
 }
