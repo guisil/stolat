@@ -14,7 +14,7 @@ CREATE INDEX IF NOT EXISTS idx_album_birthday_month
 
 -- ALBUM COLLECTION
 
-CREATE TABLE local_collection_album (
+CREATE TABLE stolat.local_collection_album (
     album_mbid UUID PRIMARY KEY,
     album_name VARCHAR NOT NULL,
     album_source VARCHAR NOT NULL,
@@ -23,7 +23,7 @@ CREATE TABLE local_collection_album (
     last_updated TIMESTAMP
 );
 
-CREATE TABLE local_collection_track (
+CREATE TABLE stolat.local_collection_track (
     track_mbid UUID PRIMARY KEY,
     disc_number INTEGER NOT NULL,
     track_number INTEGER NOT NULL,

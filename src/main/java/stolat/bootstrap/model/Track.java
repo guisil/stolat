@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.ToString;
 import org.jaudiotagger.tag.FieldKey;
 
+import java.io.File;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -18,6 +19,7 @@ public class Track {
     private final String trackName;
     private final int trackLength;
     private final String trackRelativePath;
+    private final String trackFileType;
     private final Album album;
     private int discNumber = 1;
 
@@ -39,6 +41,18 @@ public class Track {
         this.trackName = TagValidator.getString(FieldKey.TITLE.name(), trackNameTag);
         this.trackLength = TagValidator.getPositiveInteger("track length", Integer.toString(trackLength));
         this.trackRelativePath = TagValidator.getString("track relative path", trackRelativePath);
+        this.trackFileType = getFileType(trackRelativePath);
         this.album = album;
+    }
+
+    private String getFileType(String path) {
+        String extension = "";
+        if (path != null) {
+            int index = path.lastIndexOf(".");
+            if (index > -1) {
+                extension = path.substring(index, path.length());
+            }
+        }
+        return extension;
     }
 }

@@ -248,7 +248,8 @@ class JdbcTrackCollectionDaoTest {
         assertTrue(actualAlbums.contains(initialFirstAlbum));
         assertTrue(actualAlbums.contains(initialSecondAlbum));
 
-        String selectAllTracks = "SELECT * FROM " + SCHEMA_NAME + "." + ALBUM_TABLE_NAME + ", " + SCHEMA_NAME + "." + TRACK_TABLE_NAME;
+        String selectAllTracks = "SELECT * FROM " + SCHEMA_NAME + "." + TRACK_TABLE_NAME + " t" +
+                " INNER JOIN " + SCHEMA_NAME + "." + ALBUM_TABLE_NAME + " a" + " ON t.album_mbid = a.album_mbid";
         List<Track> actualTracks = jdbcTemplate.query(selectAllTracks, new TrackRowMapper());
         assertEquals(4, actualTracks.size());
         assertTrue(actualTracks.contains(initialFirstAlbumFirstTrack));
@@ -271,7 +272,8 @@ class JdbcTrackCollectionDaoTest {
         assertTrue(actualAlbums.contains(updatedFirstAlbum));
         assertTrue(actualAlbums.contains(updatedSecondAlbum));
 
-        String selectAllTracks = "SELECT * FROM " + SCHEMA_NAME + "." + ALBUM_TABLE_NAME + ", " + SCHEMA_NAME + "." + TRACK_TABLE_NAME;
+        String selectAllTracks = "SELECT * FROM " + SCHEMA_NAME + "." + TRACK_TABLE_NAME + " t" +
+                " INNER JOIN " + SCHEMA_NAME + "." + ALBUM_TABLE_NAME + " a" + " ON t.album_mbid = a.album_mbid";
         List<Track> actualTracks = jdbcTemplate.query(selectAllTracks, new TrackRowMapper());
         assertEquals(4, actualTracks.size());
         assertTrue(actualTracks.contains(updatedFirstAlbumFirstTrack));
@@ -296,7 +298,8 @@ class JdbcTrackCollectionDaoTest {
         assertTrue(actualAlbums.contains(initialSecondAlbum));
         assertTrue(actualAlbums.contains(updatedThirdAlbum));
 
-        String selectAllTracks = "SELECT * FROM " + SCHEMA_NAME + "." + ALBUM_TABLE_NAME + ", " + SCHEMA_NAME + "." + TRACK_TABLE_NAME;
+        String selectAllTracks = "SELECT * FROM " + SCHEMA_NAME + "." + TRACK_TABLE_NAME + " t" +
+                " INNER JOIN " + SCHEMA_NAME + "." + ALBUM_TABLE_NAME + " a" + " ON t.album_mbid = a.album_mbid";
         List<Track> actualTracks = jdbcTemplate.query(selectAllTracks, new TrackRowMapper());
         assertEquals(7, actualTracks.size());
         assertTrue(actualTracks.contains(initialFirstAlbumFirstTrack));
