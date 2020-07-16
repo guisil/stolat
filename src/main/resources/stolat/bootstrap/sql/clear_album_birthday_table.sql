@@ -1,1 +1,1 @@
-DELETE FROM stolat.album_birthday;
+TRUNCATE TABLE stolat.album_birthday;
