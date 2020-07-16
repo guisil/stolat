@@ -15,7 +15,7 @@ import static org.awaitility.Awaitility.await;
 import static org.awaitility.Awaitility.fieldIn;
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
+@SpringBootTest(args = "")
 @AutoConfigureEmbeddedDatabase
 @TestPropertySource("classpath:test-application.properties")
 public class StolatBootstrapApplicationNoArgsTest {
