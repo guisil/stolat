@@ -1,0 +1,1 @@
+DELETE FROM stolat.album_birthday;

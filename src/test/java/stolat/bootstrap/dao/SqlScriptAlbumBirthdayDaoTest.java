@@ -17,6 +17,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class SqlScriptAlbumBirthdayDaoTest {
 
+    private static final String CLEAR_ALBUM_BIRTHDAY_SCRIPT = "clear_album_birthday_script.sql";
     private static final String POPULATE_ALBUM_BIRTHDAY_SCRIPT = "populate_album_birthday_script.sql";
 
     @Mock
@@ -29,8 +30,10 @@ class SqlScriptAlbumBirthdayDaoTest {
     private SqlScriptAlbumBirthdayDao albumBirthdayDao;
 
     @Test
-    void shouldClearAlbumBirthdays() {
-        fail("not tested yet");
+    void shouldClearAlbumBirthdays() throws SQLException {
+        when(mockSqlProperties.getClearAlbumBirthdayScript()).thenReturn(CLEAR_ALBUM_BIRTHDAY_SCRIPT);
+        albumBirthdayDao.clearAlbumBirthdays();
+        verify(mockSqlScriptRunner).runSqlScript(CLEAR_ALBUM_BIRTHDAY_SCRIPT);
     }
 
     @Test

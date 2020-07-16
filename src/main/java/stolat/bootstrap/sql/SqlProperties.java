@@ -11,5 +11,6 @@ import org.springframework.context.annotation.Configuration;
 @Setter
 public class SqlProperties {
 
+    private String clearAlbumBirthdayScript;
     private String populateAlbumBirthdayScript;
 }

@@ -5,6 +5,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.ExitCodeGenerator;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import picocli.CommandLine;
 import stolat.bootstrap.cli.BootstrapCommand;
 
 import static picocli.CommandLine.IFactory;
@@ -28,7 +29,7 @@ public class StoLatBootstrapApplication implements CommandLineRunner, ExitCodeGe
 
     @Override
     public void run(String... args) throws Exception {
-//        exitCode = new CommandLine(bootstrapCommand, factory).execute(args);
+        exitCode = new CommandLine(bootstrapCommand, factory).execute(args);
         log.info("Launching application");
     }
 

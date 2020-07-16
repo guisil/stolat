@@ -14,14 +14,13 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.time.Instant;
 import java.util.Set;
+import java.util.StringJoiner;
+
+import static stolat.bootstrap.dao.DatabaseConstants.*;
 
 @Repository
 @Slf4j
 public class JdbcTrackCollectionDao implements TrackCollectionDao {
-
-    private static final String SCHEMA_NAME = "stolat";
-    private static final String ALBUM_TABLE_NAME = "local_collection_album";
-    private static final String TRACK_TABLE_NAME = "local_collection_track";
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -31,11 +30,13 @@ public class JdbcTrackCollectionDao implements TrackCollectionDao {
 
     @Override
     public void clearTrackCollection() {
-        jdbcTemplate.execute("TRUNCATE TABLE " + SCHEMA_NAME + "." + ALBUM_TABLE_NAME + " CASCADE");
+        log.info("Clearing album/track collection");
+        jdbcTemplate.execute("TRUNCATE TABLE " + ALBUM_TABLE_FULL_NAME + " CASCADE");
     }
 
     @Override
     public void populateTrackCollection(Set<Track> trackCollection, boolean force) {
+        log.info("Populating album/track collection{}", force ? " (forcing update)" : "");
         trackCollection.forEach(track -> {
             namedParameterJdbcTemplate.update(
                     getAlbumInsertStatement(track.getAlbum(), force),
@@ -49,22 +50,35 @@ public class JdbcTrackCollectionDao implements TrackCollectionDao {
     private String getAlbumInsertStatement(Album album, boolean force) {
         return new StringBuilder()
                 .append("INSERT INTO ")
-                .append("stolat.local_collection_album")
-                .append(" VALUES (:album_mbid, :album_name, :album_source, :artist_mbid, :artist_name, :last_updated)")
-                .append(" ON CONFLICT (album_mbid) ")
-                .append( getAlbumOnConflictStatement(album, force))
+                .append(ALBUM_TABLE_FULL_NAME)
+                .append(" VALUES ").append(getAlbumInsertValues())
+                .append(" ON CONFLICT (").append(ALBUM_MBID_COLUMN).append(") ")
+                .append(getAlbumOnConflictStatement(album, force))
+                .toString();
+    }
+
+    private String getAlbumInsertValues() {
+        return new StringJoiner(",", "(", ")")
+                .add(":" + ALBUM_MBID_COLUMN)
+                .add(":" + ALBUM_NAME_COLUMN)
+                .add(":" + ALBUM_SOURCE_COLUMN)
+                .add(":" + ARTIST_MBID_COLUMN)
+                .add(":" + ARTIST_NAME_COLUMN)
+                .add(":" + LAST_UPDATED_COLUMN)
                 .toString();
     }
 
     private String getAlbumOnConflictStatement(Album album, boolean force) {
         if (force) {
-            return "DO UPDATE SET" +
-                    " album_mbid = :album_mbid," +
-                    " album_name = :album_name," +
-                    " album_source = :album_source," +
-                    " artist_mbid = :artist_mbid," +
-                    " artist_name = :artist_name," +
-                    " last_updated = :last_updated";
+            return "DO UPDATE SET " +
+                    new StringJoiner(",")
+                            .add(ALBUM_MBID_COLUMN + "=:" + ALBUM_MBID_COLUMN)
+                            .add(ALBUM_NAME_COLUMN + "=:" + ALBUM_NAME_COLUMN)
+                            .add(ALBUM_SOURCE_COLUMN + "=:" + ALBUM_SOURCE_COLUMN)
+                            .add(ARTIST_MBID_COLUMN + "=:" + ARTIST_MBID_COLUMN)
+                            .add(ARTIST_NAME_COLUMN + "=:" + ARTIST_NAME_COLUMN)
+                            .add(LAST_UPDATED_COLUMN + "=:" + LAST_UPDATED_COLUMN)
+                            .toString();
         } else {
             return "DO NOTHING";
         }
@@ -72,36 +86,52 @@ public class JdbcTrackCollectionDao implements TrackCollectionDao {
 
     private SqlParameterSource getAlbumInsertNamedParameters(Album album) {
         return new MapSqlParameterSource()
-                .addValue("album_mbid", album.getAlbumMusicBrainzId(), Types.OTHER, "uuid")
-                .addValue("album_name", album.getAlbumName())
-                .addValue("album_source", "local")
-                .addValue("artist_mbid", album.getArtistMusicBrainzId(), Types.OTHER, "uuid")
-                .addValue("artist_name", album.getArtistName())
-                .addValue("last_updated", Timestamp.from(Instant.now()));
+                .addValue(ALBUM_MBID_COLUMN, album.getAlbumMusicBrainzId(), Types.OTHER, MBID_SQL_TYPE)
+                .addValue(ALBUM_NAME_COLUMN, album.getAlbumName())
+                .addValue(ALBUM_SOURCE_COLUMN, LOCAL_ALBUM_SOURCE)
+                .addValue(ARTIST_MBID_COLUMN, album.getArtistMusicBrainzId(), Types.OTHER, MBID_SQL_TYPE)
+                .addValue(ARTIST_NAME_COLUMN, album.getArtistName())
+                .addValue(LAST_UPDATED_COLUMN, Timestamp.from(Instant.now()));
     }
 
     private String getTrackInsertStatement(Track track, boolean force) {
         return new StringBuilder()
                 .append("INSERT INTO ")
-                .append("stolat.local_collection_track")
-                .append(" VALUES (:track_mbid, :disc_number, :track_number, :track_name, :track_length, :track_file_type, :track_path, :album_mbid, :last_updated)")
-                .append(" ON CONFLICT (track_mbid) ")
-                .append( getTrackOnConflictStatement(force))
+                .append(TRACK_TABLE_FULL_NAME)
+                .append(" VALUES ").append(getTrackInsertValues())
+                .append(" ON CONFLICT (").append(TRACK_MBID_COLUMN).append(") ")
+                .append(getTrackOnConflictStatement(force))
+                .toString();
+    }
+
+    private String getTrackInsertValues() {
+        return new StringJoiner(",", "(", ")")
+                .add(":" + TRACK_MBID_COLUMN)
+                .add(":" + DISC_NUMBER_COLUMN)
+                .add(":" + TRACK_NUMBER_COLUMN)
+                .add(":" + TRACK_NAME_COLUMN)
+                .add(":" + TRACK_LENGTH_COLUMN)
+                .add(":" + TRACK_FILE_TYPE_COLUMN)
+                .add(":" + TRACK_PATH_COLUMN)
+                .add(":" + ALBUM_MBID_COLUMN)
+                .add(":" + LAST_UPDATED_COLUMN)
                 .toString();
     }
 
     private String getTrackOnConflictStatement(boolean force) {
         if (force) {
-            return "DO UPDATE SET" +
-                    " track_mbid = :track_mbid," +
-                    " disc_number = :disc_number," +
-                    " track_number = :track_number," +
-                    " track_name = :track_name," +
-                    " track_length = :track_length," +
-                    " track_file_type = :track_file_type," +
-                    " track_path = :track_path," +
-                    " album_mbid = :album_mbid," +
-                    " last_updated = :last_updated";
+            return "DO UPDATE SET " +
+                    new StringJoiner(",")
+                            .add(TRACK_MBID_COLUMN + "=:" + TRACK_MBID_COLUMN)
+                            .add(DISC_NUMBER_COLUMN + "=:" + DISC_NUMBER_COLUMN)
+                            .add(TRACK_NUMBER_COLUMN + "=:" + TRACK_NUMBER_COLUMN)
+                            .add(TRACK_NAME_COLUMN + "=:" + TRACK_NAME_COLUMN)
+                            .add(TRACK_LENGTH_COLUMN + "=:" + TRACK_LENGTH_COLUMN)
+                            .add(TRACK_FILE_TYPE_COLUMN + "=:" + TRACK_FILE_TYPE_COLUMN)
+                            .add(TRACK_PATH_COLUMN + "=:" + TRACK_PATH_COLUMN)
+                            .add(ALBUM_MBID_COLUMN + "=:" + ALBUM_MBID_COLUMN)
+                            .add(LAST_UPDATED_COLUMN + "=:" + LAST_UPDATED_COLUMN)
+                            .toString();
         } else {
             return "DO NOTHING";
         }
@@ -109,14 +139,14 @@ public class JdbcTrackCollectionDao implements TrackCollectionDao {
 
     private SqlParameterSource getTrackInsertNamedParameters(Track track) {
         return new MapSqlParameterSource()
-                .addValue("track_mbid", track.getTrackMusicBrainzId())
-                .addValue("disc_number", track.getDiscNumber())
-                .addValue("track_number", track.getTrackNumber())
-                .addValue("track_name", track.getTrackName())
-                .addValue("track_length", track.getTrackLength())
-                .addValue("track_file_type", track.getTrackFileType())
-                .addValue("track_path", track.getTrackRelativePath())
-                .addValue("album_mbid", track.getAlbum().getAlbumMusicBrainzId())
-                .addValue("last_updated", Timestamp.from(Instant.now()));
+                .addValue(TRACK_MBID_COLUMN, track.getTrackMusicBrainzId(), Types.OTHER, MBID_SQL_TYPE)
+                .addValue(DISC_NUMBER_COLUMN, track.getDiscNumber())
+                .addValue(TRACK_NUMBER_COLUMN, track.getTrackNumber())
+                .addValue(TRACK_NAME_COLUMN, track.getTrackName())
+                .addValue(TRACK_LENGTH_COLUMN, track.getTrackLength())
+                .addValue(TRACK_FILE_TYPE_COLUMN, track.getTrackFileType())
+                .addValue(TRACK_PATH_COLUMN, track.getTrackRelativePath())
+                .addValue(ALBUM_MBID_COLUMN, track.getAlbum().getAlbumMusicBrainzId(), Types.OTHER, MBID_SQL_TYPE)
+                .addValue(LAST_UPDATED_COLUMN, Timestamp.from(Instant.now()));
     }
 }

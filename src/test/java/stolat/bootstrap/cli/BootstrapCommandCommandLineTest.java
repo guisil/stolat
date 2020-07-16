@@ -1,4 +1,4 @@
-package stolat.bootstrap;
+package stolat.bootstrap.cli;
 
 
 import io.zonky.test.db.AutoConfigureEmbeddedDatabase;
@@ -20,7 +20,7 @@ import static picocli.CommandLine.ParseResult;
 @SpringBootTest
 @AutoConfigureEmbeddedDatabase
 @TestPropertySource("classpath:test-application.properties")
-class StoLatBootstrapApplicationTests {
+class BootstrapCommandCommandLineTest {
 
     @Autowired
     private IFactory factory;
@@ -101,10 +101,5 @@ class StoLatBootstrapApplicationTests {
     void shouldParseVerboseForceCommandLineOption() {
         ParseResult parseResult = new CommandLine(command, factory).parseArgs("--force");
         assertTrue(command.force);
-    }
-
-    @Test
-    void otherCommandLineArgs() {
-        fail("not tested yet");
     }
 }

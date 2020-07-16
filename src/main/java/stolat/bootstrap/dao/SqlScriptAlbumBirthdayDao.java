@@ -20,12 +20,19 @@ public class SqlScriptAlbumBirthdayDao implements AlbumBirthdayDao {
 
     @Override
     public void clearAlbumBirthdays() {
-        throw new UnsupportedOperationException("not implemented yet");
+        final var clearAlbumBirthdayScript = sqlProperties.getClearAlbumBirthdayScript();
+        log.info("Executing SQL script ({}) for clearing album birthdays", clearAlbumBirthdayScript);
+        executeSqlScript(clearAlbumBirthdayScript);
     }
 
     @Override
     public void populateAlbumBirthdays() {
-        String populateAlbumBirthdayScript = sqlProperties.getPopulateAlbumBirthdayScript();
+        final var populateAlbumBirthdayScript = sqlProperties.getPopulateAlbumBirthdayScript();
+        log.info("Executing SQL script ({}) for populating album birthdays", populateAlbumBirthdayScript);
+        executeSqlScript(populateAlbumBirthdayScript);
+    }
+
+    private void executeSqlScript(String populateAlbumBirthdayScript) {
         try {
             sqlScriptRunner.runSqlScript(populateAlbumBirthdayScript);
         } catch (SQLException ex) {

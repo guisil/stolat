@@ -24,17 +24,15 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static stolat.bootstrap.dao.DatabaseConstants.*;
 
 
 @SpringBootTest
 @AutoConfigureEmbeddedDatabase
 @TestPropertySource("classpath:test-application.properties")
 class JdbcTrackCollectionDaoTest {
-
-    private static final String SCHEMA_NAME = "stolat";
-    private static final String ALBUM_TABLE_NAME = "local_collection_album";
-    private static final String TRACK_TABLE_NAME = "local_collection_track";
 
     private static final String SOME_ARTIST_NAME = "Some Artist";
     private static final String FIRST_ALBUM_NAME = "First Album";
@@ -51,7 +49,6 @@ class JdbcTrackCollectionDaoTest {
     private static final String THIRD_ALBUM_SECOND_TRACK_NAME = "This one is not as good as the previous one";
     private static final String THIRD_ALBUM_THIRD_TRACK_NAME = "Completely unnecessary track";
 
-    private static final String ALBUM_SOURCE = "local";
     private static final String TRACK_FILE_TYPE = "flac";
 
     private Album initialFirstAlbum;
@@ -86,9 +83,9 @@ class JdbcTrackCollectionDaoTest {
 
     @AfterEach
     void tearDown() {
-        String deleteTracks = "DELETE FROM " + SCHEMA_NAME + "." + TRACK_TABLE_NAME;
+        String deleteTracks = "DELETE FROM " + TRACK_TABLE_FULL_NAME;
         jdbcTemplate.execute(deleteTracks);
-        String deleteAlbums = "DELETE FROM " + SCHEMA_NAME + "." + ALBUM_TABLE_NAME;
+        String deleteAlbums = "DELETE FROM " + ALBUM_TABLE_FULL_NAME;
         jdbcTemplate.execute(deleteAlbums);
     }
 
@@ -131,8 +128,8 @@ class JdbcTrackCollectionDaoTest {
         insertTrack(initialSecondAlbumFirstTrack, oneHourAgo);
         insertTrack(initialSecondAlbumSecondTrack, oneHourAgo);
 
-        String selectTrackCount = "SELECT COUNT(*) FROM " + SCHEMA_NAME + "." + TRACK_TABLE_NAME;
-        String selectAlbumCount = "SELECT COUNT(*) FROM " + SCHEMA_NAME + "." + ALBUM_TABLE_NAME;
+        String selectTrackCount = "SELECT COUNT(*) FROM " + TRACK_TABLE_FULL_NAME;
+        String selectAlbumCount = "SELECT COUNT(*) FROM " + ALBUM_TABLE_FULL_NAME;
         assertEquals(4, jdbcTemplate.queryForObject(selectTrackCount, Integer.TYPE));
         assertEquals(2, jdbcTemplate.queryForObject(selectAlbumCount, Integer.TYPE));
     }
@@ -161,7 +158,7 @@ class JdbcTrackCollectionDaoTest {
                 UUID.randomUUID().toString(), "Some totally different Artist");
         updatedSecondAlbumFirstTrack = new Track(
                 initialSecondAlbumFirstTrack.getTrackMusicBrainzId().toString(), "1", "1",
-                "Something Else entirely",111,
+                "Something Else entirely", 111,
                 Path.of(SOME_OTHER_ARTIST_NAME, SECOND_ALBUM_NAME, "Something Else entirely" + "." + TRACK_FILE_TYPE).toString(),
                 updatedSecondAlbum);
         updatedSecondAlbumSecondTrack = new Track(
@@ -194,33 +191,33 @@ class JdbcTrackCollectionDaoTest {
         SimpleJdbcInsert albumInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withSchemaName(SCHEMA_NAME)
                 .withTableName(ALBUM_TABLE_NAME)
-                .usingColumns("album_mbid", "album_name", "album_source", "artist_mbid", "artist_name", "last_updated");
+                .usingColumns(ALBUM_MBID_COLUMN, ALBUM_NAME_COLUMN, ALBUM_SOURCE_COLUMN, ARTIST_MBID_COLUMN, ARTIST_NAME_COLUMN, LAST_UPDATED_COLUMN);
         MapSqlParameterSource albumParameterSource = new MapSqlParameterSource();
-        albumParameterSource.addValue("album_mbid", album.getAlbumMusicBrainzId());
-        albumParameterSource.addValue("album_name", album.getAlbumName());
-        albumParameterSource.addValue("album_source", ALBUM_SOURCE);
-        albumParameterSource.addValue("artist_mbid", album.getArtistMusicBrainzId());
-        albumParameterSource.addValue("artist_name", album.getArtistName());
-        albumParameterSource.addValue("last_updated", Timestamp.from(instant));
+        albumParameterSource.addValue(ALBUM_MBID_COLUMN, album.getAlbumMusicBrainzId());
+        albumParameterSource.addValue(ALBUM_NAME_COLUMN, album.getAlbumName());
+        albumParameterSource.addValue(ALBUM_SOURCE_COLUMN, LOCAL_ALBUM_SOURCE);
+        albumParameterSource.addValue(ARTIST_MBID_COLUMN, album.getArtistMusicBrainzId());
+        albumParameterSource.addValue(ARTIST_NAME_COLUMN, album.getArtistName());
+        albumParameterSource.addValue(LAST_UPDATED_COLUMN, Timestamp.from(instant));
 
         albumInsert.execute(albumParameterSource);
     }
 
     private void insertTrack(Track track, Instant instant) {
+        MapSqlParameterSource trackParameterSource = new MapSqlParameterSource();
         SimpleJdbcInsert trackInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withSchemaName(SCHEMA_NAME)
                 .withTableName(TRACK_TABLE_NAME)
-                .usingColumns("track_mbid", "disc_number", "track_number", "track_name", "track_length", "track_file_type", "track_path", "album_mbid", "last_updated");
-        MapSqlParameterSource trackParameterSource = new MapSqlParameterSource();
-        trackParameterSource.addValue("track_mbid", track.getTrackMusicBrainzId());
-        trackParameterSource.addValue("disc_number", track.getDiscNumber());
-        trackParameterSource.addValue("track_number", track.getTrackNumber());
-        trackParameterSource.addValue("track_name", track.getTrackName());
-        trackParameterSource.addValue("track_length", track.getTrackLength());
-        trackParameterSource.addValue("track_file_type", TRACK_FILE_TYPE);
-        trackParameterSource.addValue("track_path", track.getTrackRelativePath());
-        trackParameterSource.addValue("album_mbid", track.getAlbum().getAlbumMusicBrainzId());
-        trackParameterSource.addValue("last_updated", Timestamp.from(instant));
+                .usingColumns(TRACK_MBID_COLUMN, DISC_NUMBER_COLUMN, TRACK_NUMBER_COLUMN, TRACK_NAME_COLUMN, TRACK_LENGTH_COLUMN, TRACK_FILE_TYPE_COLUMN, TRACK_PATH_COLUMN, ALBUM_MBID_COLUMN, LAST_UPDATED_COLUMN);
+        trackParameterSource.addValue(TRACK_MBID_COLUMN, track.getTrackMusicBrainzId());
+        trackParameterSource.addValue(DISC_NUMBER_COLUMN, track.getDiscNumber());
+        trackParameterSource.addValue(TRACK_NUMBER_COLUMN, track.getTrackNumber());
+        trackParameterSource.addValue(TRACK_NAME_COLUMN, track.getTrackName());
+        trackParameterSource.addValue(TRACK_LENGTH_COLUMN, track.getTrackLength());
+        trackParameterSource.addValue(TRACK_FILE_TYPE_COLUMN, TRACK_FILE_TYPE);
+        trackParameterSource.addValue(TRACK_PATH_COLUMN, track.getTrackRelativePath());
+        trackParameterSource.addValue(ALBUM_MBID_COLUMN, track.getAlbum().getAlbumMusicBrainzId());
+        trackParameterSource.addValue(LAST_UPDATED_COLUMN, Timestamp.from(instant));
 
         trackInsert.execute(trackParameterSource);
     }
@@ -228,8 +225,8 @@ class JdbcTrackCollectionDaoTest {
     @Test
     void shouldClearTrackCollection() {
         trackCollectionDao.clearTrackCollection();
-        String selectTrackCount = "SELECT COUNT(*) FROM " + SCHEMA_NAME + "." + TRACK_TABLE_NAME;
-        String selectAlbumCount = "SELECT COUNT(*) FROM " + SCHEMA_NAME + "." + ALBUM_TABLE_NAME;
+        String selectTrackCount = "SELECT COUNT(*) FROM " + TRACK_TABLE_FULL_NAME;
+        String selectAlbumCount = "SELECT COUNT(*) FROM " + ALBUM_TABLE_FULL_NAME;
         assertEquals(0, jdbcTemplate.queryForObject(selectTrackCount, Integer.TYPE));
         assertEquals(0, jdbcTemplate.queryForObject(selectAlbumCount, Integer.TYPE));
     }
@@ -242,14 +239,14 @@ class JdbcTrackCollectionDaoTest {
 
         trackCollectionDao.populateTrackCollection(sameTracksWithSomeChanges, false);
 
-        String selectAllAlbums = "SELECT * FROM " + SCHEMA_NAME + "." + ALBUM_TABLE_NAME;
+        String selectAllAlbums = "SELECT * FROM " + ALBUM_TABLE_FULL_NAME;
         List<Album> actualAlbums = jdbcTemplate.query(selectAllAlbums, new AlbumRowMapper());
         assertEquals(2, actualAlbums.size());
         assertTrue(actualAlbums.contains(initialFirstAlbum));
         assertTrue(actualAlbums.contains(initialSecondAlbum));
 
-        String selectAllTracks = "SELECT * FROM " + SCHEMA_NAME + "." + TRACK_TABLE_NAME + " t" +
-                " INNER JOIN " + SCHEMA_NAME + "." + ALBUM_TABLE_NAME + " a" + " ON t.album_mbid = a.album_mbid";
+        String selectAllTracks = "SELECT * FROM " + TRACK_TABLE_FULL_NAME + " t" +
+                " INNER JOIN " + ALBUM_TABLE_FULL_NAME + " a" + " ON t." + ALBUM_MBID_COLUMN + " = a." + ALBUM_MBID_COLUMN;
         List<Track> actualTracks = jdbcTemplate.query(selectAllTracks, new TrackRowMapper());
         assertEquals(4, actualTracks.size());
         assertTrue(actualTracks.contains(initialFirstAlbumFirstTrack));
@@ -266,14 +263,14 @@ class JdbcTrackCollectionDaoTest {
 
         trackCollectionDao.populateTrackCollection(sameTracksWithSomeChanges, true);
 
-        String selectAllAlbums = "SELECT * FROM " + SCHEMA_NAME + "." + ALBUM_TABLE_NAME;
+        String selectAllAlbums = "SELECT * FROM " + ALBUM_TABLE_FULL_NAME;
         List<Album> actualAlbums = jdbcTemplate.query(selectAllAlbums, new AlbumRowMapper());
         assertEquals(2, actualAlbums.size());
         assertTrue(actualAlbums.contains(updatedFirstAlbum));
         assertTrue(actualAlbums.contains(updatedSecondAlbum));
 
-        String selectAllTracks = "SELECT * FROM " + SCHEMA_NAME + "." + TRACK_TABLE_NAME + " t" +
-                " INNER JOIN " + SCHEMA_NAME + "." + ALBUM_TABLE_NAME + " a" + " ON t.album_mbid = a.album_mbid";
+        String selectAllTracks = "SELECT * FROM " + TRACK_TABLE_FULL_NAME + " t" +
+                " INNER JOIN " + ALBUM_TABLE_FULL_NAME + " a" + " ON t." + ALBUM_MBID_COLUMN + " = a." + ALBUM_MBID_COLUMN;
         List<Track> actualTracks = jdbcTemplate.query(selectAllTracks, new TrackRowMapper());
         assertEquals(4, actualTracks.size());
         assertTrue(actualTracks.contains(updatedFirstAlbumFirstTrack));
@@ -291,15 +288,15 @@ class JdbcTrackCollectionDaoTest {
 
         trackCollectionDao.populateTrackCollection(sameTracksPlusNewTracks, false);
 
-        String selectAllAlbums = "SELECT * FROM " + SCHEMA_NAME + "." + ALBUM_TABLE_NAME;
+        String selectAllAlbums = "SELECT * FROM " + ALBUM_TABLE_FULL_NAME;
         List<Album> actualAlbums = jdbcTemplate.query(selectAllAlbums, new AlbumRowMapper());
         assertEquals(3, actualAlbums.size());
         assertTrue(actualAlbums.contains(initialFirstAlbum));
         assertTrue(actualAlbums.contains(initialSecondAlbum));
         assertTrue(actualAlbums.contains(updatedThirdAlbum));
 
-        String selectAllTracks = "SELECT * FROM " + SCHEMA_NAME + "." + TRACK_TABLE_NAME + " t" +
-                " INNER JOIN " + SCHEMA_NAME + "." + ALBUM_TABLE_NAME + " a" + " ON t.album_mbid = a.album_mbid";
+        String selectAllTracks = "SELECT * FROM " + TRACK_TABLE_FULL_NAME + " t" +
+                " INNER JOIN " + ALBUM_TABLE_FULL_NAME + " a" + " ON t." + ALBUM_MBID_COLUMN + " = a." + ALBUM_MBID_COLUMN;
         List<Track> actualTracks = jdbcTemplate.query(selectAllTracks, new TrackRowMapper());
         assertEquals(7, actualTracks.size());
         assertTrue(actualTracks.contains(initialFirstAlbumFirstTrack));
@@ -315,10 +312,10 @@ class JdbcTrackCollectionDaoTest {
 
         @Override
         public Album mapRow(ResultSet resultSet, int i) throws SQLException {
-            final UUID albumMbid = resultSet.getObject("album_mbid", UUID.class);
-            final String albumName = resultSet.getString("album_name");
-            final UUID artistMbid = resultSet.getObject("artist_mbid", UUID.class);
-            final String artistName = resultSet.getString("artist_name");
+            final UUID albumMbid = resultSet.getObject(ALBUM_MBID_COLUMN, UUID.class);
+            final String albumName = resultSet.getString(ALBUM_NAME_COLUMN);
+            final UUID artistMbid = resultSet.getObject(ARTIST_MBID_COLUMN, UUID.class);
+            final String artistName = resultSet.getString(ARTIST_NAME_COLUMN);
             return new Album(
                     albumMbid.toString(), albumName,
                     artistMbid.toString(), artistName);
@@ -329,12 +326,12 @@ class JdbcTrackCollectionDaoTest {
 
         @Override
         public Track mapRow(ResultSet resultSet, int i) throws SQLException {
-            final UUID trackMbid = resultSet.getObject("track_mbid", UUID.class);
-            final int discNumber = resultSet.getInt("disc_number");
-            final int trackNumber = resultSet.getInt("track_number");
-            final String trackName = resultSet.getString("track_name");
-            final int trackLength = resultSet.getInt("track_length");
-            final Path trackPath = Path.of(resultSet.getString("track_path"));
+            final UUID trackMbid = resultSet.getObject(TRACK_MBID_COLUMN, UUID.class);
+            final int discNumber = resultSet.getInt(DISC_NUMBER_COLUMN);
+            final int trackNumber = resultSet.getInt(TRACK_NUMBER_COLUMN);
+            final String trackName = resultSet.getString(TRACK_NAME_COLUMN);
+            final int trackLength = resultSet.getInt(TRACK_LENGTH_COLUMN);
+            final Path trackPath = Path.of(resultSet.getString(TRACK_PATH_COLUMN));
             final Album album = new AlbumRowMapper().mapRow(resultSet, i);
             return new Track(
                     trackMbid.toString(),

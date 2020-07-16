@@ -8,6 +8,7 @@ spring.datasource.password=password
 spring.flyway.default-schema=stolat
 spring.flyway.schemas=stolat
 
+sql.clear-album-birthday-script=clear_album_birthday_table.sql
 sql.populate-album-birthday-script=populate_album_birthday_table.sql
 
 filesystem.album-collection-path=/path/to/music/collection

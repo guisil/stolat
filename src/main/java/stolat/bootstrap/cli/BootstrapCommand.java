@@ -5,7 +5,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
-import java.util.concurrent.Callable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.*;
 
 import static picocli.CommandLine.Command;
 import static picocli.CommandLine.Option;
@@ -35,17 +37,22 @@ public class BootstrapCommand implements Callable<Integer> {
     @Option(names = {"-p", "--path"}, description = "overrides the path where the album collection is to be fetched")
     public Path path;
 
+    @Option(names = "--spring.config.location", hidden = true)
+    private String springConfigLocation;
+
+//    @Option(names = {"-h", "--help"}, usageHelp = true, description = "display a help message")
+//    private boolean help;
+
     @Autowired
     private AlbumBirthdayCommand albumBirthdayCommand;
 
     @Autowired
     private AlbumCollectionCommand albumCollectionCommand;
 
-    @Option(names = "--spring.config.location", hidden = true)
-    private String springConfigLocation;
+    private List<Future<?>> futures = new ArrayList<>();
 
-//    @Option(names = {"-h", "--help"}, usageHelp = true, description = "display a help message")
-//    private boolean help;
+    private ExecutorService albumBirthdayExecutor = Executors.newSingleThreadExecutor();
+    private ExecutorService albumCollectionExecutor = Executors.newSingleThreadExecutor();
 
     @Override
     public Integer call() {
@@ -66,7 +73,7 @@ public class BootstrapCommand implements Callable<Integer> {
 
     private void triggerAlbumBirthdayUpdate() {
         log.debug("Triggered option to update album birthdays.");
-        albumBirthdayCommand.updateAlbumBirthdayDatabase();
+        futures.add(albumBirthdayExecutor.submit(albumBirthdayCommand::updateAlbumBirthdayDatabase));
     }
 
     private void triggerAlbumCollectionUpdate() {
@@ -74,10 +81,10 @@ public class BootstrapCommand implements Callable<Integer> {
         String forceUpdate = force ? "force update" : "update";
         if (path != null) {
             log.debug("Triggered option to {}{} album collection from path {}.", truncateAnd, forceUpdate, path);
-            albumCollectionCommand.updateAlbumCollectionDatabase(truncate, path, force);
+            futures.add(albumCollectionExecutor.submit(() -> albumCollectionCommand.updateAlbumCollectionDatabase(truncate, path, force)));
         } else {
             log.debug("Triggered option to {}{} album collection from root path.", truncateAnd, forceUpdate);
-            albumCollectionCommand.updateAlbumCollectionDatabase(truncate, force);
+            futures.add(albumCollectionExecutor.submit(() -> albumCollectionCommand.updateAlbumCollectionDatabase(truncate, force)));
         }
     }
 }
