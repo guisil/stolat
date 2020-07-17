@@ -24,6 +24,9 @@ public class StolatBootstrapApplicationAlbumCollectionTruncateForcePathTest {
     @Autowired
     private BootstrapCommand command;
 
+    @Autowired
+    private StoLatBootstrapApplication application;
+
     @Test
     void shouldUpdateAlbumBirthdayDatabaseWhenBirthdayOptionSelected() throws Exception {
         waitForExecutorsToFinish();
@@ -32,6 +35,8 @@ public class StolatBootstrapApplicationAlbumCollectionTruncateForcePathTest {
         assertTrue(command.truncate);
         assertTrue(command.force);
         assertEquals(Path.of("testpath"), command.path);
+
+        assertEquals(0, application.getExitCode());
     }
 
     private void waitForExecutorsToFinish() {

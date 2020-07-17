@@ -7,7 +7,9 @@ import org.springframework.stereotype.Component;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static picocli.CommandLine.Command;
 import static picocli.CommandLine.Option;
@@ -49,13 +51,15 @@ public class BootstrapCommand implements Callable<Integer> {
     @Autowired
     private AlbumCollectionCommand albumCollectionCommand;
 
-    private List<Future<?>> futures = new ArrayList<>();
+    private final List<CompletableFuture<Void>> futures = new ArrayList<>();
 
-    private ExecutorService albumBirthdayExecutor = Executors.newSingleThreadExecutor();
-    private ExecutorService albumCollectionExecutor = Executors.newSingleThreadExecutor();
+//    private ExecutorService albumBirthdayExecutor = Executors.newSingleThreadExecutor();
+//    private ExecutorService albumCollectionExecutor = Executors.newSingleThreadExecutor();
 
     @Override
     public Integer call() {
+
+        final AtomicInteger exitCode = new AtomicInteger(0);
 
         if (albumBirthday) {
             triggerAlbumBirthdayUpdate();
@@ -68,23 +72,37 @@ public class BootstrapCommand implements Callable<Integer> {
             triggerAlbumCollectionUpdate();
         }
 
-        return 0;
+        CompletableFuture
+                .allOf(futures.stream().toArray(CompletableFuture[]::new))
+                .exceptionallyAsync(ex -> {
+                    log.error("Error during thread execution");
+                    exitCode.set(1);
+                    return null;
+                });
+
+        return exitCode.get();
     }
 
     private void triggerAlbumBirthdayUpdate() {
         log.debug("Triggered option to update album birthdays.");
-        futures.add(albumBirthdayExecutor.submit(albumBirthdayCommand::updateAlbumBirthdayDatabase));
+        final Runnable updateAlbumBirthdayDatabase = albumBirthdayCommand::updateAlbumBirthdayDatabase;
+        futures.add(CompletableFuture.runAsync(updateAlbumBirthdayDatabase));
+//        futures.add(albumBirthdayExecutor.submit(albumBirthdayCommand::updateAlbumBirthdayDatabase));
     }
 
     private void triggerAlbumCollectionUpdate() {
-        String truncateAnd = truncate ? "truncate and " : "";
-        String forceUpdate = force ? "force update" : "update";
+        final String truncateAnd = truncate ? "truncate and " : "";
+        final String forceUpdate = force ? "force update" : "update";
+        final Runnable updateAlbumCollectionDatabase;
         if (path != null) {
             log.debug("Triggered option to {}{} album collection from path {}.", truncateAnd, forceUpdate, path);
-            futures.add(albumCollectionExecutor.submit(() -> albumCollectionCommand.updateAlbumCollectionDatabase(truncate, path, force)));
+            updateAlbumCollectionDatabase = () -> albumCollectionCommand.updateAlbumCollectionDatabase(truncate, path, force);
+//            futures.add(albumCollectionExecutor.submit(() -> albumCollectionCommand.updateAlbumCollectionDatabase(truncate, path, force)));
         } else {
             log.debug("Triggered option to {}{} album collection from root path.", truncateAnd, forceUpdate);
-            futures.add(albumCollectionExecutor.submit(() -> albumCollectionCommand.updateAlbumCollectionDatabase(truncate, force)));
+            updateAlbumCollectionDatabase = () -> albumCollectionCommand.updateAlbumCollectionDatabase(truncate, force);
+//            futures.add(albumCollectionExecutor.submit(() -> albumCollectionCommand.updateAlbumCollectionDatabase(truncate, force)));
         }
+        futures.add(CompletableFuture.runAsync(updateAlbumCollectionDatabase));
     }
 }

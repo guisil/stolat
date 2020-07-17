@@ -23,6 +23,9 @@ class StoLatBootstrapApplicationBirthdayAlbumsTest {
     @Autowired
     private BootstrapCommand command;
 
+    @Autowired
+    private StoLatBootstrapApplication application;
+
     @Test
     void shouldUpdateAlbumBirthdayDatabaseWhenBirthdayOptionSelected() throws Exception {
         waitForExecutorsToFinish();
@@ -31,6 +34,8 @@ class StoLatBootstrapApplicationBirthdayAlbumsTest {
         assertFalse(command.truncate);
         assertFalse(command.force);
         assertNull(command.path);
+
+        assertEquals(0, application.getExitCode());
     }
 
     private void waitForExecutorsToFinish() {

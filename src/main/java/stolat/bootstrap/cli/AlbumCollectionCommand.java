@@ -23,13 +23,17 @@ public class AlbumCollectionCommand {
     private TrackCollectionCrawler trackCollectionCrawler;
 
     public void updateAlbumCollectionDatabase(boolean truncate, boolean force) {
+        log.info("Triggering Album/Track Collection update for configured path{}{}", truncate ? " [truncate]" : "", force ? " [force]" : "");
         Set<Track> trackCollection = trackCollectionCrawler.fetchTrackCollection();
         updateTrackCollection(truncate, trackCollection, force);
+        log.info("Album/Track Collection update triggered");
     }
 
     public void updateAlbumCollectionDatabase(boolean truncate, Path rootPath, boolean force) {
+        log.info("Triggering Album/Track Collection update for path '{}'{}{}", rootPath, truncate ? " [truncate]" : "", force ? " [force]" : "");
         Set<Track> trackCollection = trackCollectionCrawler.fetchTrackCollection(rootPath);
         updateTrackCollection(truncate, trackCollection, force);
+        log.info("Album/Track Collection update triggered");
     }
 
     private void updateTrackCollection(boolean truncate, Set<Track> trackCollection, boolean force) {
