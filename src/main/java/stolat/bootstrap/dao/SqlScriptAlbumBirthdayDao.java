@@ -2,12 +2,14 @@ package stolat.bootstrap.dao;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 import stolat.bootstrap.sql.SqlProperties;
 import stolat.bootstrap.sql.SqlScriptRunner;
 
 import java.sql.SQLException;
 
+@Profile("sql_scripts")
 @Repository
 @Slf4j
 public class SqlScriptAlbumBirthdayDao implements AlbumBirthdayDao {

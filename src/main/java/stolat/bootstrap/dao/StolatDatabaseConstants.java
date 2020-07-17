@@ -4,9 +4,11 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class DatabaseConstants {
+public final class StolatDatabaseConstants {
 
     public static final String SCHEMA_NAME = "stolat";
+    public static final String BIRTHDAY_TABLE_NAME = "album_birthday";
+    public static final String BIRTHDAY_TABLE_FULL_NAME = SCHEMA_NAME + "." + BIRTHDAY_TABLE_NAME;
     public static final String ALBUM_TABLE_NAME = "local_collection_album";
     public static final String ALBUM_TABLE_FULL_NAME = SCHEMA_NAME + "." + ALBUM_TABLE_NAME;
     public static final String TRACK_TABLE_NAME = "local_collection_track";
@@ -17,6 +19,10 @@ public final class DatabaseConstants {
     public static final String ALBUM_SOURCE_COLUMN = "album_source";
     public static final String ARTIST_MBID_COLUMN = "artist_mbid";
     public static final String ARTIST_NAME_COLUMN = "artist_name";
+
+    public static final String ALBUM_YEAR_COLUMN = "album_year";
+    public static final String ALBUM_MONTH_COLUMN = "album_month";
+    public static final String ALBUM_DAY_COLUMN = "album_day";
 
     public static final String TRACK_MBID_COLUMN = "track_mbid";
     public static final String DISC_NUMBER_COLUMN = "disc_number";

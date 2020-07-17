@@ -26,7 +26,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static stolat.bootstrap.dao.DatabaseConstants.*;
+import static stolat.bootstrap.dao.StolatDatabaseConstants.*;
 
 
 @SpringBootTest

@@ -2,6 +2,7 @@ package stolat.bootstrap.dao;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -16,8 +17,9 @@ import java.time.Instant;
 import java.util.Set;
 import java.util.StringJoiner;
 
-import static stolat.bootstrap.dao.DatabaseConstants.*;
+import static stolat.bootstrap.dao.StolatDatabaseConstants.*;
 
+@Profile("jdbc")
 @Repository
 @Slf4j
 public class JdbcTrackCollectionDao implements TrackCollectionDao {

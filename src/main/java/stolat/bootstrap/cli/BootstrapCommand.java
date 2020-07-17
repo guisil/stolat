@@ -75,7 +75,7 @@ public class BootstrapCommand implements Callable<Integer> {
         CompletableFuture
                 .allOf(futures.stream().toArray(CompletableFuture[]::new))
                 .exceptionallyAsync(ex -> {
-                    log.error("Error during thread execution");
+                    log.error("Error during thread execution", ex);
                     exitCode.set(1);
                     return null;
                 });
