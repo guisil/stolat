@@ -58,6 +58,8 @@ public class JAudioTaggerTagInfoReader implements TagInfoReader {
                     tag.getFirst(FieldKey.TITLE),
                     audioHeader.getTrackLength(), relativePath, album);
 
+            log.info("Retrieved track info for file {}", file);
+
             return Optional.of(track);
 
         } catch (TagException | ReadOnlyFileException | CannotReadException |
