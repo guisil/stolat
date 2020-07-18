@@ -19,13 +19,13 @@ class SqlPropertiesTest {
 
     @Test
     void shouldGetClearAlbumBirthdayScript() {
-        assertEquals("album_birthday_script0.sql",
+        assertEquals("clear_album_birthday_table.sql",
                 sqlProperties.getClearAlbumBirthdayScript());
     }
 
     @Test
     void shouldGetPopulateAlbumBirthdayScript() {
-        assertEquals("album_birthday_script1.sql",
+        assertEquals("populate_album_birthday_table.sql",
                 sqlProperties.getPopulateAlbumBirthdayScript());
     }
 }

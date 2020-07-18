@@ -9,12 +9,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
+import static org.awaitility.Awaitility.await;
 import static org.awaitility.Awaitility.fieldIn;
 import static org.mockito.Mockito.*;
-import static org.awaitility.Awaitility.await;
 
 @ExtendWith(MockitoExtension.class)
 public class BootstrapCommandTest {
@@ -42,7 +41,7 @@ public class BootstrapCommandTest {
 
     private void waitForExecutorsToFinish() {
         await().until(() -> {
-            final List<Future> futures =  fieldIn(command).ofType(List.class).andWithName("futures").call();
+            final List<Future> futures = fieldIn(command).ofType(List.class).andWithName("futures").call();
             return futures.stream().allMatch(Future::isDone);
         });
     }

@@ -12,8 +12,8 @@ import org.springframework.stereotype.Component;
 import java.io.File;
 import java.io.IOException;
 
-@Component
 @Profile("jaudiotagger")
+@Component
 public class JAudioTaggerAudioFileProvider {
 
     public AudioFile getAudioFile(File file) throws TagException, ReadOnlyFileException, CannotReadException, InvalidAudioFrameException, IOException {

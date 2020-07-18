@@ -3,9 +3,7 @@ package stolat.bootstrap.cli;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import stolat.bootstrap.dao.AlbumBirthdayDao;
 import stolat.bootstrap.dao.TrackCollectionDao;
-import stolat.bootstrap.filesystem.FileSystemProperties;
 import stolat.bootstrap.filesystem.TrackCollectionCrawler;
 import stolat.bootstrap.model.Track;
 

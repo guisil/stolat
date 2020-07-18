@@ -6,14 +6,16 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.TestPropertySource;
 import picocli.CommandLine;
-import stolat.bootstrap.cli.BootstrapCommand;
+import stolat.bootstrap.filesystem.TrackCollectionCrawler;
 
 import java.io.File;
 import java.nio.file.Path;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static picocli.CommandLine.IFactory;
 import static picocli.CommandLine.ParseResult;
 
@@ -21,6 +23,9 @@ import static picocli.CommandLine.ParseResult;
 @AutoConfigureEmbeddedDatabase
 @TestPropertySource("classpath:test-application.properties")
 class BootstrapCommandCommandLineTest {
+
+    @MockBean
+    private TrackCollectionCrawler mockCrawler;
 
     @Autowired
     private IFactory factory;

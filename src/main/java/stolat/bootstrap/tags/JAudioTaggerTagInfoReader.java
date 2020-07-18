@@ -20,14 +20,12 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.Clock;
-import java.time.Instant;
 import java.util.Optional;
 
-@Component
 @Profile("jaudiotagger")
+@Component
 @Slf4j
-public class JAudioTaggerFlacTagInfoReader implements TagInfoReader {
+public class JAudioTaggerTagInfoReader implements TagInfoReader {
 
     @Autowired
     private FileSystemProperties fileSystemProperties;

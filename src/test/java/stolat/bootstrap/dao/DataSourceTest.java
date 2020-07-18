@@ -1,26 +1,30 @@
-package stolat.bootstrap;
+package stolat.bootstrap.dao;
 
 import io.zonky.test.db.AutoConfigureEmbeddedDatabase;
+import org.flywaydb.core.Flyway;
 import org.flywaydb.test.annotation.FlywayTest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import javax.sql.DataSource;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@SpringBootTest
-@AutoConfigureEmbeddedDatabase
-@TestPropertySource("classpath:test-application.properties")
+@ExtendWith(SpringExtension.class)
+@FlywayTest
+@AutoConfigureEmbeddedDatabase(beanName = "dataSource")
+@Import(DataSourceTestConfiguration.class)
 public class DataSourceTest {
 
     @Autowired
     private DataSource dataSource;
-
+    @Autowired
+    private Flyway flyway;
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
@@ -31,7 +35,6 @@ public class DataSourceTest {
     }
 
     @Test
-    @FlywayTest
     void shouldCreateAlbumBirthdayTable() {
         String count = "SELECT COUNT(*) FROM stolat.album_birthday";
         assertEquals(0, jdbcTemplate.queryForObject(count, Integer.TYPE));

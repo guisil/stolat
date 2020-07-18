@@ -1,7 +1,7 @@
 package stolat.bootstrap.dao;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -21,19 +21,17 @@ import static stolat.bootstrap.dao.StolatDatabaseConstants.*;
 
 @Profile("jdbc")
 @Repository
+@AllArgsConstructor
 @Slf4j
 public class JdbcTrackCollectionDao implements TrackCollectionDao {
 
-    @Autowired
     private JdbcTemplate jdbcTemplate;
-
-    @Autowired
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @Override
     public void clearTrackCollection() {
         log.info("Clearing album/track collection");
-        jdbcTemplate.execute("TRUNCATE TABLE " + ALBUM_TABLE_FULL_NAME + " CASCADE");
+        jdbcTemplate.update("TRUNCATE TABLE " + ALBUM_TABLE_FULL_NAME + " CASCADE");
     }
 
     @Override

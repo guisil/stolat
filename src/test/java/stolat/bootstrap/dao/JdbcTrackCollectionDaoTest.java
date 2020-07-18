@@ -1,16 +1,19 @@
 package stolat.bootstrap.dao;
 
 import io.zonky.test.db.AutoConfigureEmbeddedDatabase;
+import org.flywaydb.test.annotation.FlywayTest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
-import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import stolat.bootstrap.model.Album;
 import stolat.bootstrap.model.Track;
 
@@ -29,9 +32,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static stolat.bootstrap.dao.StolatDatabaseConstants.*;
 
 
-@SpringBootTest
-@AutoConfigureEmbeddedDatabase
-@TestPropertySource("classpath:test-application.properties")
+@ExtendWith(SpringExtension.class)
+@FlywayTest
+@AutoConfigureEmbeddedDatabase(beanName = "dataSource")
+@Import(DataSourceTestConfiguration.class)
 class JdbcTrackCollectionDaoTest {
 
     private static final String SOME_ARTIST_NAME = "Some Artist";
@@ -73,10 +77,14 @@ class JdbcTrackCollectionDaoTest {
     private JdbcTemplate jdbcTemplate;
 
     @Autowired
+    private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+
     private JdbcTrackCollectionDao trackCollectionDao;
 
     @BeforeEach
     void setUp() {
+        trackCollectionDao =
+                new JdbcTrackCollectionDao(jdbcTemplate, namedParameterJdbcTemplate);
         initialiseInitialTestData();
         initialiseUpdatedTestData();
     }

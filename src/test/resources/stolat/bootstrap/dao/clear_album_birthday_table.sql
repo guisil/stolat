@@ -1,0 +1,1 @@
+TRUNCATE TABLE stolat.album_birthday;

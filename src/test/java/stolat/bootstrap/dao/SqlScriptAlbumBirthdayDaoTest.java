@@ -10,7 +10,6 @@ import stolat.bootstrap.sql.SqlScriptRunner;
 
 import java.sql.SQLException;
 
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 

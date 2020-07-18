@@ -22,7 +22,7 @@ class FileSystemPropertiesTest {
     @Test
     void shouldGetAlbumCollectionPath() {
         assertEquals(
-                "/path/to/music/collection",
+                "testpath",
                 fileSystemProperties.getAlbumCollectionPath());
     }
 

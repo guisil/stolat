@@ -21,9 +21,7 @@ import stolat.bootstrap.model.Track;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.time.Clock;
 import java.time.Instant;
-import java.time.ZoneId;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -31,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.lenient;
 
 @ExtendWith(MockitoExtension.class)
-class JAudioTaggerFlacTagInfoReaderTest {
+class JAudioTaggerTagInfoReaderTest {
 
     private static final String COLLECTION_ROOT_PATH = Path.of(File.separator, "some", "path", "music").toString();
     private static final String AUDIO_FILE_RELATIVE_PATH = Path.of("The Awesome Musicians", "That Great Album", "Great to Listen.flac").toString();
@@ -65,7 +63,7 @@ class JAudioTaggerFlacTagInfoReaderTest {
     private File audioFile;
 
     @InjectMocks
-    private JAudioTaggerFlacTagInfoReader tagInfoReader;
+    private JAudioTaggerTagInfoReader tagInfoReader;
 
     @BeforeEach
     void setUp() throws ReadOnlyFileException, IOException, TagException, InvalidAudioFrameException, CannotReadException {
