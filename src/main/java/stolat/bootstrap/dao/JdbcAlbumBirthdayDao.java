@@ -6,11 +6,12 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.FileCopyUtils;
 import stolat.bootstrap.sql.SqlProperties;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 import static stolat.bootstrap.dao.StolatDatabaseConstants.BIRTHDAY_TABLE_FULL_NAME;
 
@@ -32,12 +33,16 @@ public class JdbcAlbumBirthdayDao implements AlbumBirthdayDao {
     @Override
     public void populateAlbumBirthdays() {
         log.info("Populating album birthdays");
-        String sql = null;
         try {
-            File sqlFile = new ClassPathResource(
-                    sqlProperties.getPopulateAlbumBirthdayScript(),
-                    getClass()).getFile();
-            jdbcTemplate.update(Files.readString(sqlFile.toPath()));
+            InputStream sqlFileInputStream =
+                    new ClassPathResource(
+                            sqlProperties
+                                    .getPopulateAlbumBirthdayScript(), getClass())
+                            .getInputStream();
+            String sql =
+                    FileCopyUtils.copyToString(
+                            new InputStreamReader(sqlFileInputStream));
+            jdbcTemplate.update(sql);
         } catch (IOException ex) {
             log.error("Error reading SQL script file for populating the album birthdays", ex);
         }
