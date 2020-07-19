@@ -1,56 +1,79 @@
 package stolat.bootstrap.filesystem;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import stolat.bootstrap.model.Track;
 import stolat.bootstrap.tags.TagInfoReader;
+import stolat.bootstrap.utils.BatchingIterator;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 @Component
+@AllArgsConstructor
 @Slf4j
 public class TrackCollectionCrawler {
 
-    @Autowired
     private FileSystemProperties fileSystemProperties;
-
-    @Autowired
     private TagInfoReader tagInfoReader;
 
-    public Set<Track> fetchTrackCollection(Path rootPath) {
-        log.info("Fetching track collection from root path '{}'", rootPath);
-
-        try (Stream<Path> walk = Files.walk(rootPath)) {
-            return walk.filter(Files::isRegularFile)
-                    .map(Path::toFile)
-                    .filter(this::fileWithAcceptableExtension)
-                    .map(tagInfoReader::getTrackInfo)
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
-                    .collect(Collectors.toSet());
-        } catch (IOException ex) {
-            log.warn("Error occurred while fetching the track collection", ex);
-        }
-        return Collections.emptySet();
+    public void processTrackCollection(Consumer<List<Track>> processTracks) {
+        processTrackCollection(
+                Path.of(fileSystemProperties.getAlbumCollectionPath()),
+                processTracks);
     }
 
-    private boolean fileWithAcceptableExtension(File file) {
+    public void processTrackCollection(Path rootPath, Consumer<List<Track>> processTracks) {
+        log.info("Processing track collection from root path '{}'", rootPath);
+
+        AtomicInteger processed = new AtomicInteger();
+        AtomicInteger accepted = new AtomicInteger();
+        AtomicInteger ignored = new AtomicInteger();
+
+        try (Stream<File> walk =
+                     Files.walk(rootPath)
+                             .filter(Files::isRegularFile)
+                             .map(Path::toFile)
+                             .filter(file -> fileWithAcceptableExtension(file, accepted, ignored))) {
+
+            BatchingIterator
+                    .batchedStreamOf(walk, fileSystemProperties.getAlbumCollectionBatchSize())
+                    .map(tagInfoReader::getTrackBatchInfo)
+                    .forEach(tracksToProcess -> {
+                        log.info("Processing {} tracks", tracksToProcess.size());
+                        processTracks.accept(tracksToProcess);
+                        processed.addAndGet(tracksToProcess.size());
+                    });
+        } catch (IOException | SecurityException ex) {
+            log.warn("Error occurred while fetching the track collection", ex);
+        } finally {
+            log.info("Processed {} tracks from {} accepted '{}' files ({} files were ignored)",
+                    processed.get(),
+                    accepted.get(),
+                    String.join(",", fileSystemProperties.getMusicFileExtensions()),
+                    ignored.get());
+        }
+    }
+
+    private boolean fileWithAcceptableExtension(File file, AtomicInteger accepted, AtomicInteger ignored) {
         boolean acceptable = fileSystemProperties.getMusicFileExtensions().stream()
-                .anyMatch(extension -> file.getName().endsWith("." + extension));
+                .anyMatch(extension -> {
+                    if (file.getName().endsWith("." + extension)) {
+                        accepted.incrementAndGet();
+                        return true;
+                    } else {
+                        ignored.incrementAndGet();
+                        return false;
+                    }
+                });
 
         return acceptable;
-    }
-
-    public Set<Track> fetchTrackCollection() {
-        return fetchTrackCollection(Path.of(fileSystemProperties.getAlbumCollectionPath()));
     }
 }

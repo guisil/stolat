@@ -1,8 +1,8 @@
 package stolat.bootstrap.cli;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import stolat.bootstrap.dao.AlbumBirthdayDao;
@@ -15,8 +15,12 @@ class AlbumBirthdayCommandTest {
     @Mock
     private AlbumBirthdayDao mockAlbumBirthdayDao;
 
-    @InjectMocks
     private AlbumBirthdayCommand albumBirthdayCommand;
+
+    @BeforeEach
+    void setUp() {
+        albumBirthdayCommand = new AlbumBirthdayCommand(mockAlbumBirthdayDao);
+    }
 
     @Test
     void shouldClearAndPopulateAlbumBirthdays() {

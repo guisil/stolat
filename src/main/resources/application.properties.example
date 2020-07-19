@@ -1,5 +1,5 @@
 logging.level.root=info
-logging.file.name=log/stolat.log
+logging.file.name=log/stolat-bootstrap.log
 
 spring.profiles.active=jdbc,jaudiotagger
 
@@ -15,5 +15,6 @@ sql.clear-album-birthday-script=clear_album_birthday_table.sql
 sql.populate-album-birthday-script=populate_album_birthday_table.sql
 
 filesystem.album-collection-path=/path/to/music/collection
+filesystem.album-collection-batch-size=100
 filesystem.music-file-extensions[0]=flac
 filesystem.music-file-extensions[1]=ogg

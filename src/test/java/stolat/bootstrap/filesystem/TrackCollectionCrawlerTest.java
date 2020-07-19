@@ -4,7 +4,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import stolat.bootstrap.model.Album;
@@ -14,10 +13,7 @@ import stolat.bootstrap.tags.TagInfoReader;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -60,11 +56,13 @@ class TrackCollectionCrawlerTest {
     private Track secondAlbumFirstTrack;
     private Track secondAlbumSecondTrack;
 
-    @InjectMocks
     private TrackCollectionCrawler trackCollectionCrawler;
 
     @BeforeEach
     void setUp() throws IOException {
+        trackCollectionCrawler =
+                new TrackCollectionCrawler(
+                        mockFileSystemProperties, mockTagInfoReader);
         initialiseFilesystem();
         initialiseTracks();
     }
@@ -93,6 +91,7 @@ class TrackCollectionCrawlerTest {
         emptyAlbumFolder.mkdirs();
 
         lenient().when(mockFileSystemProperties.getAlbumCollectionPath()).thenReturn(collectionRootFolder.getAbsolutePath());
+        lenient().when(mockFileSystemProperties.getAlbumCollectionBatchSize()).thenReturn(2);
         lenient().when(mockFileSystemProperties.getMusicFileExtensions()).thenReturn(List.of("flac"));
     }
 
@@ -121,30 +120,35 @@ class TrackCollectionCrawlerTest {
         lenient().when(mockTagInfoReader.getTrackInfo(firstAlbumSecondTrackFile)).thenReturn(Optional.of(firstAlbumSecondTrack));
         lenient().when(mockTagInfoReader.getTrackInfo(secondAlbumFirstTrackFile)).thenReturn(Optional.of(secondAlbumFirstTrack));
         lenient().when(mockTagInfoReader.getTrackInfo(secondAlbumSecondTrackFile)).thenReturn(Optional.of(secondAlbumSecondTrack));
+
+        lenient().when(mockTagInfoReader.getTrackBatchInfo(List.of(firstAlbumFirstTrackFile, firstAlbumSecondTrackFile)))
+                .thenReturn(List.of(firstAlbumFirstTrack, firstAlbumSecondTrack));
+        lenient().when(mockTagInfoReader.getTrackBatchInfo(List.of(secondAlbumFirstTrackFile, secondAlbumSecondTrackFile)))
+                .thenReturn(List.of(secondAlbumFirstTrack, secondAlbumSecondTrack));
     }
 
     @Test
-    void shouldFetchTrackCollectionFromConfiguredPath() {
+    void shouldProcessTrackCollectionFromConfiguredPath() {
         final Set<Track> expected =
                 Set.of(firstAlbumFirstTrack, firstAlbumSecondTrack, secondAlbumFirstTrack, secondAlbumSecondTrack);
-        final Set<Track> actual = trackCollectionCrawler.fetchTrackCollection();
-
-        assertEquals(expected, actual);
+        final Set<Track> processed = new HashSet<>();
+        trackCollectionCrawler.processTrackCollection(processed::addAll);
+        assertEquals(expected, processed);
     }
 
     @Test
-    void shouldFetchTrackCollectionFromGivenPath() {
+    void shouldProcessTrackCollectionFromGivenPath() {
         final Set<Track> expected =
                 Set.of(secondAlbumFirstTrack, secondAlbumSecondTrack);
-        final Set<Track> actual = trackCollectionCrawler.fetchTrackCollection(someOtherArtistFolder.toPath());
-
-        assertEquals(expected, actual);
+        final Set<Track> processed = new HashSet<>();
+        trackCollectionCrawler.processTrackCollection(someOtherArtistFolder.toPath(), processed::addAll);
+        assertEquals(expected, processed);
     }
 
     @Test
-    void shouldNotFetchTrackCollectionWhenRootFolderDoesNotExist() {
-        final Set<Track> actual = trackCollectionCrawler.fetchTrackCollection(Path.of("/some/non/existing/path"));
-
-        assertTrue(actual.isEmpty());
+    void shouldNotProcessTrackCollectionWhenRootFolderDoesNotExist() {
+        final Set<Track> processed = new HashSet<>();
+        trackCollectionCrawler.processTrackCollection(Path.of("/some/non/existing/path"), processed::addAll);
+        assertTrue(processed.isEmpty());
     }
 }

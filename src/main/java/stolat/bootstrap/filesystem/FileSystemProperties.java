@@ -14,6 +14,6 @@ import java.util.List;
 public class FileSystemProperties {
 
     private String albumCollectionPath;
-
+    private int albumCollectionBatchSize = 100;
     private List<String> musicFileExtensions;
 }

@@ -1,5 +1,6 @@
 package stolat.bootstrap.tags;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioHeader;
@@ -9,7 +10,6 @@ import org.jaudiotagger.audio.exceptions.ReadOnlyFileException;
 import org.jaudiotagger.tag.FieldKey;
 import org.jaudiotagger.tag.Tag;
 import org.jaudiotagger.tag.TagException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import stolat.bootstrap.filesystem.FileSystemProperties;
@@ -20,17 +20,17 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Profile("jaudiotagger")
 @Component
+@AllArgsConstructor
 @Slf4j
 public class JAudioTaggerTagInfoReader implements TagInfoReader {
 
-    @Autowired
     private FileSystemProperties fileSystemProperties;
-
-    @Autowired
     private JAudioTaggerAudioFileProvider audioFileProvider;
 
     @Override
@@ -64,9 +64,19 @@ public class JAudioTaggerTagInfoReader implements TagInfoReader {
 
         } catch (TagException | ReadOnlyFileException | CannotReadException |
                 InvalidAudioFrameException | IOException | IllegalArgumentException ex) {
-            log.warn("Could not get track info for file {}", file, ex);
+            log.warn("Could not get track info for file {} - {}", file, ex.getMessage());
+            log.trace("", ex);
         }
 
         return Optional.empty();
+    }
+
+    @Override
+    public List<Track> getTrackBatchInfo(List<File> files) {
+        return files.stream()
+                .map(this::getTrackInfo)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
     }
 }

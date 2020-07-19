@@ -2,11 +2,11 @@ package stolat.bootstrap.dao;
 
 import stolat.bootstrap.model.Track;
 
-import java.util.Set;
+import java.util.List;
 
 public interface TrackCollectionDao {
 
     void clearTrackCollection();
 
-    void populateTrackCollection(Set<Track> trackCollection, boolean force);
+    void updateTrackCollection(List<Track> trackBatch, boolean force);
 }

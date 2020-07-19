@@ -1,8 +1,10 @@
 package stolat.bootstrap.cli;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import stolat.bootstrap.dao.TrackCollectionDao;
@@ -12,8 +14,10 @@ import stolat.bootstrap.model.Track;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 import static org.mockito.Mockito.*;
 
@@ -37,47 +41,63 @@ class AlbumCollectionCommandTest {
     @Mock
     private TrackCollectionCrawler mockTrackCollectionCrawler;
 
-    @InjectMocks
+    @Mock
+    private List<Track> mockTrackBatch;
+
+    @Captor
+    private ArgumentCaptor<Consumer<List<Track>>> trackBatchProcessorCaptor;
+
     private AlbumCollectionCommand albumCollectionCommand;
+
+    @BeforeEach
+    void setUp() {
+        albumCollectionCommand = new AlbumCollectionCommand(mockTrackCollectionDao, mockTrackCollectionCrawler);
+    }
 
     @Test
     void shouldUpdateAlbumCollection() {
-        when(mockTrackCollectionCrawler.fetchTrackCollection()).thenReturn(TRACK_COLLECTION);
         albumCollectionCommand.updateAlbumCollectionDatabase(false, false);
-        verify(mockTrackCollectionDao).populateTrackCollection(TRACK_COLLECTION, false);
+        verify(mockTrackCollectionCrawler).processTrackCollection(trackBatchProcessorCaptor.capture());
+        trackBatchProcessorCaptor.getValue().accept(mockTrackBatch);
+        verify(mockTrackCollectionDao).updateTrackCollection(mockTrackBatch, false);
         verifyNoMoreInteractions(mockTrackCollectionDao);
     }
 
     @Test
     void shouldRecreateAlbumCollection() {
-        when(mockTrackCollectionCrawler.fetchTrackCollection()).thenReturn(TRACK_COLLECTION);
         albumCollectionCommand.updateAlbumCollectionDatabase(true, false);
         verify(mockTrackCollectionDao).clearTrackCollection();
-        verify(mockTrackCollectionDao).populateTrackCollection(TRACK_COLLECTION, false);
+        verify(mockTrackCollectionCrawler).processTrackCollection(trackBatchProcessorCaptor.capture());
+        trackBatchProcessorCaptor.getValue().accept(mockTrackBatch);
+        verify(mockTrackCollectionDao).updateTrackCollection(mockTrackBatch, false);
+        verifyNoMoreInteractions(mockTrackCollectionDao);
     }
 
     @Test
     void shouldForceUpdateAlbumCollection() {
-        when(mockTrackCollectionCrawler.fetchTrackCollection()).thenReturn(TRACK_COLLECTION);
         albumCollectionCommand.updateAlbumCollectionDatabase(false, true);
-        verify(mockTrackCollectionDao).populateTrackCollection(TRACK_COLLECTION, true);
+        verify(mockTrackCollectionCrawler).processTrackCollection(trackBatchProcessorCaptor.capture());
+        trackBatchProcessorCaptor.getValue().accept(mockTrackBatch);
+        verify(mockTrackCollectionDao).updateTrackCollection(mockTrackBatch, true);
         verifyNoMoreInteractions(mockTrackCollectionDao);
     }
 
     @Test
     void shouldUpdateAlbumCollectionFromFolder() {
-        when(mockTrackCollectionCrawler.fetchTrackCollection(SOME_PATH)).thenReturn(TRACK_COLLECTION);
         albumCollectionCommand.updateAlbumCollectionDatabase(false, SOME_PATH, false);
-        verify(mockTrackCollectionDao).populateTrackCollection(TRACK_COLLECTION, false);
+        verify(mockTrackCollectionCrawler).processTrackCollection(eq(SOME_PATH), trackBatchProcessorCaptor.capture());
+        trackBatchProcessorCaptor.getValue().accept(mockTrackBatch);
+        verify(mockTrackCollectionDao).updateTrackCollection(mockTrackBatch, false);
         verifyNoMoreInteractions(mockTrackCollectionDao);
     }
 
     @Test
     void shouldRecreateAlbumCollectionFromFolder() {
-        when(mockTrackCollectionCrawler.fetchTrackCollection(SOME_PATH)).thenReturn(TRACK_COLLECTION);
         albumCollectionCommand.updateAlbumCollectionDatabase(true, SOME_PATH, false);
         verify(mockTrackCollectionDao).clearTrackCollection();
-        verify(mockTrackCollectionDao).populateTrackCollection(TRACK_COLLECTION, false);
+        verify(mockTrackCollectionCrawler).processTrackCollection(eq(SOME_PATH), trackBatchProcessorCaptor.capture());
+        trackBatchProcessorCaptor.getValue().accept(mockTrackBatch);
+        verify(mockTrackCollectionDao).updateTrackCollection(mockTrackBatch, false);
         verifyNoMoreInteractions(mockTrackCollectionDao);
     }
 }

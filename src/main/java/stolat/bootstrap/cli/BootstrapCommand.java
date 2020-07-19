@@ -1,7 +1,6 @@
 package stolat.bootstrap.cli;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
@@ -38,12 +37,17 @@ public class BootstrapCommand implements Callable<Integer> {
     @Option(names = "--spring.config.location", hidden = true)
     private String springConfigLocation;
 
-    @Autowired
+    private final List<CompletableFuture<Void>> futures = new ArrayList<>();
+
     private AlbumBirthdayCommand albumBirthdayCommand;
-    @Autowired
     private AlbumCollectionCommand albumCollectionCommand;
 
-    private final List<CompletableFuture<Void>> futures = new ArrayList<>();
+    public BootstrapCommand(
+            AlbumBirthdayCommand albumBirthdayCommand,
+            AlbumCollectionCommand albumCollectionCommand) {
+        this.albumBirthdayCommand = albumBirthdayCommand;
+        this.albumCollectionCommand = albumCollectionCommand;
+    }
 
     @Override
     public Integer call() {
@@ -76,6 +80,8 @@ public class BootstrapCommand implements Callable<Integer> {
             log.warn("Error occurred while getting the future", ex);
             exitCode.set(1);
         }
+
+        log.info("Exiting command execution");
 
         return exitCode.get();
     }

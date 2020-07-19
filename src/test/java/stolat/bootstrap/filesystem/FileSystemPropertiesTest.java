@@ -27,6 +27,11 @@ class FileSystemPropertiesTest {
     }
 
     @Test
+    void shouldGetAlbumCollectionBatchSize() {
+        assertEquals(2, fileSystemProperties.getAlbumCollectionBatchSize());
+    }
+
+    @Test
     void shouldGetMusicFileExtensions() {
         assertEquals(List.of("flac", "ogg"), fileSystemProperties.getMusicFileExtensions());
     }

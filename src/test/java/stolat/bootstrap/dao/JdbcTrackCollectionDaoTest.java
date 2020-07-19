@@ -24,7 +24,6 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -241,11 +240,11 @@ class JdbcTrackCollectionDaoTest {
 
     @Test
     void shouldDoNothingWhenTracksAlreadyExistAndForceOptionDisabled() {
-        Set<Track> sameTracksWithSomeChanges = Set.of(
+        List<Track> sameTracksWithSomeChanges = List.of(
                 updatedFirstAlbumFirstTrack, updatedFirstAlbumSecondTrack,
                 updatedSecondAlbumFirstTrack, updatedSecondAlbumSecondTrack);
 
-        trackCollectionDao.populateTrackCollection(sameTracksWithSomeChanges, false);
+        trackCollectionDao.updateTrackCollection(sameTracksWithSomeChanges, false);
 
         String selectAllAlbums = "SELECT * FROM " + ALBUM_TABLE_FULL_NAME;
         List<Album> actualAlbums = jdbcTemplate.query(selectAllAlbums, new AlbumRowMapper());
@@ -265,11 +264,11 @@ class JdbcTrackCollectionDaoTest {
 
     @Test
     void shouldUpdateTracksWhenTracksAlreadyExistButForceOptionEnabled() {
-        Set<Track> sameTracksWithSomeChanges = Set.of(
+        List<Track> sameTracksWithSomeChanges = List.of(
                 updatedFirstAlbumFirstTrack, updatedFirstAlbumSecondTrack,
                 updatedSecondAlbumFirstTrack, updatedSecondAlbumSecondTrack);
 
-        trackCollectionDao.populateTrackCollection(sameTracksWithSomeChanges, true);
+        trackCollectionDao.updateTrackCollection(sameTracksWithSomeChanges, true);
 
         String selectAllAlbums = "SELECT * FROM " + ALBUM_TABLE_FULL_NAME;
         List<Album> actualAlbums = jdbcTemplate.query(selectAllAlbums, new AlbumRowMapper());
@@ -289,12 +288,12 @@ class JdbcTrackCollectionDaoTest {
 
     @Test
     void shouldUpdateTracksWhenSomeTracksAreNew() {
-        Set<Track> sameTracksPlusNewTracks = Set.of(
+        List<Track> sameTracksPlusNewTracks = List.of(
                 updatedFirstAlbumFirstTrack, updatedFirstAlbumSecondTrack,
                 updatedSecondAlbumFirstTrack, updatedSecondAlbumSecondTrack,
                 updatedThirdAlbumFirstTrack, updatedThirdAlbumSecondTrack, updatedThirdAlbumThirdTrack);
 
-        trackCollectionDao.populateTrackCollection(sameTracksPlusNewTracks, false);
+        trackCollectionDao.updateTrackCollection(sameTracksPlusNewTracks, false);
 
         String selectAllAlbums = "SELECT * FROM " + ALBUM_TABLE_FULL_NAME;
         List<Album> actualAlbums = jdbcTemplate.query(selectAllAlbums, new AlbumRowMapper());

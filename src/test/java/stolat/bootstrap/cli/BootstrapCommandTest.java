@@ -1,8 +1,8 @@
 package stolat.bootstrap.cli;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -24,8 +24,12 @@ public class BootstrapCommandTest {
     @Mock
     private AlbumCollectionCommand mockAlbumCollectionCommand;
 
-    @InjectMocks
     private BootstrapCommand command;
+
+    @BeforeEach
+    void setUp() {
+        command = new BootstrapCommand(mockAlbumBirthdayCommand, mockAlbumCollectionCommand);
+    }
 
     @Test
     void shouldUpdateAlbumBirthdayDatabaseWhenBirthdayOptionSelected() {
