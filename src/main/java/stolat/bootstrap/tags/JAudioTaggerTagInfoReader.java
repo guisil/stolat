@@ -70,13 +70,4 @@ public class JAudioTaggerTagInfoReader implements TagInfoReader {
 
         return Optional.empty();
     }
-
-    @Override
-    public List<Track> getTrackBatchInfo(List<File> files) {
-        return files.stream()
-                .map(this::getTrackInfo)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toList());
-    }
 }

@@ -63,7 +63,7 @@ public class TrackCollectionCrawler {
     }
 
     private boolean fileWithAcceptableExtension(File file, AtomicInteger accepted, AtomicInteger ignored) {
-        boolean acceptable = fileSystemProperties.getMusicFileExtensions().stream()
+        return fileSystemProperties.getMusicFileExtensions().stream()
                 .anyMatch(extension -> {
                     if (file.getName().endsWith("." + extension)) {
                         accepted.incrementAndGet();
@@ -73,7 +73,5 @@ public class TrackCollectionCrawler {
                         return false;
                     }
                 });
-
-        return acceptable;
     }
 }

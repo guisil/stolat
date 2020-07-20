@@ -17,6 +17,7 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.anyList;
 import static org.mockito.Mockito.lenient;
 
 @ExtendWith(MockitoExtension.class)
@@ -116,15 +117,11 @@ class TrackCollectionCrawlerTest {
                 UUID.randomUUID().toString(), "1", "2", "Yet Another Track",
                 222, Path.of(SOME_OTHER_ARTIST_FOLDER, SECOND_ALBUM_FOLDER, SECOND_ALBUM_SECOND_TRACK).toString(), secondAlbum);
 
+        lenient().when(mockTagInfoReader.getTrackBatchInfo(anyList())).thenCallRealMethod();
         lenient().when(mockTagInfoReader.getTrackInfo(firstAlbumFirstTrackFile)).thenReturn(Optional.of(firstAlbumFirstTrack));
         lenient().when(mockTagInfoReader.getTrackInfo(firstAlbumSecondTrackFile)).thenReturn(Optional.of(firstAlbumSecondTrack));
         lenient().when(mockTagInfoReader.getTrackInfo(secondAlbumFirstTrackFile)).thenReturn(Optional.of(secondAlbumFirstTrack));
         lenient().when(mockTagInfoReader.getTrackInfo(secondAlbumSecondTrackFile)).thenReturn(Optional.of(secondAlbumSecondTrack));
-
-        lenient().when(mockTagInfoReader.getTrackBatchInfo(List.of(firstAlbumFirstTrackFile, firstAlbumSecondTrackFile)))
-                .thenReturn(List.of(firstAlbumFirstTrack, firstAlbumSecondTrack));
-        lenient().when(mockTagInfoReader.getTrackBatchInfo(List.of(secondAlbumFirstTrackFile, secondAlbumSecondTrackFile)))
-                .thenReturn(List.of(secondAlbumFirstTrack, secondAlbumSecondTrack));
     }
 
     @Test
@@ -133,6 +130,7 @@ class TrackCollectionCrawlerTest {
                 Set.of(firstAlbumFirstTrack, firstAlbumSecondTrack, secondAlbumFirstTrack, secondAlbumSecondTrack);
         final Set<Track> processed = new HashSet<>();
         trackCollectionCrawler.processTrackCollection(processed::addAll);
+
         assertEquals(expected, processed);
     }
 
