@@ -3,9 +3,9 @@ package stolat.bootstrap.cli;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import stolat.bootstrap.dao.TrackCollectionDao;
 import stolat.bootstrap.filesystem.TrackCollectionCrawler;
-import stolat.bootstrap.model.Track;
+import stolat.dao.TrackCollectionDao;
+import stolat.model.Track;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -16,8 +16,8 @@ import java.util.function.Consumer;
 @Slf4j
 public class AlbumCollectionCommand {
 
-    private TrackCollectionDao trackCollectionDao;
-    private TrackCollectionCrawler trackCollectionCrawler;
+    private final TrackCollectionDao trackCollectionDao;
+    private final TrackCollectionCrawler trackCollectionCrawler;
 
     public void updateAlbumCollectionDatabase(boolean truncate, boolean force) {
         log.info("Triggering Album/Track Collection update for configured path{}{}", truncate ? " [truncate]" : "", force ? " [force]" : "");

@@ -10,15 +10,27 @@ import java.util.stream.StreamSupport;
 import static java.util.Spliterator.ORDERED;
 
 /**
- * An iterator which returns batches of items taken from another iterator
+ * An iterator which returns batches of items taken from another iterator.
+ * Taken from https://stackoverflow.com/questions/30641383/java-8-stream-with-batch-processing
  */
 public class BatchingIterator<T> implements Iterator<List<T>> {
+
+    private final int batchSize;
+    private final Iterator<T> sourceIterator;
+    private List<T> currentBatch;
+
+    public BatchingIterator(Iterator<T> sourceIterator, int batchSize) {
+        this.batchSize = batchSize;
+        this.sourceIterator = sourceIterator;
+    }
+
     /**
      * Given a stream, convert it to a stream of batches no greater than the
      * batchSize.
+     *
      * @param originalStream to convert
-     * @param batchSize maximum size of a batch
-     * @param <T> type of items in the stream
+     * @param batchSize      maximum size of a batch
+     * @param <T>            type of items in the stream
      * @return a stream of batches taken sequentially from the original stream
      */
     public static <T> Stream<List<T>> batchedStreamOf(Stream<T> originalStream, int batchSize) {
@@ -27,23 +39,14 @@ public class BatchingIterator<T> implements Iterator<List<T>> {
 
     private static <T> Stream<T> asStream(Iterator<T> iterator) {
         return StreamSupport.stream(
-                Spliterators.spliteratorUnknownSize(iterator,ORDERED),
+                Spliterators.spliteratorUnknownSize(iterator, ORDERED),
                 false);
-    }
-
-    private int batchSize;
-    private List<T> currentBatch;
-    private Iterator<T> sourceIterator;
-
-    public BatchingIterator(Iterator<T> sourceIterator, int batchSize) {
-        this.batchSize = batchSize;
-        this.sourceIterator = sourceIterator;
     }
 
     @Override
     public boolean hasNext() {
         prepareNextBatch();
-        return currentBatch!=null && !currentBatch.isEmpty();
+        return currentBatch != null && !currentBatch.isEmpty();
     }
 
     @Override

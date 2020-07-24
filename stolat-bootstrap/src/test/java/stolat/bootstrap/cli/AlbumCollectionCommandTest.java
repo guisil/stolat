@@ -7,10 +7,10 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import stolat.bootstrap.dao.TrackCollectionDao;
 import stolat.bootstrap.filesystem.TrackCollectionCrawler;
-import stolat.bootstrap.model.Album;
-import stolat.bootstrap.model.Track;
+import stolat.dao.TrackCollectionDao;
+import stolat.model.Album;
+import stolat.model.Track;
 
 import java.io.File;
 import java.nio.file.Path;

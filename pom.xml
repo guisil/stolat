@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>stolat</groupId>
+    <artifactId>stolat</artifactId>
+    <packaging>pom</packaging>
+    <version>0.1-SNAPSHOT</version>
+    <name>StoLat</name>
+    <description>Aggregator POM for StoLat</description>
+
+    <modules>
+        <module>stolat-model</module>
+        <module>stolat-dao</module>
+        <module>stolat-bootstrap</module>
+    </modules>
+
+    <profiles>
+        <profile>
+            <id>stolat-bootstrap</id>
+            <modules>
+                <module>stolat-model</module>
+                <module>stolat-dao</module>
+                <module>stolat-bootstrap</module>
+            </modules>
+        </profile>
+    </profiles>
+    
+</project>

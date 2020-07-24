@@ -38,9 +38,8 @@ public class BootstrapCommand implements Callable<Integer> {
     private String springConfigLocation;
 
     private final List<CompletableFuture<Void>> futures = new ArrayList<>();
-
-    private AlbumBirthdayCommand albumBirthdayCommand;
-    private AlbumCollectionCommand albumCollectionCommand;
+    private final AlbumBirthdayCommand albumBirthdayCommand;
+    private final AlbumCollectionCommand albumCollectionCommand;
 
     public BootstrapCommand(
             AlbumBirthdayCommand albumBirthdayCommand,

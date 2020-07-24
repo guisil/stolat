@@ -3,9 +3,9 @@ package stolat.bootstrap.filesystem;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import stolat.bootstrap.model.Track;
 import stolat.bootstrap.tags.TagInfoReader;
 import stolat.bootstrap.utils.BatchingIterator;
+import stolat.model.Track;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,8 +21,8 @@ import java.util.stream.Stream;
 @Slf4j
 public class TrackCollectionCrawler {
 
-    private FileSystemProperties fileSystemProperties;
-    private TagInfoReader tagInfoReader;
+    private final FileSystemProperties fileSystemProperties;
+    private final TagInfoReader tagInfoReader;
 
     public void processTrackCollection(Consumer<List<Track>> processTracks) {
         processTrackCollection(

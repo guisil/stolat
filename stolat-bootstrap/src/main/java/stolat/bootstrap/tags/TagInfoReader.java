@@ -1,6 +1,6 @@
 package stolat.bootstrap.tags;
 
-import stolat.bootstrap.model.Track;
+import stolat.model.Track;
 
 import java.io.File;
 import java.util.List;

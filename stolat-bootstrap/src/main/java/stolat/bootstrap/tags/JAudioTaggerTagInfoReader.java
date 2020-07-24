@@ -13,16 +13,14 @@ import org.jaudiotagger.tag.TagException;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import stolat.bootstrap.filesystem.FileSystemProperties;
-import stolat.bootstrap.model.Album;
-import stolat.bootstrap.model.Track;
+import stolat.model.Album;
+import stolat.model.Track;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Profile("jaudiotagger")
 @Component
@@ -30,8 +28,8 @@ import java.util.stream.Collectors;
 @Slf4j
 public class JAudioTaggerTagInfoReader implements TagInfoReader {
 
-    private FileSystemProperties fileSystemProperties;
-    private JAudioTaggerAudioFileProvider audioFileProvider;
+    private final FileSystemProperties fileSystemProperties;
+    private final JAudioTaggerAudioFileProvider audioFileProvider;
 
     @Override
     public Optional<Track> getTrackInfo(File file) {

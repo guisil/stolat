@@ -14,8 +14,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import stolat.bootstrap.filesystem.FileSystemProperties;
-import stolat.bootstrap.model.Album;
-import stolat.bootstrap.model.Track;
+import stolat.model.Album;
+import stolat.model.Track;
 
 import java.io.File;
 import java.io.IOException;

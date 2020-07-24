@@ -1,3 +1,5 @@
+CREATE SCHEMA stolat;
+
 -- ALBUM BIRTHDAY
 
 CREATE TABLE stolat.album_birthday (

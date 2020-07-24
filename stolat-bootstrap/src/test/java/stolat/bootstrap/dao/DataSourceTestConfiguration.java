@@ -7,6 +7,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
+import stolat.dao.AlbumBirthdayDao;
+import stolat.dao.JdbcAlbumBirthdayDao;
+import stolat.dao.JdbcTrackCollectionDao;
+import stolat.dao.TrackCollectionDao;
 
 import javax.sql.DataSource;
 
@@ -36,5 +40,18 @@ public class DataSourceTestConfiguration {
                 .defaultSchema("stolat")
                 .schemas("stolat", "musicbrainz")
                 .load();
+    }
+
+    @Bean
+    AlbumBirthdayDao albumBirthdayDao() {
+        return new JdbcAlbumBirthdayDao(
+                jdbcTemplate());
+    }
+
+    @Bean
+    TrackCollectionDao trackCollectionDao() {
+        return new JdbcTrackCollectionDao(
+                jdbcTemplate(),
+                namedParameterJdbcTemplate());
     }
 }

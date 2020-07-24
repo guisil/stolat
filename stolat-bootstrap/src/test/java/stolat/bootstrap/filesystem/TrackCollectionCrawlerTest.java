@@ -6,9 +6,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import stolat.bootstrap.model.Album;
-import stolat.bootstrap.model.Track;
 import stolat.bootstrap.tags.TagInfoReader;
+import stolat.model.Album;
+import stolat.model.Track;
 
 import java.io.File;
 import java.io.IOException;

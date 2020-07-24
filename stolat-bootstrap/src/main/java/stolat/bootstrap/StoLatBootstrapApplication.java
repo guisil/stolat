@@ -10,7 +10,7 @@ import stolat.bootstrap.cli.BootstrapCommand;
 
 import static picocli.CommandLine.IFactory;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"stolat"})
 @Slf4j
 public class StoLatBootstrapApplication implements CommandLineRunner, ExitCodeGenerator {
 
