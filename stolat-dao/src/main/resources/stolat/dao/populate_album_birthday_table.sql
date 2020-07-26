@@ -5,7 +5,9 @@ SELECT
 FROM (
     SELECT
         release_group.gid AS album_mbid,
+        release_group.name AS album_name,
         artist.gid AS artist_mbid,
+        artist.name AS artist_name,
         release_country.date_year AS album_year,
         release_country.date_month AS album_month,
         release_country.date_day AS album_day,
@@ -21,7 +23,9 @@ FROM (
 UNION
     SELECT
         release_group.gid AS album_mbid,
+        release_group.name AS album_name,
         artist.gid AS artist_mbid,
+        artist.name AS artist_name,
         release_unknown_country.date_year AS album_year,
         release_unknown_country.date_month AS album_month,
         release_unknown_country.date_day AS album_day,

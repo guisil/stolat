@@ -2,7 +2,9 @@
 
 CREATE TABLE stolat.album_birthday (
     album_mbid UUID PRIMARY KEY,
+    album_name VARCHAR NOT NULL,
     artist_mbid UUID NOT NULL,
+    artist_name VARCHAR NOT NULL,
     album_year INTEGER,
     album_month INTEGER,
     album_day INTEGER,

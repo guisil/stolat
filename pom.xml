@@ -10,12 +10,6 @@
     <name>StoLat</name>
     <description>Aggregator POM for StoLat</description>
 
-    <modules>
-        <module>stolat-model</module>
-        <module>stolat-dao</module>
-        <module>stolat-bootstrap</module>
-    </modules>
-
     <profiles>
         <profile>
             <id>stolat-bootstrap</id>
@@ -23,6 +17,14 @@
                 <module>stolat-model</module>
                 <module>stolat-dao</module>
                 <module>stolat-bootstrap</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>stolat-service</id>
+            <modules>
+                <module>stolat-model</module>
+                <module>stolat-dao</module>
+                <module>stolat-service</module>
             </modules>
         </profile>
     </profiles>

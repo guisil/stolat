@@ -1,4 +1,4 @@
-package stolat.bootstrap.dao;
+package stolat.service.dao;
 
 import io.zonky.test.db.AutoConfigureEmbeddedDatabase;
 import org.flywaydb.core.Flyway;
@@ -9,12 +9,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import stolat.dao.AlbumBirthdayDao;
 import stolat.dao.JdbcAlbumBirthdayDao;
-import stolat.dao.JdbcTrackCollectionDao;
-import stolat.dao.TrackCollectionDao;
 
 import javax.sql.DataSource;
 
@@ -33,16 +30,12 @@ public class DataSourceTest {
     private Flyway flyway;
     @Autowired
     private JdbcTemplate jdbcTemplate;
-    @Autowired
-    private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     private AlbumBirthdayDao albumBirthdayDao;
-    private TrackCollectionDao trackCollectionDao;
 
     @BeforeEach
     void setUp() {
         albumBirthdayDao = new JdbcAlbumBirthdayDao(jdbcTemplate);
-        trackCollectionDao = new JdbcTrackCollectionDao(jdbcTemplate, namedParameterJdbcTemplate);
     }
 
     @Test
@@ -60,12 +53,6 @@ public class DataSourceTest {
     @Test
     void shouldCreateLocalCollectionAlbumTable() {
         String count = "SELECT COUNT(*) FROM stolat.local_collection_album";
-        assertEquals(0, jdbcTemplate.queryForObject(count, Integer.TYPE));
-    }
-
-    @Test
-    void shouldCreateLocalCollectionTrackTable() {
-        String count = "SELECT COUNT(*) FROM stolat.local_collection_track";
         assertEquals(0, jdbcTemplate.queryForObject(count, Integer.TYPE));
     }
 }

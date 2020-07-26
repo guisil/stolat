@@ -174,6 +174,7 @@ INSERT INTO musicbrainz.artist (id, gid, name, sort_name, begin_date_year, begin
 INSERT INTO musicbrainz.artist (id, gid, name, sort_name, begin_date_year, begin_date_month, begin_date_day, end_date_year, end_date_month, end_date_day, type, area, gender, comment, edits_pending, last_updated, ended, begin_area, end_area) VALUES (16043, 'c14b4180-dc87-481e-b17a-64e4150f90f6', 'Opeth', 'Opeth', 1990, NULL, NULL, NULL, NULL, NULL, 2, 202, NULL, '', 0, '2013-06-15 11:00:18.966549+00', false, 5114, NULL);
 INSERT INTO musicbrainz.artist (id, gid, name, sort_name, begin_date_year, begin_date_month, begin_date_day, end_date_year, end_date_month, end_date_day, type, area, gender, comment, edits_pending, last_updated, ended, begin_area, end_area) VALUES (343789, '092ae9e2-60bf-4b66-aa33-9e31754d1924', 'Dead Combo', 'Dead Combo', 2003, NULL, NULL, NULL, NULL, NULL, 2, 171, NULL, 'Portuguese group', 0, '2015-07-18 02:00:45.563088+00', false, 5062, NULL);
 INSERT INTO musicbrainz.artist (id, gid, name, sort_name, begin_date_year, begin_date_month, begin_date_day, end_date_year, end_date_month, end_date_day, type, area, gender, comment, edits_pending, last_updated, ended, begin_area, end_area) VALUES (14521, '7bbfd77c-1102-4831-9ba8-246fb67460b3', 'Ayreon', 'Ayreon', 1995, NULL, NULL, NULL, NULL, NULL, 2, 150, NULL, '', 0, '2018-03-31 19:52:14.32+00', false, 150, NULL);
+INSERT INTO musicbrainz.artist (id, gid, name, sort_name, begin_date_year, begin_date_month, begin_date_day, end_date_year, end_date_month, end_date_day, type, area, gender, comment, edits_pending, last_updated, ended, begin_area, end_area) VALUES (10042, 'ca891d65-d9b0-4258-89f7-e6ba29d83767', 'Iron Maiden', 'Iron Maiden', 1975, 12, 25, NULL, NULL, NULL, 2, 221, NULL, 'English heavy metal band', 0, '2016-01-02 02:00:41.207128+00', false, 55361, NULL);
 
 -- ARTIST CREDIT
 
@@ -190,6 +191,7 @@ INSERT INTO musicbrainz.artist_credit (id, name, artist_count, ref_count, create
 INSERT INTO musicbrainz.artist_credit (id, name, artist_count, ref_count, created, edits_pending) VALUES (16043, 'Opeth', 1, 3502, '2011-05-16 16:32:11.963929+00', 0);
 INSERT INTO musicbrainz.artist_credit (id, name, artist_count, ref_count, created, edits_pending) VALUES (343789, 'Dead Combo', 1, 352, '2011-05-16 16:32:11.963929+00', 0);
 INSERT INTO musicbrainz.artist_credit (id, name, artist_count, ref_count, created, edits_pending) VALUES (3544, 'Mogwai', 1, 3322, '2011-05-16 16:32:11.963929+00', 0);
+INSERT INTO musicbrainz.artist_credit (id, name, artist_count, ref_count, created, edits_pending) VALUES (10042, 'Iron Maiden', 1, 10639, '2011-05-16 16:32:11.963929+00', 0);
 
 -- RELEASE_GROUP
 
@@ -234,6 +236,7 @@ INSERT INTO musicbrainz.release_group (id, gid, name, artist_credit, type, comme
 INSERT INTO musicbrainz.release_group (id, gid, name, artist_credit, type, comment, edits_pending, last_updated) VALUES (384931, '00f78b7d-bd0a-356a-aec4-925e529023f8', 'Ghost Reveries', 16043, 1, '', 0, '2010-10-15 13:02:32.333198+00');
 INSERT INTO musicbrainz.release_group (id, gid, name, artist_credit, type, comment, edits_pending, last_updated) VALUES (508330, '4adf1192-df7a-3967-a8e6-d39963c62994', 'Vol. II - Quando a alma não é pequena', 343789, 1, '', 0, '2009-05-24 20:47:00.490177+00');
 INSERT INTO musicbrainz.release_group (id, gid, name, artist_credit, type, comment, edits_pending, last_updated) VALUES (1309730, '6281bcfe-058e-4cd3-85bc-66f47c28960b', 'The Theory of Everything', 14521, 1, '', 0, '2013-10-16 18:35:23.061087+00');
+INSERT INTO musicbrainz.release_group (id, gid, name, artist_credit, type, comment, edits_pending, last_updated) VALUES (34849, '4ebfe175-e7ed-34cd-8e91-67c7e4a53579', 'The Number of the Beast', 10042, 1, '', 0, '2014-06-07 10:02:32.172033+00');
 
 -- RELEASE
 
@@ -331,6 +334,41 @@ INSERT INTO musicbrainz.release (id, gid, name, artist_credit, release_group, st
 INSERT INTO musicbrainz.release (id, gid, name, artist_credit, release_group, status, packaging, language, script, barcode, comment, edits_pending, quality, last_updated) VALUES (1730616, '50c934ed-182c-41b3-a8f8-9871da668089', 'The Theory of Everything', 14521, 1309730, 1, 1, 120, 28, '5052205066621', '', 0, -1, '2016-02-22 13:00:20.922108+00');
 INSERT INTO musicbrainz.release (id, gid, name, artist_credit, release_group, status, packaging, language, script, barcode, comment, edits_pending, quality, last_updated) VALUES (1342209, '8b828d3b-810d-4731-a51f-2b3d5d55193f', 'The Theory of Everything', 14521, 1309730, 1, 1, 120, 28, '5052205066621', '', 0, -1, '2017-08-09 15:00:20.457993+00');
 INSERT INTO musicbrainz.release (id, gid, name, artist_credit, release_group, status, packaging, language, script, barcode, comment, edits_pending, quality, last_updated) VALUES (1942043, '3196b534-3184-4f06-94c4-22c38cfb3c9f', 'The Theory of Everything', 14521, 1309730, 1, 3, 120, 28, '885417066623', '', 0, -1, '2017-04-08 10:00:34.600524+00');
+INSERT INTO musicbrainz.release (id, gid, name, artist_credit, release_group, status, packaging, language, script, barcode, comment, edits_pending, quality, last_updated) VALUES (177204, 'aef95dd4-aa19-380a-9265-2437dc17c97c', 'The Number of the Beast', 10042, 34849, 1, NULL, 120, 28, NULL, '', 0, -1, '2015-08-12 16:01:24.07612+00');
+INSERT INTO musicbrainz.release (id, gid, name, artist_credit, release_group, status, packaging, language, script, barcode, comment, edits_pending, quality, last_updated) VALUES (177202, '898d55cf-cd58-3026-a2fd-b8bcfea277b5', 'The Number of the Beast', 10042, 34849, 1, NULL, 120, 28, NULL, '', 0, -1, '2015-08-12 16:01:30.956833+00');
+INSERT INTO musicbrainz.release (id, gid, name, artist_credit, release_group, status, packaging, language, script, barcode, comment, edits_pending, quality, last_updated) VALUES (177205, '3f2a8693-06d4-316d-9fc9-88e75eeaed71', 'The Number of the Beast', 10042, 34849, 1, NULL, 120, 28, NULL, '', 0, -1, '2015-08-12 16:01:33.088476+00');
+INSERT INTO musicbrainz.release (id, gid, name, artist_credit, release_group, status, packaging, language, script, barcode, comment, edits_pending, quality, last_updated) VALUES (41776, '39eddca0-ea3e-44f7-9089-2d21eaee9caa', 'The Number of the Beast', 10042, 34849, 1, NULL, 120, 28, NULL, '', 0, -1, '2015-08-12 16:01:28.698304+00');
+INSERT INTO musicbrainz.release (id, gid, name, artist_credit, release_group, status, packaging, language, script, barcode, comment, edits_pending, quality, last_updated) VALUES (729281, '310a7a07-47ba-3a19-8ef1-1039fb5dd6bf', 'The Number of the Beast', 10042, 34849, 1, 4, 120, 28, NULL, '', 0, -1, '2015-08-12 16:01:30.830096+00');
+INSERT INTO musicbrainz.release (id, gid, name, artist_credit, release_group, status, packaging, language, script, barcode, comment, edits_pending, quality, last_updated) VALUES (729175, '19f90656-d7f9-36d4-a15a-928a2daec54b', 'The Number of the Beast', 10042, 34849, 1, NULL, 120, 28, NULL, '', 0, -1, '2011-01-30 14:58:25.865155+00');
+INSERT INTO musicbrainz.release (id, gid, name, artist_credit, release_group, status, packaging, language, script, barcode, comment, edits_pending, quality, last_updated) VALUES (177207, 'e6e9e70a-91e7-3644-84c6-05d0f8847b8f', 'The Number of the Beast', 10042, 34849, 1, NULL, 120, 28, '600234010426', '', 0, -1, '2017-12-22 17:00:15.897131+00');
+INSERT INTO musicbrainz.release (id, gid, name, artist_credit, release_group, status, packaging, language, script, barcode, comment, edits_pending, quality, last_updated) VALUES (166393, '0cea1780-d3ca-30a7-909d-6abcd7ee6a9b', 'The Number of the Beast', 10042, 34849, 1, 1, 120, 28, '077774636421', '', 0, -1, '2019-03-03 22:00:53.384568+00');
+INSERT INTO musicbrainz.release (id, gid, name, artist_credit, release_group, status, packaging, language, script, barcode, comment, edits_pending, quality, last_updated) VALUES (1121010, 'a222f11b-be36-47d4-a2de-7874e4b6a2e5', 'The Number of the Beast', 10042, 34849, 1, 1, 120, 28, '077774636421', '', 0, -1, '2017-05-05 23:00:32.652749+00');
+INSERT INTO musicbrainz.release (id, gid, name, artist_credit, release_group, status, packaging, language, script, barcode, comment, edits_pending, quality, last_updated) VALUES (266741, '20d20196-ee7b-3069-aaca-943b8ee5a28a', 'The Number of the Beast', 10042, 34849, 1, NULL, 120, 28, NULL, '', 0, -1, '2015-08-12 16:01:23.731339+00');
+INSERT INTO musicbrainz.release (id, gid, name, artist_credit, release_group, status, packaging, language, script, barcode, comment, edits_pending, quality, last_updated) VALUES (798016, '3f217777-6e64-3a3b-9c2c-1753df40ee49', 'The Number of the Beast', 10042, 34849, 1, 1, 120, 28, '', '', 0, -1, '2018-02-06 12:00:22.534757+00');
+INSERT INTO musicbrainz.release (id, gid, name, artist_credit, release_group, status, packaging, language, script, barcode, comment, edits_pending, quality, last_updated) VALUES (194576, '4c07f2b6-5a38-48d6-83a4-c04265132289', 'The Number of the Beast', 10042, 34849, 1, 1, 120, 28, '696998621022', '', 0, -1, '2017-08-27 00:48:23.503704+00');
+INSERT INTO musicbrainz.release (id, gid, name, artist_credit, release_group, status, packaging, language, script, barcode, comment, edits_pending, quality, last_updated) VALUES (177203, 'b8ed3cfc-0c67-39f0-ae28-bbd1bbd3cc86', 'The Number of the Beast', 10042, 34849, 1, 1, 120, 28, '077774636421', '', 0, -1, '2015-08-12 16:01:33.393512+00');
+INSERT INTO musicbrainz.release (id, gid, name, artist_credit, release_group, status, packaging, language, script, barcode, comment, edits_pending, quality, last_updated) VALUES (194580, '3389b626-3fba-3f3c-87ca-b44ee4ac9e91', 'The Number of the Beast', 10042, 34849, 1, 1, 120, 28, '724349691803', '', 0, -1, '2015-05-26 22:01:09.097115+00');
+INSERT INTO musicbrainz.release (id, gid, name, artist_credit, release_group, status, packaging, language, script, barcode, comment, edits_pending, quality, last_updated) VALUES (1144461, '6f04f91d-77c9-48b8-9b2a-420b473d5ae8', 'The Number of the Beast', 10042, 34849, 1, 4, 120, 28, '5099910760819', '', 0, -1, '2014-02-11 19:53:24.246003+00');
+INSERT INTO musicbrainz.release (id, gid, name, artist_credit, release_group, status, packaging, language, script, barcode, comment, edits_pending, quality, last_updated) VALUES (266742, '5aa782e6-d87a-3ec1-af46-ff68c76cf8fc', 'The Number of the Beast', 10042, 34849, 1, 4, 120, 28, '', '', 0, -1, '2015-08-12 16:01:26.380392+00');
+INSERT INTO musicbrainz.release (id, gid, name, artist_credit, release_group, status, packaging, language, script, barcode, comment, edits_pending, quality, last_updated) VALUES (1462884, 'e7c38fe7-8399-4103-a03c-c26a50f81851', 'The Number of the Beast', 10042, 34849, 1, 1, 120, 28, '077774636421', '', 0, -1, '2014-08-15 07:00:39.8201+00');
+INSERT INTO musicbrainz.release (id, gid, name, artist_credit, release_group, status, packaging, language, script, barcode, comment, edits_pending, quality, last_updated) VALUES (1630194, 'eb8b0a99-0c1e-4cc8-9dbc-afdbb6c221ac', 'The Number of the Beast', 10042, 34849, 1, 1, 120, 28, '07777463642', '', 0, -1, '2015-07-15 00:01:04.574255+00');
+INSERT INTO musicbrainz.release (id, gid, name, artist_credit, release_group, status, packaging, language, script, barcode, comment, edits_pending, quality, last_updated) VALUES (194583, '59f164b0-ac13-3f9b-a632-51e45ea85d1d', 'The Number of the Beast', 10042, 34849, 1, 1, 120, 28, '724349691803', '', 0, -1, '2017-12-22 16:00:23.36568+00');
+INSERT INTO musicbrainz.release (id, gid, name, artist_credit, release_group, status, packaging, language, script, barcode, comment, edits_pending, quality, last_updated) VALUES (194584, 'b54fd218-4ad8-32b9-bb4b-6138c9e2cefa', 'The Number of the Beast', 10042, 34849, 1, NULL, 120, 28, '602923012926', '', 0, -1, '2014-08-27 22:00:25.571575+00');
+INSERT INTO musicbrainz.release (id, gid, name, artist_credit, release_group, status, packaging, language, script, barcode, comment, edits_pending, quality, last_updated) VALUES (1661427, '92f80666-3610-413a-9c95-119bf10f8dd3', 'The Number of the Beast', 10042, 34849, 1, 4, 120, 28, '', '', 0, -1, '2015-09-28 15:00:12.686234+00');
+INSERT INTO musicbrainz.release (id, gid, name, artist_credit, release_group, status, packaging, language, script, barcode, comment, edits_pending, quality, last_updated) VALUES (1342081, '9671a025-bb1e-42d5-91b1-74be89062433', 'The Number of the Beast', 10042, 34849, 1, 1, 120, 28, '077774636421', '', 0, -1, '2015-08-11 13:00:35.898562+00');
+INSERT INTO musicbrainz.release (id, gid, name, artist_credit, release_group, status, packaging, language, script, barcode, comment, edits_pending, quality, last_updated) VALUES (1770000, 'd387a3d1-2360-408c-aa36-8a0e68b6040b', 'The Number of the Beast', 10042, 34849, 1, 1, 120, 28, '724349691803', '', 0, -1, '2016-05-08 16:00:32.392515+00');
+INSERT INTO musicbrainz.release (id, gid, name, artist_credit, release_group, status, packaging, language, script, barcode, comment, edits_pending, quality, last_updated) VALUES (1481974, 'd9216f7b-86c0-4b3c-b5a4-76177c671776', 'The Number of the Beast', 10042, 34849, 1, 12, 120, 28, NULL, '', 0, -1, '2014-09-26 21:00:30.581348+00');
+INSERT INTO musicbrainz.release (id, gid, name, artist_credit, release_group, status, packaging, language, script, barcode, comment, edits_pending, quality, last_updated) VALUES (177206, '14d0dbd8-75e7-3dd0-928c-885bba806efb', 'The Number of the Beast', 10042, 34849, 1, NULL, 120, 28, '724383587025', '', 0, -1, '2017-12-22 16:00:23.949332+00');
+INSERT INTO musicbrainz.release (id, gid, name, artist_credit, release_group, status, packaging, language, script, barcode, comment, edits_pending, quality, last_updated) VALUES (1832868, 'e38f0fda-a3f2-4726-82e1-cd68a0428ed6', 'The Number of the Beast', 10042, 34849, NULL, NULL, NULL, NULL, '825646252404', '', 0, -1, '2016-09-26 21:00:47.891633+00');
+INSERT INTO musicbrainz.release (id, gid, name, artist_credit, release_group, status, packaging, language, script, barcode, comment, edits_pending, quality, last_updated) VALUES (475144, 'e6ba3c16-47e5-33f8-9234-7db027c18632', 'The Number of the Beast', 10042, 34849, 1, 1, 120, 28, '602923012926', '', 0, -1, '2016-11-10 13:00:19.203808+00');
+INSERT INTO musicbrainz.release (id, gid, name, artist_credit, release_group, status, packaging, language, script, barcode, comment, edits_pending, quality, last_updated) VALUES (1916663, 'e0cff9f3-b9fe-4254-add3-30783456b200', 'The Number of the Beast', 10042, 34849, 1, NULL, NULL, NULL, '', '', 0, -1, '2017-09-21 08:00:13.773768+00');
+INSERT INTO musicbrainz.release (id, gid, name, artist_credit, release_group, status, packaging, language, script, barcode, comment, edits_pending, quality, last_updated) VALUES (2381660, '8c339ace-f9fc-41d1-9af3-0bd5dee8455d', 'The Number of the Beast', 10042, 34849, 1, NULL, 120, 28, '077774636421', '', 0, -1, '2019-03-25 08:22:56.051871+00');
+INSERT INTO musicbrainz.release (id, gid, name, artist_credit, release_group, status, packaging, language, script, barcode, comment, edits_pending, quality, last_updated) VALUES (493662, '324e74bf-f2c5-36bb-ad66-d20348e2a6db', 'The Number of the Beast', 10042, 34849, 1, 4, 120, 28, '', '', 0, -1, '2018-10-15 15:00:53.964243+00');
+INSERT INTO musicbrainz.release (id, gid, name, artist_credit, release_group, status, packaging, language, script, barcode, comment, edits_pending, quality, last_updated) VALUES (2290872, 'cd36157d-cd89-44be-a9cb-85e1fbe3e86f', 'The Number of the Beast', 10042, 34849, 1, 3, 120, 28, '0190295567743', '', 0, -1, '2018-11-18 18:47:16.179664+00');
+INSERT INTO musicbrainz.release (id, gid, name, artist_credit, release_group, status, packaging, language, script, barcode, comment, edits_pending, quality, last_updated) VALUES (2401659, '1ace82cf-9c66-47c2-9361-8472b48c35a9', 'The Number of the Beast', 10042, 34849, 1, 7, 120, 28, '190295524241', '2015 remaster', 0, -1, '2019-12-02 03:20:09.232761+00');
+INSERT INTO musicbrainz.release (id, gid, name, artist_credit, release_group, status, packaging, language, script, barcode, comment, edits_pending, quality, last_updated) VALUES (2331862, '9fee8211-063d-4af0-a882-56e472a88355', 'The Number of the Beast', 10042, 34849, 1, 1, 120, 28, '077774636421', '', 0, -1, '2019-01-20 14:21:12.02603+00');
+INSERT INTO musicbrainz.release (id, gid, name, artist_credit, release_group, status, packaging, language, script, barcode, comment, edits_pending, quality, last_updated) VALUES (2334124, 'cf4a2c5c-5814-4b14-a66a-20176f185679', 'The Number of the Beast', 10042, 34849, 1, 4, 120, 28, '', '', 0, -1, '2019-01-30 20:00:53.156696+00');
+INSERT INTO musicbrainz.release (id, gid, name, artist_credit, release_group, status, packaging, language, script, barcode, comment, edits_pending, quality, last_updated) VALUES (2584050, 'b94231f4-8cbc-4c5a-989b-96cd26beabe4', 'The Number of the Beast', 10042, 34849, 1, 1, 120, 28, '0208314105271', '', 0, -1, '2020-01-11 21:00:26.260478+00');
 
 CREATE TABLE musicbrainz.release_country (
   release INTEGER NOT NULL,  -- PK, references release.id
@@ -380,6 +418,41 @@ INSERT INTO musicbrainz.release_country (release, country, date_year, date_month
 INSERT INTO musicbrainz.release_country (release, country, date_year, date_month, date_day) VALUES (1342209, 81, 2013, 10, 25);
 INSERT INTO musicbrainz.release_country (release, country, date_year, date_month, date_day) VALUES (1342209, 222, 2013, 10, 28);
 INSERT INTO musicbrainz.release_country (release, country, date_year, date_month, date_day) VALUES (1342209, 241, 2013, 10, 25);
+INSERT INTO musicbrainz.release_country (release, country, date_year, date_month, date_day) VALUES (1481974, 222, 1982, NULL, NULL);
+INSERT INTO musicbrainz.release_country (release, country, date_year, date_month, date_day) VALUES (729281, 73, 1982, NULL, NULL);
+INSERT INTO musicbrainz.release_country (release, country, date_year, date_month, date_day) VALUES (798016, 107, 1986, 3, 1);
+INSERT INTO musicbrainz.release_country (release, country, date_year, date_month, date_day) VALUES (1770000, 10, 1998, NULL, NULL);
+INSERT INTO musicbrainz.release_country (release, country, date_year, date_month, date_day) VALUES (194576, 222, 2002, 3, 26);
+INSERT INTO musicbrainz.release_country (release, country, date_year, date_month, date_day) VALUES (1916663, 240, 2015, NULL, NULL);
+INSERT INTO musicbrainz.release_country (release, country, date_year, date_month, date_day) VALUES (41776, 81, 1982, NULL, NULL);
+INSERT INTO musicbrainz.release_country (release, country, date_year, date_month, date_day) VALUES (266742, 221, 1982, 3, 29);
+INSERT INTO musicbrainz.release_country (release, country, date_year, date_month, date_day) VALUES (177203, 222, 1987, NULL, NULL);
+INSERT INTO musicbrainz.release_country (release, country, date_year, date_month, date_day) VALUES (177207, 222, 1995, 10, 9);
+INSERT INTO musicbrainz.release_country (release, country, date_year, date_month, date_day) VALUES (2381660, 221, NULL, NULL, NULL);
+INSERT INTO musicbrainz.release_country (release, country, date_year, date_month, date_day) VALUES (177206, 221, 1995, NULL, NULL);
+INSERT INTO musicbrainz.release_country (release, country, date_year, date_month, date_day) VALUES (194584, 81, 1998, 9, 22);
+INSERT INTO musicbrainz.release_country (release, country, date_year, date_month, date_day) VALUES (194583, 221, 1998, 9, 14);
+INSERT INTO musicbrainz.release_country (release, country, date_year, date_month, date_day) VALUES (493662, 171, 1982, NULL, NULL);
+INSERT INTO musicbrainz.release_country (release, country, date_year, date_month, date_day) VALUES (1144461, 241, 1988, NULL, NULL);
+INSERT INTO musicbrainz.release_country (release, country, date_year, date_month, date_day) VALUES (177202, 150, 1982, NULL, NULL);
+INSERT INTO musicbrainz.release_country (release, country, date_year, date_month, date_day) VALUES (1630194, 38, 1987, NULL, NULL);
+INSERT INTO musicbrainz.release_country (release, country, date_year, date_month, date_day) VALUES (166393, 221, 1994, 7, NULL);
+INSERT INTO musicbrainz.release_country (release, country, date_year, date_month, date_day) VALUES (2334124, 241, 1982, NULL, NULL);
+INSERT INTO musicbrainz.release_country (release, country, date_year, date_month, date_day) VALUES (1661427, 176, 1993, NULL, NULL);
+INSERT INTO musicbrainz.release_country (release, country, date_year, date_month, date_day) VALUES (266741, 153, 1982, 3, 29);
+INSERT INTO musicbrainz.release_country (release, country, date_year, date_month, date_day) VALUES (475144, 222, 1998, 9, 29);
+INSERT INTO musicbrainz.release_country (release, country, date_year, date_month, date_day) VALUES (1342081, 221, 1987, NULL, NULL);
+INSERT INTO musicbrainz.release_country (release, country, date_year, date_month, date_day) VALUES (2290872, 241, 2018, 11, 16);
+INSERT INTO musicbrainz.release_country (release, country, date_year, date_month, date_day) VALUES (2331862, 150, NULL, NULL, NULL);
+INSERT INTO musicbrainz.release_country (release, country, date_year, date_month, date_day) VALUES (1462884, 150, 1987, NULL, NULL);
+INSERT INTO musicbrainz.release_country (release, country, date_year, date_month, date_day) VALUES (194580, 38, 1998, 9, 15);
+INSERT INTO musicbrainz.release_country (release, country, date_year, date_month, date_day) VALUES (2584050, 222, NULL, NULL, NULL);
+INSERT INTO musicbrainz.release_country (release, country, date_year, date_month, date_day) VALUES (2401659, 138, 2018, 11, 16);
+INSERT INTO musicbrainz.release_country (release, country, date_year, date_month, date_day) VALUES (2401659, 221, 2018, 11, 16);
+INSERT INTO musicbrainz.release_country (release, country, date_year, date_month, date_day) VALUES (1832868, 241, 2014, 10, 13);
+INSERT INTO musicbrainz.release_country (release, country, date_year, date_month, date_day) VALUES (177205, 81, 1985, NULL, NULL);
+INSERT INTO musicbrainz.release_country (release, country, date_year, date_month, date_day) VALUES (1121010, 150, 1982, NULL, NULL);
+INSERT INTO musicbrainz.release_country (release, country, date_year, date_month, date_day) VALUES (177204, 153, 1982, 3, 29);
 
 CREATE TABLE musicbrainz.release_unknown_country (
   release INTEGER NOT NULL,  -- PK, references release.id
@@ -387,3 +460,5 @@ CREATE TABLE musicbrainz.release_unknown_country (
   date_month SMALLINT,
   date_day SMALLINT
 );
+
+INSERT INTO musicbrainz.release_unknown_country (release, date_year, date_month, date_day) VALUES (729175, 1982, NULL, NULL);

@@ -2,7 +2,6 @@ package stolat.dao;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -20,20 +19,12 @@ import static stolat.dao.StolatDatabaseConstants.*;
 
 @Profile("jdbc")
 @Repository
-//@AllArgsConstructor
+@AllArgsConstructor
 @Slf4j
 public class JdbcTrackCollectionDao implements TrackCollectionDao {
 
     private final JdbcTemplate jdbcTemplate;
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
-
-    //TODO SEEMS TO NOT MAKE ANY DIFFERENCE...
-    @Autowired
-    public JdbcTrackCollectionDao(
-            JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
-    }
 
     @Override
     public void clearTrackCollection() {

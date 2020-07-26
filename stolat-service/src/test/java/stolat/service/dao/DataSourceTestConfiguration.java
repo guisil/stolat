@@ -1,4 +1,4 @@
-package stolat.bootstrap.dao;
+package stolat.service.dao;
 
 import org.flywaydb.core.Flyway;
 import org.springframework.beans.factory.annotation.Autowired;

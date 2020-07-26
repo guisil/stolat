@@ -1,0 +1,9 @@
+logging.level.root=info
+logging.file.name=log/stolat-bootstrap.log
+
+spring.profiles.active=jdbc
+
+spring.datasource.driver-class-name=org.postgresql.Driver
+spring.datasource.url=jdbc:postgresql://localhost:5432/database?stringtype=unspecified
+spring.datasource.username=user
+spring.datasource.password=password

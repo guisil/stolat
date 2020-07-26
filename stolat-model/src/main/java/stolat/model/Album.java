@@ -2,6 +2,7 @@ package stolat.model;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.ToString;
 import org.jaudiotagger.tag.FieldKey;
 
@@ -16,6 +17,17 @@ public class Album {
     private final String albumName;
     private final UUID artistMusicBrainzId;
     private final String artistName;
+
+    public Album(
+            @NonNull UUID albumMusicBrainzId,
+            @NonNull String albumName,
+            @NonNull UUID artistMusicBrainzId,
+            @NonNull String artistName) {
+        this.albumMusicBrainzId = albumMusicBrainzId;
+        this.albumName = albumName;
+        this.artistMusicBrainzId = artistMusicBrainzId;
+        this.artistName = artistName;
+    }
 
     public Album(
             String albumMbidTag, String albumNameTag,
