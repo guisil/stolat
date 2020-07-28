@@ -1,21 +1,17 @@
 package stolat.model;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.ToString;
+import lombok.*;
 
 import java.time.MonthDay;
 import java.util.List;
 
-@Getter
-@EqualsAndHashCode
-@ToString
+@NoArgsConstructor
+@Data
 public class BirthdayAlbums {
 
-    private final MonthDay from;
-    private final MonthDay to;
-    private final List<AlbumBirthday> albumBirthdays;
+    private MonthDay from;
+    private MonthDay to;
+    private List<AlbumBirthday> albumBirthdays;
 
     public BirthdayAlbums(
             @NonNull MonthDay from,

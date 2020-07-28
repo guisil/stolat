@@ -1,5 +1,9 @@
 package stolat.dao;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class DaoConstants {
 
     public static final String CLEAR_ALBUM_BIRTHDAY_SCRIPT = "clear_album_birthday_table.sql";

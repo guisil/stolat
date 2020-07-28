@@ -1,4 +1,4 @@
-package stolat.mail.service;
+package stolat.service.client;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,12 +12,11 @@ import stolat.model.BirthdayAlbums;
 
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URL;
 import java.time.MonthDay;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -31,7 +30,7 @@ class ServiceClientTest {
     private ServiceClient serviceClient;
 
     @BeforeEach
-    void setUp() throws MalformedURLException {
+    void setUp() {
         serviceClient = new ServiceClient(mockRestTemplate, GET_BIRTHDAYS_URI);
     }
 

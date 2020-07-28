@@ -6,10 +6,11 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import stolat.mail.content.BirthdayAlbumsToMessageConverter;
 import stolat.mail.sender.MailService;
-import stolat.mail.service.ServiceClient;
+import stolat.service.client.ServiceClient;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = "stolat")
 @AllArgsConstructor
 @Slf4j
 public class StolatMailApplication {
@@ -20,9 +21,14 @@ public class StolatMailApplication {
 
 
     @Bean
-    public CommandLineRunner run(ServiceClient serviceClient, MailService mailService) {
+    public CommandLineRunner run(
+            ServiceClient serviceClient,
+            BirthdayAlbumsToMessageConverter converter,
+            MailService mailService) {
         return args -> {
-            throw new UnsupportedOperationException("not implemented yet");
+            final var birthdayAlbums = serviceClient.getBirthdayAlbums();
+            final var messages = converter.convert(birthdayAlbums);
+            mailService.sendMail(messages);
         };
     }
 }

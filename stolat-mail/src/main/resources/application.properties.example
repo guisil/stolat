@@ -3,12 +3,14 @@ logging.file.name=log/stolat-mail.log
 
 service.get-birthdays-url=http://localhost/stolat/birthdays
 
+spring.main.web-application-type=none
+
 spring.mail.host=smtp.something.com
 spring.mail.port=587
-spring mail.username=user
+spring.mail.username=user
 spring.mail.password=password
 spring.mail.properties.mail.smtp.auth=true
 spring.mail.properties.mail.smtp.starttls.enable=true
 
 mail.from=some.email.address@something.com
-mail.recipients[0]=some.other.email.address@something.com
+mail.to[0]=some.other.email.address@something.com

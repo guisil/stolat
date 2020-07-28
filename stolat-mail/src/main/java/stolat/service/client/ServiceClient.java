@@ -1,4 +1,4 @@
-package stolat.mail.service;
+package stolat.service.client;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -7,15 +7,14 @@ import org.springframework.web.client.RestTemplate;
 import stolat.model.BirthdayAlbums;
 
 import java.net.URI;
-import java.net.URL;
 
 @Component
 @AllArgsConstructor
 @Slf4j
 public class ServiceClient {
 
-    private RestTemplate restTemplate;
-    private URI getBirthdaysUri;
+    private final RestTemplate restTemplate;
+    private final URI getBirthdaysUri;
 
     public BirthdayAlbums getBirthdayAlbums() {
         log.info("Calling the service to fetch today's birthday albums");

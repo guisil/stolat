@@ -27,6 +27,13 @@
                 <module>stolat-service</module>
             </modules>
         </profile>
+        <profile>
+            <id>stolat-mail</id>
+            <modules>
+                <module>stolat-model</module>
+                <module>stolat-mail</module>
+            </modules>
+        </profile>
     </profiles>
     
 </project>
