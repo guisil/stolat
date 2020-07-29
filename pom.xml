@@ -34,6 +34,16 @@
                 <module>stolat-mail</module>
             </modules>
         </profile>
+        <profile>
+            <id>stolat-all</id>
+            <modules>
+                <module>stolat-model</module>
+                <module>stolat-dao</module>
+                <module>stolat-bootstrap</module>
+                <module>stolat-service</module>
+                <module>stolat-mail</module>
+            </modules>
+        </profile>
     </profiles>
     
 </project>
