@@ -1,24 +1,21 @@
 package stolat.model;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 import java.time.MonthDay;
 import java.util.List;
 
 @NoArgsConstructor
+@AllArgsConstructor
 @Data
 public class BirthdayAlbums {
-
+    @NonNull
     private MonthDay from;
+    @NonNull
     private MonthDay to;
+    @NonNull
     private List<AlbumBirthday> albumBirthdays;
-
-    public BirthdayAlbums(
-            @NonNull MonthDay from,
-            @NonNull MonthDay to,
-            @NonNull List<AlbumBirthday> albumBirthdays) {
-        this.from = from;
-        this.to = to;
-        this.albumBirthdays = albumBirthdays;
-    }
 }
