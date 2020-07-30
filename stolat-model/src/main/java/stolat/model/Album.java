@@ -1,5 +1,7 @@
 package stolat.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
@@ -18,11 +20,12 @@ public class Album {
     private final UUID artistMusicBrainzId;
     private final String artistName;
 
+    @JsonCreator
     public Album(
-            @NonNull UUID albumMusicBrainzId,
-            @NonNull String albumName,
-            @NonNull UUID artistMusicBrainzId,
-            @NonNull String artistName) {
+            @JsonProperty("albumMusicBrainzId") @NonNull UUID albumMusicBrainzId,
+            @JsonProperty("albumName") @NonNull String albumName,
+            @JsonProperty("artistMusicBrainzId") @NonNull UUID artistMusicBrainzId,
+            @JsonProperty("artistName") @NonNull String artistName) {
         this.albumMusicBrainzId = albumMusicBrainzId;
         this.albumName = albumName;
         this.artistMusicBrainzId = artistMusicBrainzId;

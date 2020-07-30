@@ -1,21 +1,31 @@
 package stolat.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NonNull;
+import lombok.ToString;
 
 import java.time.MonthDay;
 import java.util.List;
 
-@NoArgsConstructor
-@AllArgsConstructor
-@Data
+@Getter
+@EqualsAndHashCode
+@ToString
 public class BirthdayAlbums {
-    @NonNull
-    private MonthDay from;
-    @NonNull
-    private MonthDay to;
-    @NonNull
-    private List<AlbumBirthday> albumBirthdays;
+
+    private final MonthDay from;
+    private final MonthDay to;
+    private final List<AlbumBirthday> albumBirthdays;
+
+    @JsonCreator
+    public BirthdayAlbums(
+            @JsonProperty("from") @NonNull MonthDay from,
+            @JsonProperty("to") @NonNull MonthDay to,
+            @JsonProperty("albumBirthdays") @NonNull List<AlbumBirthday> albumBirthdays) {
+        this.from = from;
+        this.to = to;
+        this.albumBirthdays = albumBirthdays;
+    }
 }

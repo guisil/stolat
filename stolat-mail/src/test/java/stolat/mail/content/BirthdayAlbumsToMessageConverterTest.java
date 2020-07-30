@@ -11,6 +11,7 @@ import stolat.model.Album;
 import stolat.model.AlbumBirthday;
 import stolat.model.BirthdayAlbums;
 
+import java.time.LocalDate;
 import java.time.MonthDay;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
@@ -58,10 +59,22 @@ class BirthdayAlbumsToMessageConverterTest {
     private static final String BIRTHDAY_ALBUMS_STRING =
             SECOND_ALBUM_BIRTHDAY.getAlbum().getArtistName() +
                     " - " + SECOND_ALBUM_BIRTHDAY.getAlbum().getAlbumName() +
-                    " (" + SECOND_ALBUM_BIRTHDAY.getAlbumCompleteDate().format(DATE_FORMATTER) + ")" +
+                    " (" +
+                    LocalDate.of(
+                            SECOND_ALBUM_BIRTHDAY.getAlbumYear(),
+                            SECOND_ALBUM_BIRTHDAY.getAlbumMonth(),
+                            SECOND_ALBUM_BIRTHDAY.getAlbumDay())
+                            .format(DATE_FORMATTER) +
+                    ")" +
                     "\n" + FIRST_ALBUM_BIRTHDAY.getAlbum().getArtistName() +
                     " - " + FIRST_ALBUM_BIRTHDAY.getAlbum().getAlbumName() +
-                    " (" + FIRST_ALBUM_BIRTHDAY.getAlbumCompleteDate().format(DATE_FORMATTER) + ")";
+                    " (" +
+                    LocalDate.of(
+                            FIRST_ALBUM_BIRTHDAY.getAlbumYear(),
+                            FIRST_ALBUM_BIRTHDAY.getAlbumMonth(),
+                            FIRST_ALBUM_BIRTHDAY.getAlbumDay())
+                            .format(DATE_FORMATTER) +
+                    ")";
 
     @Mock
     private MailProperties mockMailProperties;

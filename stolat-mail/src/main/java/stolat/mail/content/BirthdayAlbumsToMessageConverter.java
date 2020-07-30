@@ -9,6 +9,7 @@ import stolat.model.AlbumBirthday;
 import stolat.model.AlbumMonthDayArtistComparator;
 import stolat.model.BirthdayAlbums;
 
+import java.time.LocalDate;
 import java.time.MonthDay;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -54,7 +55,12 @@ public class BirthdayAlbumsToMessageConverter {
                     .append(" - ")
                     .append(albumBirthday.getAlbum().getAlbumName())
                     .append(" (")
-                    .append(albumBirthday.getAlbumCompleteDate().format(MessageConstants.DATE_FORMATTER))
+                    .append(
+                            LocalDate.of(
+                                    albumBirthday.getAlbumYear(),
+                                    albumBirthday.getAlbumMonth(),
+                                    albumBirthday.getAlbumDay())
+                                    .format(MessageConstants.DATE_FORMATTER))
                     .append(")")
                     .toString();
         }).collect(Collectors.joining("\n"));

@@ -27,7 +27,7 @@ class BirthdayAlbumsTest {
                 null,
                 MonthDay.of(7, 27),
                 List.of(new AlbumBirthday(
-                        null, 2000))));
+                        null, 2000, null, null))));
     }
 
     @Test
@@ -36,7 +36,7 @@ class BirthdayAlbumsTest {
                 MonthDay.of(7, 25),
                 null,
                 List.of(new AlbumBirthday(
-                        null, 2000))));
+                        null, 2000, null, null))));
     }
 
     @Test
@@ -45,29 +45,5 @@ class BirthdayAlbumsTest {
                 MonthDay.of(7, 25),
                 MonthDay.of(7, 27),
                 null));
-    }
-
-    @Test
-    void shouldNotAllowSettingNullFromDate() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            final var birthdayAlbums = new BirthdayAlbums();
-            birthdayAlbums.setFrom(null);
-        });
-    }
-
-    @Test
-    void shouldNotAllowSettingNullToDate() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            final var birthdayAlbums = new BirthdayAlbums();
-            birthdayAlbums.setTo(null);
-        });
-    }
-
-    @Test
-    void shouldNotAllowSettingNullAlbumBirthdays() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            final var birthdayAlbums = new BirthdayAlbums();
-            birthdayAlbums.setAlbumBirthdays(null);
-        });
     }
 }

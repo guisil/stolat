@@ -259,9 +259,9 @@ class JdbcAlbumBirthdayDaoTest {
         albumParameterSource.addValue(ALBUM_NAME_COLUMN, birthday.getAlbum().getAlbumName());
         albumParameterSource.addValue(ARTIST_MBID_COLUMN, birthday.getAlbum().getArtistMusicBrainzId());
         albumParameterSource.addValue(ARTIST_NAME_COLUMN, birthday.getAlbum().getArtistName());
-        albumParameterSource.addValue(ALBUM_YEAR_COLUMN, birthday.getAlbumCompleteDate().getYear());
-        albumParameterSource.addValue(ALBUM_MONTH_COLUMN, birthday.getAlbumCompleteDate().getMonthValue());
-        albumParameterSource.addValue(ALBUM_DAY_COLUMN, birthday.getAlbumCompleteDate().getDayOfMonth());
+        albumParameterSource.addValue(ALBUM_YEAR_COLUMN, birthday.getAlbumYear());
+        albumParameterSource.addValue(ALBUM_MONTH_COLUMN, birthday.getAlbumMonth());
+        albumParameterSource.addValue(ALBUM_DAY_COLUMN, birthday.getAlbumDay());
         albumParameterSource.addValue(LAST_UPDATED_COLUMN, Timestamp.from(instant));
 
         birthdayInsert.execute(albumParameterSource);

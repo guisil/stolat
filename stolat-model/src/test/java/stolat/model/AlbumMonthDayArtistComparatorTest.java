@@ -49,22 +49,22 @@ class AlbumMonthDayArtistComparatorTest {
                 new Album(
                         UUID.randomUUID(), "Some Album",
                         UUID.randomUUID(), "Some Artist"),
-                2000, 2);
+                2000, 2, null);
         final var expectedSecond = new AlbumBirthday(
                 new Album(
                         UUID.randomUUID(), "Some Album",
                         UUID.randomUUID(), "Another Artist"),
-                2000, 3);
+                2000, 3, null);
         final var expectedThird = new AlbumBirthday(
                 new Album(
                         UUID.randomUUID(), "Some Album",
                         UUID.randomUUID(), "Some Artist"),
-                2000, 3);
+                2000, 3, null);
         final var expectedEquallyThird = new AlbumBirthday(
                 new Album(
                         UUID.randomUUID(), "Some Other Album",
                         UUID.randomUUID(), "Some Artist"),
-                2000, 3);
+                2000, 3, null);
 
         assertTrue(comparator.compare(expectedFirst, expectedSecond) < 0);
         assertTrue(comparator.compare(expectedSecond, expectedFirst) > 0);
@@ -82,7 +82,7 @@ class AlbumMonthDayArtistComparatorTest {
                 new Album(
                         UUID.randomUUID(), "Some Album",
                         UUID.randomUUID(), "Some Artist"),
-                2000, 2);
+                2000, 2, null);
         final var expectedSecond = new AlbumBirthday(
                 new Album(
                         UUID.randomUUID(), "Some Album",
@@ -97,7 +97,7 @@ class AlbumMonthDayArtistComparatorTest {
                 new Album(
                         UUID.randomUUID(), "Some Album",
                         UUID.randomUUID(), "Another Artist"),
-                2000, 3);
+                2000, 3, null);
 
         assertTrue(comparator.compare(expectedFirst, expectedSecond) < 0);
         assertTrue(comparator.compare(expectedSecond, expectedFirst) > 0);
@@ -110,22 +110,22 @@ class AlbumMonthDayArtistComparatorTest {
     }
 
     @Test
-    void shouldCompareWhenBirthdaysHaveNoMonth() {
+    void shouldCompareWhenBirthdaysHaveNoMonthAndNoDay() {
         final var expectedFirst = new AlbumBirthday(
                 new Album(
                         UUID.randomUUID(), "Some Album",
                         UUID.randomUUID(), "Another Artist"),
-                2000);
+                2000, null, null);
         final var expectedSecond = new AlbumBirthday(
                 new Album(
                         UUID.randomUUID(), "Some Album",
                         UUID.randomUUID(), "Some Artist"),
-                2000);
+                2000, null, null);
         final var expectedEquallySecond = new AlbumBirthday(
                 new Album(
                         UUID.randomUUID(), "Some Album",
                         UUID.randomUUID(), "Some Artist"),
-                2000);
+                2000, null, null);
 
         assertTrue(comparator.compare(expectedFirst, expectedSecond) < 0);
         assertTrue(comparator.compare(expectedSecond, expectedFirst) > 0);
@@ -134,12 +134,12 @@ class AlbumMonthDayArtistComparatorTest {
     }
 
     @Test
-    void shouldCompareWhenSomeBirthdaysHaveNoMonth() {
+    void shouldCompareWhenSomeBirthdaysHaveNoMonthAndNoDay() {
         final var expectedFirst = new AlbumBirthday(
                 new Album(
                         UUID.randomUUID(), "Some Album",
                         UUID.randomUUID(), "Some Artist"),
-                2000, 2);
+                2000, 2, null);
         final var expectedSecond = new AlbumBirthday(
                 new Album(
                         UUID.randomUUID(), "Some Album",
@@ -154,7 +154,7 @@ class AlbumMonthDayArtistComparatorTest {
                 new Album(
                         UUID.randomUUID(), "Some Album",
                         UUID.randomUUID(), "Another Artist"),
-                1999);
+                1999, null, null);
 
         assertTrue(comparator.compare(expectedFirst, expectedSecond) < 0);
         assertTrue(comparator.compare(expectedSecond, expectedFirst) > 0);
