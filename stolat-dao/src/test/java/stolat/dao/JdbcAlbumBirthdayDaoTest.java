@@ -73,6 +73,14 @@ class JdbcAlbumBirthdayDaoTest {
                             UUID.fromString("ca891d65-d9b0-4258-89f7-e6ba29d83767"),
                             "Iron Maiden"),
                     1982, 3, 29);
+    private final AlbumBirthday expectedEels =
+            new AlbumBirthday(
+                    new Album(
+                            UUID.fromString("119a9488-9980-3645-be68-f50210a35a26"),
+                            "Beautiful Freak",
+                            UUID.fromString("14387b0f-765c-4852-852f-135335790466"),
+                            "EELS"),
+                    1996, 8, 5);
 
     private JdbcTemplate jdbcTemplate;
 
@@ -102,7 +110,7 @@ class JdbcAlbumBirthdayDaoTest {
         Set<AlbumBirthday> expectedAlbumBirthdays =
                 Set.of(expectedMogwai, expectedOpeth,
                         expectedDeadCombo, expectedAyreon,
-                        expectedIronMaiden);
+                        expectedIronMaiden, expectedEels);
 
         albumBirthdayDao.populateAlbumBirthdays();
 
@@ -170,7 +178,7 @@ class JdbcAlbumBirthdayDaoTest {
 
         List<AlbumBirthday> expected =
                 List.of(expectedDeadCombo, expectedIronMaiden, expectedMogwai,
-                        expectedOpeth, expectedAyreon);
+                        expectedEels, expectedOpeth, expectedAyreon);
 
         List<AlbumBirthday> actual =
                 albumBirthdayDao.getAlbumBirthdays(
@@ -205,7 +213,7 @@ class JdbcAlbumBirthdayDaoTest {
 
         List<AlbumBirthday> expected =
                 List.of(expectedDeadCombo, expectedIronMaiden, expectedMogwai,
-                        expectedOpeth, expectedAyreon);
+                        expectedEels, expectedOpeth, expectedAyreon);
 
         List<AlbumBirthday> actual =
                 albumBirthdayDao.getAlbumBirthdays(
@@ -242,9 +250,11 @@ class JdbcAlbumBirthdayDaoTest {
         insertAlbum(expectedAyreon.getAlbum(), oneHourAgo);
         insertBirthday(expectedIronMaiden, oneHourAgo);
         insertAlbum(expectedIronMaiden.getAlbum(), oneHourAgo);
+        insertBirthday(expectedEels, oneHourAgo);
+        insertAlbum(expectedEels.getAlbum(), oneHourAgo);
 
         String selectBirthdayCount = "SELECT COUNT(*) FROM " + BIRTHDAY_TABLE_FULL_NAME;
-        assertEquals(5, jdbcTemplate.queryForObject(selectBirthdayCount, Integer.TYPE));
+        assertEquals(6, jdbcTemplate.queryForObject(selectBirthdayCount, Integer.TYPE));
     }
 
     private void insertBirthday(AlbumBirthday birthday, Instant instant) {

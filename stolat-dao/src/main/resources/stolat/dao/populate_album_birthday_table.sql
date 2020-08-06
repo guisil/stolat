@@ -16,10 +16,12 @@ FROM (
         musicbrainz.release,
         musicbrainz.release_group,
         musicbrainz.release_country,
+        musicbrainz.artist_credit_name,
         musicbrainz.artist
     WHERE release.id = release_country.release
     AND release.release_group = release_group.id
-    AND artist.id = release_group.artist_credit
+    AND artist.id = artist_credit_name.artist
+    AND artist_credit_name.artist_credit = release_group.artist_credit
 UNION
     SELECT
         release_group.gid AS album_mbid,
@@ -34,10 +36,12 @@ UNION
         musicbrainz.release,
         musicbrainz.release_group,
         musicbrainz.release_unknown_country,
+        musicbrainz.artist_credit_name,
         musicbrainz.artist
     WHERE release.id = release_unknown_country.release
     AND release.release_group = release_group.id
-    AND artist.id = release_group.artist_credit
+    AND artist.id = artist_credit_name.artist
+    AND artist_credit_name.artist_credit = release_group.artist_credit
 )
 AS foo
 ORDER BY album_mbid, album_year, album_month, album_day;

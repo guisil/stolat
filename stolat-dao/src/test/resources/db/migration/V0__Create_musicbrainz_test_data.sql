@@ -60,6 +60,11 @@ INSERT INTO musicbrainz.area (id, gid, name, type, edits_pending, last_updated, 
 INSERT INTO musicbrainz.area (id, gid, name, type, edits_pending, last_updated, begin_date_year, begin_date_month, begin_date_day, end_date_year, end_date_month, end_date_day, ended, comment) VALUES (222, '489ce91b-6658-3307-9877-795b68554c98', 'United States', 1, 0, '2013-06-15 18:06:39.59323+00', NULL, NULL, NULL, NULL, NULL, NULL, false, '');
 INSERT INTO musicbrainz.area (id, gid, name, type, edits_pending, last_updated, begin_date_year, begin_date_month, begin_date_day, end_date_year, end_date_month, end_date_day, ended, comment) VALUES (240, '525d4e18-3d00-31b9-a58b-a146a916de8f', '[Worldwide]', NULL, 0, '2013-08-28 11:55:07.839087+00', NULL, NULL, NULL, NULL, NULL, NULL, false, '');
 INSERT INTO musicbrainz.area (id, gid, name, type, edits_pending, last_updated, begin_date_year, begin_date_month, begin_date_day, end_date_year, end_date_month, end_date_day, ended, comment) VALUES (241, '89a675c2-3e37-3518-b83c-418bad59a85a', 'Europe', NULL, 0, '2013-08-28 11:55:13.834089+00', NULL, NULL, NULL, NULL, NULL, NULL, false, '');
+INSERT INTO musicbrainz.area (id, gid, name, type, edits_pending, last_updated, begin_date_year, begin_date_month, begin_date_day, end_date_year, end_date_month, end_date_day, ended, comment) VALUES (3855, 'c279f805-01f8-46f5-99cf-51f165a1adad', 'Glasgow', 3, 0, '2013-05-24 00:02:38.336242+00', NULL, NULL, NULL, NULL, NULL, NULL, false, '');
+INSERT INTO musicbrainz.area (id, gid, name, type, edits_pending, last_updated, begin_date_year, begin_date_month, begin_date_day, end_date_year, end_date_month, end_date_day, ended, comment) VALUES (5062, '9aee8c1a-c7d5-4713-af71-c022bccf50b4', 'Lisbon', 3, 0, '2013-11-26 17:55:57.158919+00', NULL, NULL, NULL, NULL, NULL, NULL, false, '');
+INSERT INTO musicbrainz.area (id, gid, name, type, edits_pending, last_updated, begin_date_year, begin_date_month, begin_date_day, end_date_year, end_date_month, end_date_day, ended, comment) VALUES (5114, '1127ddc2-eab3-4662-8718-6adbdeea3b10', 'Stockholm', 3, 0, '2013-11-24 06:30:16.374681+00', NULL, NULL, NULL, NULL, NULL, NULL, false, '');
+INSERT INTO musicbrainz.area (id, gid, name, type, edits_pending, last_updated, begin_date_year, begin_date_month, begin_date_day, end_date_year, end_date_month, end_date_day, ended, comment) VALUES (30642, '14c90364-6dcb-48b4-b50e-844e9c06d366', 'Los Feliz', 3, 0, '2015-04-16 15:23:14.465503+00', NULL, NULL, NULL, NULL, NULL, NULL, false, '');
+INSERT INTO musicbrainz.area (id, gid, name, type, edits_pending, last_updated, begin_date_year, begin_date_month, begin_date_day, end_date_year, end_date_month, end_date_day, ended, comment) VALUES (55361, 'f999fe3f-b2e5-4a2a-8f5b-eed90aae23d9', 'Leyton', 5, 0, '2013-11-06 23:05:26.928656+00', NULL, NULL, NULL, NULL, NULL, NULL, false, '');
 
 CREATE TABLE musicbrainz.country_area (
     area                INTEGER -- PK, references area.id
@@ -170,11 +175,12 @@ CREATE TABLE musicbrainz.artist (
     end_area            INTEGER -- references area.id
 );
 
+INSERT INTO musicbrainz.artist (id, gid, name, sort_name, begin_date_year, begin_date_month, begin_date_day, end_date_year, end_date_month, end_date_day, type, area, gender, comment, edits_pending, last_updated, ended, begin_area, end_area) VALUES (2148, '14387b0f-765c-4852-852f-135335790466', 'EELS', 'EELS', 1995, NULL, NULL, NULL, NULL, NULL, 2, 222, NULL, '', 0, '2013-10-19 04:47:24.822667+00', false, 30642, NULL);
 INSERT INTO musicbrainz.artist (id, gid, name, sort_name, begin_date_year, begin_date_month, begin_date_day, end_date_year, end_date_month, end_date_day, type, area, gender, comment, edits_pending, last_updated, ended, begin_area, end_area) VALUES (3544, 'd700b3f5-45af-4d02-95ed-57d301bda93e', 'Mogwai', 'Mogwai', 1995, NULL, NULL, NULL, NULL, NULL, 2, 221, NULL, 'Scottish post-rock band', 0, '2013-07-25 09:00:19.675349+00', false, 3855, NULL);
+INSERT INTO musicbrainz.artist (id, gid, name, sort_name, begin_date_year, begin_date_month, begin_date_day, end_date_year, end_date_month, end_date_day, type, area, gender, comment, edits_pending, last_updated, ended, begin_area, end_area) VALUES (10042, 'ca891d65-d9b0-4258-89f7-e6ba29d83767', 'Iron Maiden', 'Iron Maiden', 1975, 12, 25, NULL, NULL, NULL, 2, 221, NULL, 'English heavy metal band', 0, '2016-01-02 02:00:41.207128+00', false, 55361, NULL);
+INSERT INTO musicbrainz.artist (id, gid, name, sort_name, begin_date_year, begin_date_month, begin_date_day, end_date_year, end_date_month, end_date_day, type, area, gender, comment, edits_pending, last_updated, ended, begin_area, end_area) VALUES (14521, '7bbfd77c-1102-4831-9ba8-246fb67460b3', 'Ayreon', 'Ayreon', 1995, NULL, NULL, NULL, NULL, NULL, 2, 150, NULL, '', 0, '2018-03-31 19:52:14.32+00', false, 150, NULL);
 INSERT INTO musicbrainz.artist (id, gid, name, sort_name, begin_date_year, begin_date_month, begin_date_day, end_date_year, end_date_month, end_date_day, type, area, gender, comment, edits_pending, last_updated, ended, begin_area, end_area) VALUES (16043, 'c14b4180-dc87-481e-b17a-64e4150f90f6', 'Opeth', 'Opeth', 1990, NULL, NULL, NULL, NULL, NULL, 2, 202, NULL, '', 0, '2013-06-15 11:00:18.966549+00', false, 5114, NULL);
 INSERT INTO musicbrainz.artist (id, gid, name, sort_name, begin_date_year, begin_date_month, begin_date_day, end_date_year, end_date_month, end_date_day, type, area, gender, comment, edits_pending, last_updated, ended, begin_area, end_area) VALUES (343789, '092ae9e2-60bf-4b66-aa33-9e31754d1924', 'Dead Combo', 'Dead Combo', 2003, NULL, NULL, NULL, NULL, NULL, 2, 171, NULL, 'Portuguese group', 0, '2015-07-18 02:00:45.563088+00', false, 5062, NULL);
-INSERT INTO musicbrainz.artist (id, gid, name, sort_name, begin_date_year, begin_date_month, begin_date_day, end_date_year, end_date_month, end_date_day, type, area, gender, comment, edits_pending, last_updated, ended, begin_area, end_area) VALUES (14521, '7bbfd77c-1102-4831-9ba8-246fb67460b3', 'Ayreon', 'Ayreon', 1995, NULL, NULL, NULL, NULL, NULL, 2, 150, NULL, '', 0, '2018-03-31 19:52:14.32+00', false, 150, NULL);
-INSERT INTO musicbrainz.artist (id, gid, name, sort_name, begin_date_year, begin_date_month, begin_date_day, end_date_year, end_date_month, end_date_day, type, area, gender, comment, edits_pending, last_updated, ended, begin_area, end_area) VALUES (10042, 'ca891d65-d9b0-4258-89f7-e6ba29d83767', 'Iron Maiden', 'Iron Maiden', 1975, 12, 25, NULL, NULL, NULL, 2, 221, NULL, 'English heavy metal band', 0, '2016-01-02 02:00:41.207128+00', false, 55361, NULL);
 
 -- ARTIST CREDIT
 
@@ -187,11 +193,91 @@ CREATE TABLE musicbrainz.artist_credit (
     edits_pending       INTEGER NOT NULL DEFAULT 0 CHECK (edits_pending >= 0)
 );
 
-INSERT INTO musicbrainz.artist_credit (id, name, artist_count, ref_count, created, edits_pending) VALUES (14521, 'Ayreon', 1, 2754, '2011-05-16 16:32:11.963929+00', 0);
+INSERT INTO musicbrainz.artist_credit (id, name, artist_count, ref_count, created, edits_pending) VALUES (2436958, 'EELS / Munchausen by Proxy', 2, 1, '2019-06-08 12:19:04.78747+00', 0);
+INSERT INTO musicbrainz.artist_credit (id, name, artist_count, ref_count, created, edits_pending) VALUES (1038153, 'Eels', 1, 90, '2012-08-21 11:00:10.990817+00', 0);
+INSERT INTO musicbrainz.artist_credit (id, name, artist_count, ref_count, created, edits_pending) VALUES (1523780, 'Iran Maiden', 1, 2, '2015-08-20 04:22:51.907954+00', 0);
+INSERT INTO musicbrainz.artist_credit (id, name, artist_count, ref_count, created, edits_pending) VALUES (985096, 'Craig Armstrong feat. Mogwai', 2, 3, '2012-05-15 03:49:51.062389+00', 0);
+INSERT INTO musicbrainz.artist_credit (id, name, artist_count, ref_count, created, edits_pending) VALUES (1474961, 'Ayreon feat. Leon Goewie', 2, 1, '2015-05-14 10:37:49.678755+00', 0);
+INSERT INTO musicbrainz.artist_credit (id, name, artist_count, ref_count, created, edits_pending) VALUES (2049844, 'Iron Maiden feat. Marillion', 2, 4, '2017-08-11 03:24:01.250012+00', 0);
+INSERT INTO musicbrainz.artist_credit (id, name, artist_count, ref_count, created, edits_pending) VALUES (2467320, 'Dead Combo feat. Mark Lanegan', 2, 8, '2019-07-22 02:14:57.058637+00', 0);
+INSERT INTO musicbrainz.artist_credit (id, name, artist_count, ref_count, created, edits_pending) VALUES (2418345, 'Ride & Mogwai', 2, 3, '2019-05-08 11:46:20.189212+00', 0);
+INSERT INTO musicbrainz.artist_credit (id, name, artist_count, ref_count, created, edits_pending) VALUES (2313934, 'Mogwai / Bill Wells & Aidan Moffat', 3, 2, '2018-11-20 22:51:49.527235+00', 0);
+INSERT INTO musicbrainz.artist_credit (id, name, artist_count, ref_count, created, edits_pending) VALUES (2437638, 'Mogwai/Fuck Buttons', 2, 4, '2019-06-09 16:43:24.605804+00', 0);
+INSERT INTO musicbrainz.artist_credit (id, name, artist_count, ref_count, created, edits_pending) VALUES (1489018, 'Mew remixed by Mogwai', 2, 2, '2015-06-07 18:00:22.259282+00', 0);
 INSERT INTO musicbrainz.artist_credit (id, name, artist_count, ref_count, created, edits_pending) VALUES (16043, 'Opeth', 1, 3502, '2011-05-16 16:32:11.963929+00', 0);
+INSERT INTO musicbrainz.artist_credit (id, name, artist_count, ref_count, created, edits_pending) VALUES (1313314, 'Megadeth / Héroes del Silencio / Black Sabbath / Iron Maiden', 4, 2, '2014-05-12 15:19:11.007642+00', 0);
+INSERT INTO musicbrainz.artist_credit (id, name, artist_count, ref_count, created, edits_pending) VALUES (2018899, 'EELS / Munchausen by Proxy feat. Zooey Deschanel & Von Iva', 4, 2, '2017-06-17 19:00:17.681995+00', 0);
+INSERT INTO musicbrainz.artist_credit (id, name, artist_count, ref_count, created, edits_pending) VALUES (1610059, 'eels', 1, 24, '2016-02-14 15:00:40.651619+00', 0);
+INSERT INTO musicbrainz.artist_credit (id, name, artist_count, ref_count, created, edits_pending) VALUES (1311674, 'EELS feat. Automator, Prince Paul', 3, 1, '2014-05-08 19:28:59.383448+00', 0);
+INSERT INTO musicbrainz.artist_credit (id, name, artist_count, ref_count, created, edits_pending) VALUES (823121, 'Ayreon vs. Avantasia', 2, 5, '2011-05-20 05:32:04.810434+00', 0);
+INSERT INTO musicbrainz.artist_credit (id, name, artist_count, ref_count, created, edits_pending) VALUES (867506, 'Mogwai / Bardo Pond', 2, 2, '2011-10-09 07:38:34.260048+00', 0);
+INSERT INTO musicbrainz.artist_credit (id, name, artist_count, ref_count, created, edits_pending) VALUES (2228381, 'EELS feat. Automator & Prince Paul', 3, 1, '2018-06-04 08:01:03.182546+00', 0);
+INSERT INTO musicbrainz.artist_credit (id, name, artist_count, ref_count, created, edits_pending) VALUES (10042, 'Iron Maiden', 1, 10638, '2011-05-16 16:32:11.963929+00', 0);
+INSERT INTO musicbrainz.artist_credit (id, name, artist_count, ref_count, created, edits_pending) VALUES (1423723, 'Mísia & Dead Combo', 2, 2, '2015-01-24 17:50:04.621077+00', 0);
+INSERT INTO musicbrainz.artist_credit (id, name, artist_count, ref_count, created, edits_pending) VALUES (873813, 'Mogwai • Magoo', 2, 8, '2011-10-24 04:50:27.820957+00', 0);
+INSERT INTO musicbrainz.artist_credit (id, name, artist_count, ref_count, created, edits_pending) VALUES (1609347, 'Mint Julep & Mogwai', 2, 2, '2016-02-12 18:06:45.436648+00', 0);
+INSERT INTO musicbrainz.artist_credit (id, name, artist_count, ref_count, created, edits_pending) VALUES (2274514, 'Camané & Dead Combo', 2, 1, '2018-09-01 01:39:11.528555+00', 0);
+INSERT INTO musicbrainz.artist_credit (id, name, artist_count, ref_count, created, edits_pending) VALUES (1173930, 'Mogwai feat. Gruff Rhys', 2, 2, '2013-06-02 23:00:31.214967+00', 0);
+INSERT INTO musicbrainz.artist_credit (id, name, artist_count, ref_count, created, edits_pending) VALUES (1817716, 'Trent Reznor and Atticus Ross, Gustavo Santaolalla, Mogwai', 4, 3, '2016-12-21 18:02:09.984414+00', 0);
+INSERT INTO musicbrainz.artist_credit (id, name, artist_count, ref_count, created, edits_pending) VALUES (1210411, 'After Forever feat. Ayreon', 2, 1, '2013-08-27 17:37:17.688309+00', 0);
+INSERT INTO musicbrainz.artist_credit (id, name, artist_count, ref_count, created, edits_pending) VALUES (2611214, 'Iron Maiden / Stratus', 2, 2, '2020-01-30 23:14:53.437238+00', 0);
+INSERT INTO musicbrainz.artist_credit (id, name, artist_count, ref_count, created, edits_pending) VALUES (2368269, 'Opeth / Enslaved', 2, 2, '2019-02-16 19:23:59.185511+00', 0);
 INSERT INTO musicbrainz.artist_credit (id, name, artist_count, ref_count, created, edits_pending) VALUES (343789, 'Dead Combo', 1, 352, '2011-05-16 16:32:11.963929+00', 0);
+INSERT INTO musicbrainz.artist_credit (id, name, artist_count, ref_count, created, edits_pending) VALUES (1262451, 'Mogwai / Dweeb', 2, 2, '2014-01-15 16:57:28.502431+00', 0);
+INSERT INTO musicbrainz.artist_credit (id, name, artist_count, ref_count, created, edits_pending) VALUES (1061088, 'Mogwai feat. Roky Erickson', 2, 4, '2012-10-07 11:04:06.94359+00', 0);
+INSERT INTO musicbrainz.artist_credit (id, name, artist_count, ref_count, created, edits_pending) VALUES (1008798, 'EELS', 1, 3601, '2012-07-01 20:00:12.055428+00', 0);
+INSERT INTO musicbrainz.artist_credit (id, name, artist_count, ref_count, created, edits_pending) VALUES (14521, 'Ayreon', 1, 2754, '2011-05-16 16:32:11.963929+00', 0);
 INSERT INTO musicbrainz.artist_credit (id, name, artist_count, ref_count, created, edits_pending) VALUES (3544, 'Mogwai', 1, 3322, '2011-05-16 16:32:11.963929+00', 0);
-INSERT INTO musicbrainz.artist_credit (id, name, artist_count, ref_count, created, edits_pending) VALUES (10042, 'Iron Maiden', 1, 10639, '2011-05-16 16:32:11.963929+00', 0);
+INSERT INTO musicbrainz.artist_credit (id, name, artist_count, ref_count, created, edits_pending) VALUES (2184716, 'Stream of Passion featuring Ayreon', 2, 1, '2018-03-25 21:00:17.279543+00', 0);
+INSERT INTO musicbrainz.artist_credit (id, name, artist_count, ref_count, created, edits_pending) VALUES (1262449, 'Mogwai / Fuck Buttons', 2, 3, '2014-01-15 16:52:57.812544+00', 0);
+INSERT INTO musicbrainz.artist_credit (id, name, artist_count, ref_count, created, edits_pending) VALUES (1482952, 'Sentience / Iron Maiden', 2, 3, '2015-05-27 19:36:24.452059+00', 0);
+
+CREATE TABLE musicbrainz.artist_credit_name (
+    artist_credit integer NOT NULL, -- references artist_credit.id
+    "position" smallint NOT NULL,
+    artist integer NOT NULL, -- references artist.id
+    name character varying NOT NULL,
+    join_phrase text DEFAULT ''::text NOT NULL
+);
+
+INSERT INTO musicbrainz.artist_credit_name (artist_credit, "position", artist, name, join_phrase) VALUES (1008798, 0, 2148, 'EELS', '');
+INSERT INTO musicbrainz.artist_credit_name (artist_credit, "position", artist, name, join_phrase) VALUES (1038153, 0, 2148, 'Eels', '');
+INSERT INTO musicbrainz.artist_credit_name (artist_credit, "position", artist, name, join_phrase) VALUES (1311674, 0, 2148, 'EELS', ' feat. ');
+INSERT INTO musicbrainz.artist_credit_name (artist_credit, "position", artist, name, join_phrase) VALUES (1610059, 0, 2148, 'eels', '');
+INSERT INTO musicbrainz.artist_credit_name (artist_credit, "position", artist, name, join_phrase) VALUES (2018899, 0, 2148, 'EELS', ' / ');
+INSERT INTO musicbrainz.artist_credit_name (artist_credit, "position", artist, name, join_phrase) VALUES (2228381, 0, 2148, 'EELS', ' feat. ');
+INSERT INTO musicbrainz.artist_credit_name (artist_credit, "position", artist, name, join_phrase) VALUES (2436958, 0, 2148, 'EELS', ' / ');
+INSERT INTO musicbrainz.artist_credit_name (artist_credit, "position", artist, name, join_phrase) VALUES (3544, 0, 3544, 'Mogwai', '');
+INSERT INTO musicbrainz.artist_credit_name (artist_credit, "position", artist, name, join_phrase) VALUES (867506, 0, 3544, 'Mogwai', ' / ');
+INSERT INTO musicbrainz.artist_credit_name (artist_credit, "position", artist, name, join_phrase) VALUES (873813, 0, 3544, 'Mogwai', ' • ');
+INSERT INTO musicbrainz.artist_credit_name (artist_credit, "position", artist, name, join_phrase) VALUES (985096, 1, 3544, 'Mogwai', '');
+INSERT INTO musicbrainz.artist_credit_name (artist_credit, "position", artist, name, join_phrase) VALUES (1061088, 0, 3544, 'Mogwai', ' feat. ');
+INSERT INTO musicbrainz.artist_credit_name (artist_credit, "position", artist, name, join_phrase) VALUES (1173930, 0, 3544, 'Mogwai', ' feat. ');
+INSERT INTO musicbrainz.artist_credit_name (artist_credit, "position", artist, name, join_phrase) VALUES (1262449, 0, 3544, 'Mogwai', ' / ');
+INSERT INTO musicbrainz.artist_credit_name (artist_credit, "position", artist, name, join_phrase) VALUES (1262451, 0, 3544, 'Mogwai', ' / ');
+INSERT INTO musicbrainz.artist_credit_name (artist_credit, "position", artist, name, join_phrase) VALUES (1489018, 1, 3544, 'Mogwai', '');
+INSERT INTO musicbrainz.artist_credit_name (artist_credit, "position", artist, name, join_phrase) VALUES (1609347, 1, 3544, 'Mogwai', '');
+INSERT INTO musicbrainz.artist_credit_name (artist_credit, "position", artist, name, join_phrase) VALUES (2418345, 1, 3544, 'Mogwai', '');
+INSERT INTO musicbrainz.artist_credit_name (artist_credit, "position", artist, name, join_phrase) VALUES (1817716, 3, 3544, 'Mogwai', '');
+INSERT INTO musicbrainz.artist_credit_name (artist_credit, "position", artist, name, join_phrase) VALUES (2437638, 0, 3544, 'Mogwai', '/');
+INSERT INTO musicbrainz.artist_credit_name (artist_credit, "position", artist, name, join_phrase) VALUES (2313934, 0, 3544, 'Mogwai', ' / ');
+INSERT INTO musicbrainz.artist_credit_name (artist_credit, "position", artist, name, join_phrase) VALUES (10042, 0, 10042, 'Iron Maiden', '');
+INSERT INTO musicbrainz.artist_credit_name (artist_credit, "position", artist, name, join_phrase) VALUES (1482952, 1, 10042, 'Iron Maiden', '');
+INSERT INTO musicbrainz.artist_credit_name (artist_credit, "position", artist, name, join_phrase) VALUES (1313314, 3, 10042, 'Iron Maiden', '');
+INSERT INTO musicbrainz.artist_credit_name (artist_credit, "position", artist, name, join_phrase) VALUES (1523780, 0, 10042, 'Iran Maiden', '');
+INSERT INTO musicbrainz.artist_credit_name (artist_credit, "position", artist, name, join_phrase) VALUES (2049844, 0, 10042, 'Iron Maiden', ' feat. ');
+INSERT INTO musicbrainz.artist_credit_name (artist_credit, "position", artist, name, join_phrase) VALUES (2611214, 0, 10042, 'Iron Maiden', ' / ');
+INSERT INTO musicbrainz.artist_credit_name (artist_credit, "position", artist, name, join_phrase) VALUES (14521, 0, 14521, 'Ayreon', '');
+INSERT INTO musicbrainz.artist_credit_name (artist_credit, "position", artist, name, join_phrase) VALUES (823121, 0, 14521, 'Ayreon', ' vs. ');
+INSERT INTO musicbrainz.artist_credit_name (artist_credit, "position", artist, name, join_phrase) VALUES (1210411, 1, 14521, 'Ayreon', '');
+INSERT INTO musicbrainz.artist_credit_name (artist_credit, "position", artist, name, join_phrase) VALUES (1474961, 0, 14521, 'Ayreon', ' feat. ');
+INSERT INTO musicbrainz.artist_credit_name (artist_credit, "position", artist, name, join_phrase) VALUES (2184716, 1, 14521, 'Ayreon', '');
+INSERT INTO musicbrainz.artist_credit_name (artist_credit, "position", artist, name, join_phrase) VALUES (16043, 0, 16043, 'Opeth', '');
+INSERT INTO musicbrainz.artist_credit_name (artist_credit, "position", artist, name, join_phrase) VALUES (2368269, 0, 16043, 'Opeth', ' / ');
+INSERT INTO musicbrainz.artist_credit_name (artist_credit, "position", artist, name, join_phrase) VALUES (343789, 0, 343789, 'Dead Combo', '');
+INSERT INTO musicbrainz.artist_credit_name (artist_credit, "position", artist, name, join_phrase) VALUES (1423723, 1, 343789, 'Dead Combo', '');
+INSERT INTO musicbrainz.artist_credit_name (artist_credit, "position", artist, name, join_phrase) VALUES (2274514, 1, 343789, 'Dead Combo', '');
+INSERT INTO musicbrainz.artist_credit_name (artist_credit, "position", artist, name, join_phrase) VALUES (2467320, 0, 343789, 'Dead Combo', ' feat. ');
 
 -- RELEASE_GROUP
 
@@ -232,11 +318,12 @@ CREATE TABLE musicbrainz.release_group ( -- replicate (verbose)
     last_updated        TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+INSERT INTO musicbrainz.release_group (id, gid, name, artist_credit, type, comment, edits_pending, last_updated) VALUES (4588, '119a9488-9980-3645-be68-f50210a35a26', 'Beautiful Freak', 1008798, 1, '', 0, '2016-02-05 03:00:36.495198+00');
+INSERT INTO musicbrainz.release_group (id, gid, name, artist_credit, type, comment, edits_pending, last_updated) VALUES (34849, '4ebfe175-e7ed-34cd-8e91-67c7e4a53579', 'The Number of the Beast', 10042, 1, '', 0, '2014-06-07 10:02:32.172033+00');
 INSERT INTO musicbrainz.release_group (id, gid, name, artist_credit, type, comment, edits_pending, last_updated) VALUES (57829, '68b9f75b-34b5-3228-9972-82efea767eca', 'Come On Die Young', 3544, 1, '', 0, '2014-12-03 14:03:11.550329+00');
 INSERT INTO musicbrainz.release_group (id, gid, name, artist_credit, type, comment, edits_pending, last_updated) VALUES (384931, '00f78b7d-bd0a-356a-aec4-925e529023f8', 'Ghost Reveries', 16043, 1, '', 0, '2010-10-15 13:02:32.333198+00');
 INSERT INTO musicbrainz.release_group (id, gid, name, artist_credit, type, comment, edits_pending, last_updated) VALUES (508330, '4adf1192-df7a-3967-a8e6-d39963c62994', 'Vol. II - Quando a alma não é pequena', 343789, 1, '', 0, '2009-05-24 20:47:00.490177+00');
 INSERT INTO musicbrainz.release_group (id, gid, name, artist_credit, type, comment, edits_pending, last_updated) VALUES (1309730, '6281bcfe-058e-4cd3-85bc-66f47c28960b', 'The Theory of Everything', 14521, 1, '', 0, '2013-10-16 18:35:23.061087+00');
-INSERT INTO musicbrainz.release_group (id, gid, name, artist_credit, type, comment, edits_pending, last_updated) VALUES (34849, '4ebfe175-e7ed-34cd-8e91-67c7e4a53579', 'The Number of the Beast', 10042, 1, '', 0, '2014-06-07 10:02:32.172033+00');
 
 -- RELEASE
 
@@ -369,6 +456,14 @@ INSERT INTO musicbrainz.release (id, gid, name, artist_credit, release_group, st
 INSERT INTO musicbrainz.release (id, gid, name, artist_credit, release_group, status, packaging, language, script, barcode, comment, edits_pending, quality, last_updated) VALUES (2331862, '9fee8211-063d-4af0-a882-56e472a88355', 'The Number of the Beast', 10042, 34849, 1, 1, 120, 28, '077774636421', '', 0, -1, '2019-01-20 14:21:12.02603+00');
 INSERT INTO musicbrainz.release (id, gid, name, artist_credit, release_group, status, packaging, language, script, barcode, comment, edits_pending, quality, last_updated) VALUES (2334124, 'cf4a2c5c-5814-4b14-a66a-20176f185679', 'The Number of the Beast', 10042, 34849, 1, 4, 120, 28, '', '', 0, -1, '2019-01-30 20:00:53.156696+00');
 INSERT INTO musicbrainz.release (id, gid, name, artist_credit, release_group, status, packaging, language, script, barcode, comment, edits_pending, quality, last_updated) VALUES (2584050, 'b94231f4-8cbc-4c5a-989b-96cd26beabe4', 'The Number of the Beast', 10042, 34849, 1, 1, 120, 28, '0208314105271', '', 0, -1, '2020-01-11 21:00:26.260478+00');
+INSERT INTO musicbrainz.release (id, gid, name, artist_credit, release_group, status, packaging, language, script, barcode, comment, edits_pending, quality, last_updated) VALUES (3192, '359130d5-c667-4449-852a-9ad2074db0c4', 'Beautiful Freak', 1610059, 4588, 1, 1, 120, 28, '600445000124', 'Reissue', 0, -1, '2018-05-23 17:26:04.557256+00');
+INSERT INTO musicbrainz.release (id, gid, name, artist_credit, release_group, status, packaging, language, script, barcode, comment, edits_pending, quality, last_updated) VALUES (495645, 'd7e4fac2-e07b-35ed-812d-36cb1b4151f6', 'Beautiful Freak', 1008798, 4588, 1, NULL, 120, 28, '600445001220', '', 0, -1, '2019-02-26 05:00:19.800925+00');
+INSERT INTO musicbrainz.release (id, gid, name, artist_credit, release_group, status, packaging, language, script, barcode, comment, edits_pending, quality, last_updated) VALUES (1066259, '9d93fea7-b1c8-4104-b193-0a0625fd0500', 'Beautiful Freak', 1008798, 4588, 1, 1, 120, 28, '600445000124', '', 0, -1, '2013-06-19 15:00:14.372558+00');
+INSERT INTO musicbrainz.release (id, gid, name, artist_credit, release_group, status, packaging, language, script, barcode, comment, edits_pending, quality, last_updated) VALUES (1724464, '3c75a300-cb5b-4665-bd60-3a21adea4fb7', 'Beautiful Freak', 1008798, 4588, 1, 1, 120, 28, '600445000124', '', 0, -1, '2016-02-10 03:00:45.597533+00');
+INSERT INTO musicbrainz.release (id, gid, name, artist_credit, release_group, status, packaging, language, script, barcode, comment, edits_pending, quality, last_updated) VALUES (29608, '31c452b7-6fc4-39eb-9a0c-1f349328c745', 'Beautiful Freak', 1008798, 4588, 1, 1, 120, 28, '600445000124', '', 0, -1, '2017-11-08 01:00:31.508626+00');
+INSERT INTO musicbrainz.release (id, gid, name, artist_credit, release_group, status, packaging, language, script, barcode, comment, edits_pending, quality, last_updated) VALUES (2150830, 'f8f76d51-6fb0-40c1-b102-a7a12dea95e3', 'Beautiful Freak', 1008798, 4588, 1, 4, 120, 28, '600753377154', '', 0, -1, '2018-04-17 09:00:59.63863+00');
+INSERT INTO musicbrainz.release (id, gid, name, artist_credit, release_group, status, packaging, language, script, barcode, comment, edits_pending, quality, last_updated) VALUES (2150835, '8e7d4966-675a-4830-a251-d1ae5896eb67', 'Beautiful Freak', 1008798, 4588, 1, 7, 120, 28, '', '', 0, -1, '2018-04-17 09:00:59.575144+00');
+INSERT INTO musicbrainz.release (id, gid, name, artist_credit, release_group, status, packaging, language, script, barcode, comment, edits_pending, quality, last_updated) VALUES (2600180, 'd5da9fec-ba9a-4ccc-8cae-1237418d1da3', 'Beautiful Freak', 1008798, 4588, 1, 1, 120, 28, '4988067025654', '', 0, -1, '2020-03-08 12:00:25.214245+00');
 
 CREATE TABLE musicbrainz.release_country (
   release INTEGER NOT NULL,  -- PK, references release.id
@@ -453,6 +548,14 @@ INSERT INTO musicbrainz.release_country (release, country, date_year, date_month
 INSERT INTO musicbrainz.release_country (release, country, date_year, date_month, date_day) VALUES (177205, 81, 1985, NULL, NULL);
 INSERT INTO musicbrainz.release_country (release, country, date_year, date_month, date_day) VALUES (1121010, 150, 1982, NULL, NULL);
 INSERT INTO musicbrainz.release_country (release, country, date_year, date_month, date_day) VALUES (177204, 153, 1982, 3, 29);
+INSERT INTO musicbrainz.release_country (release, country, date_year, date_month, date_day) VALUES (3192, 221, 1997, 2, 24);
+INSERT INTO musicbrainz.release_country (release, country, date_year, date_month, date_day) VALUES (3192, 241, 1996, NULL, NULL);
+INSERT INTO musicbrainz.release_country (release, country, date_year, date_month, date_day) VALUES (495645, 81, 1997, NULL, NULL);
+INSERT INTO musicbrainz.release_country (release, country, date_year, date_month, date_day) VALUES (1066259, 13, 1996, 8, 5);
+INSERT INTO musicbrainz.release_country (release, country, date_year, date_month, date_day) VALUES (1724464, 38, 1996, NULL, NULL);
+INSERT INTO musicbrainz.release_country (release, country, date_year, date_month, date_day) VALUES (29608, 222, 1996, 8, 13);
+INSERT INTO musicbrainz.release_country (release, country, date_year, date_month, date_day) VALUES (2150830, 241, 2015, 10, 30);
+INSERT INTO musicbrainz.release_country (release, country, date_year, date_month, date_day) VALUES (2600180, 107, 1996, 9, 21);
 
 CREATE TABLE musicbrainz.release_unknown_country (
   release INTEGER NOT NULL,  -- PK, references release.id
@@ -462,3 +565,4 @@ CREATE TABLE musicbrainz.release_unknown_country (
 );
 
 INSERT INTO musicbrainz.release_unknown_country (release, date_year, date_month, date_day) VALUES (729175, 1982, NULL, NULL);
+INSERT INTO musicbrainz.release_unknown_country (release, date_year, date_month, date_day) VALUES (2150835, 2015, NULL, NULL);
