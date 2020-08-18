@@ -19,8 +19,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static stolat.dao.StolatDatabaseConstants.*;
 
 class JdbcAlbumBirthdayDaoTest {
@@ -100,6 +99,8 @@ class JdbcAlbumBirthdayDaoTest {
         albumBirthdayDao.clearAlbumBirthdays();
         String selectBirthdayCount = "SELECT COUNT(*) FROM " + BIRTHDAY_TABLE_FULL_NAME;
         assertEquals(0, jdbcTemplate.queryForObject(selectBirthdayCount, Integer.TYPE));
+        String selectBirthdayIntermediateCount = "SELECT COUNT(*) FROM " + BIRTHDAY_TABLE_INTERMEDIATE_FULL_NAME;
+        assertEquals(0, jdbcTemplate.queryForObject(selectBirthdayIntermediateCount, Integer.TYPE));
     }
 
     @Test
@@ -118,6 +119,9 @@ class JdbcAlbumBirthdayDaoTest {
         List<AlbumBirthday> actualAlbumBirthdays = jdbcTemplate.query(selectAllAlbumBirthdays, new AlbumBirthdayRowMapper());
         assertEquals(expectedAlbumBirthdays.size(), actualAlbumBirthdays.size());
         assertTrue(actualAlbumBirthdays.containsAll(expectedAlbumBirthdays));
+
+        String selectBirthdayIntermediateCount = "SELECT COUNT(*) FROM " + BIRTHDAY_TABLE_INTERMEDIATE_FULL_NAME;
+        assertNotEquals(0, jdbcTemplate.queryForObject(selectBirthdayIntermediateCount, Integer.TYPE));
     }
 
     @Test

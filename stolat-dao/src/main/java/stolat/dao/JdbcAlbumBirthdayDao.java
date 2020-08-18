@@ -28,24 +28,32 @@ public class JdbcAlbumBirthdayDao implements AlbumBirthdayDao {
 
     @Override
     public void clearAlbumBirthdays() {
+        log.info("Clearing intermediate album birthdays");
+        jdbcTemplate.update("TRUNCATE TABLE " + BIRTHDAY_TABLE_INTERMEDIATE_FULL_NAME);
         log.info("Clearing album birthdays");
         jdbcTemplate.update("TRUNCATE TABLE " + BIRTHDAY_TABLE_FULL_NAME);
     }
 
     @Override
     public void populateAlbumBirthdays() {
-        log.info("Populating album birthdays");
         try {
-            InputStream sqlFileInputStream =
-                    new ClassPathResource(DaoConstants.POPULATE_ALBUM_BIRTHDAY_SCRIPT, getClass())
-                            .getInputStream();
-            String sql =
-                    FileCopyUtils.copyToString(
-                            new InputStreamReader(sqlFileInputStream));
-            jdbcTemplate.update(sql);
+            log.info("Populating intermediate album birthdays");
+            runScript(DaoConstants.POPULATE_ALBUM_BIRTHDAY_INTERMEDIATE_SCRIPT);
+            log.info("Populating album birthdays");
+            runScript(DaoConstants.POPULATE_ALBUM_BIRTHDAY_SCRIPT);
         } catch (IOException ex) {
             log.error("Error reading SQL script file for populating the album birthdays", ex);
         }
+    }
+
+    private void runScript(String script) throws IOException {
+        InputStream sqlFileInputStream =
+                new ClassPathResource(script, getClass())
+                        .getInputStream();
+        String sql =
+                FileCopyUtils.copyToString(
+                        new InputStreamReader(sqlFileInputStream));
+        jdbcTemplate.update(sql);
     }
 
     @Override

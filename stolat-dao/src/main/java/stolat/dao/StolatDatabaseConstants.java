@@ -8,7 +8,9 @@ public final class StolatDatabaseConstants {
 
     public static final String SCHEMA_NAME = "stolat";
     public static final String BIRTHDAY_TABLE_NAME = "album_birthday";
+    public static final String BIRTHDAY_TABLE_INTERMEDIATE_NAME = "album_birthday_intermediate";
     public static final String BIRTHDAY_TABLE_FULL_NAME = SCHEMA_NAME + "." + BIRTHDAY_TABLE_NAME;
+    public static final String BIRTHDAY_TABLE_INTERMEDIATE_FULL_NAME = SCHEMA_NAME + "." + BIRTHDAY_TABLE_INTERMEDIATE_NAME;
     public static final String ALBUM_TABLE_NAME = "local_collection_album";
     public static final String ALBUM_TABLE_FULL_NAME = SCHEMA_NAME + "." + ALBUM_TABLE_NAME;
     public static final String TRACK_TABLE_NAME = "local_collection_track";
