@@ -5,9 +5,9 @@ import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.test.context.TestPropertySource;
-import stolat.mail.content.BirthdayAlbumsToMessageConverter;
+import stolat.mail.content.MessagePreparatorProvider;
 import stolat.mail.sender.MailService;
 import stolat.model.BirthdayAlbums;
 import stolat.service.client.ServiceClient;
@@ -24,12 +24,12 @@ class StolatMailApplicationTest {
     @Mock
     private BirthdayAlbums mockBirthdayAlbums;
     @Mock
-    private SimpleMailMessage mockMessage;
+    private MimeMessagePreparator mockMessagePreparator;
 
     @MockBean
     private ServiceClient mockServiceClient;
     @MockBean
-    private BirthdayAlbumsToMessageConverter mockConverter;
+    private MessagePreparatorProvider mockMessagePreparatorProvider;
     @MockBean
     private MailService mockMailService;
 
@@ -44,13 +44,13 @@ class StolatMailApplicationTest {
     @Test
     void shouldRunApplication() throws Exception {
         when(mockServiceClient.getBirthdayAlbums()).thenReturn(mockBirthdayAlbums);
-        when(mockConverter.convert(mockBirthdayAlbums)).thenReturn(List.of(mockMessage));
+        when(mockMessagePreparatorProvider.getPreparators(mockBirthdayAlbums)).thenReturn(List.of(mockMessagePreparator));
 
-        application.run(mockServiceClient, mockConverter, mockMailService)
+        application.run(mockServiceClient, mockMessagePreparatorProvider, mockMailService)
                 .run();
 
         verify(mockServiceClient).getBirthdayAlbums();
-        verify(mockConverter).convert(mockBirthdayAlbums);
-        verify(mockMailService).sendMail(List.of(mockMessage));
+        verify(mockMessagePreparatorProvider).getPreparators(mockBirthdayAlbums);
+        verify(mockMailService).prepareAndSendMails(List.of(mockMessagePreparator));
     }
 }

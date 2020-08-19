@@ -10,7 +10,6 @@ import stolat.model.Album;
 import stolat.model.AlbumBirthday;
 import stolat.model.BirthdayAlbums;
 
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.time.MonthDay;
 import java.util.List;

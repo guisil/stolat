@@ -13,6 +13,6 @@ import java.util.List;
 @Setter
 public class MailProperties {
 
-    private String from;
-    private List<String> to;
+    private String sender;
+    private List<String> recipients;
 }

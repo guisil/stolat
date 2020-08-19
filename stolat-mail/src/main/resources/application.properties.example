@@ -1,6 +1,8 @@
 logging.level.root=info
 logging.file.name=log/stolat-mail.log
 
+spring.profiles.active=html
+
 service.get-birthdays-url=http://localhost/stolat/birthdays
 
 spring.main.web-application-type=none
@@ -12,5 +14,5 @@ spring.mail.password=password
 spring.mail.properties.mail.smtp.auth=true
 spring.mail.properties.mail.smtp.starttls.enable=true
 
-mail.from=some.email.address@something.com
-mail.to[0]=some.other.email.address@something.com
+mail.sender=some.email.address@something.com
+mail.recipients[0]=some.other.email.address@something.com

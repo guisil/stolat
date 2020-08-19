@@ -1,0 +1,70 @@
+package stolat.mail.content;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import stolat.model.Album;
+import stolat.model.AlbumBirthday;
+import stolat.model.BirthdayAlbums;
+
+import java.time.MonthDay;
+import java.time.format.DateTimeFormatter;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class MailSubjectBuilderTest {
+    private static final AlbumBirthday FIRST_ALBUM_BIRTHDAY =
+            new AlbumBirthday(
+                    new Album(
+                            UUID.randomUUID(), "Some Album",
+                            UUID.randomUUID(), "Some Artist"),
+                    2000, 12, 22);
+    private static final AlbumBirthday SECOND_ALBUM_BIRTHDAY =
+            new AlbumBirthday(
+                    new Album(
+                            UUID.randomUUID(), "Some Other Album",
+                            UUID.randomUUID(), "Another Artist"),
+                    2000, 12, 22);
+    private static final BirthdayAlbums BIRTHDAY_ALBUMS =
+            new BirthdayAlbums(
+                    MonthDay.of(12, 22),
+                    MonthDay.of(12, 22),
+                    List.of(FIRST_ALBUM_BIRTHDAY, SECOND_ALBUM_BIRTHDAY));
+    private static final BirthdayAlbums NO_RESULTS_BIRTHDAY_ALBUMS =
+            new BirthdayAlbums(
+                    MonthDay.of(1, 22),
+                    MonthDay.of(1, 22),
+                    Collections.emptyList());
+
+    private static final DateTimeFormatter MONTH_DAY_FORMATTER =
+            DateTimeFormatter.ofPattern("MMM dd");
+
+    private MailSubjectBuilder mailSubjectBuilder;
+
+    @BeforeEach
+    void setUp() {
+        mailSubjectBuilder = new MailSubjectBuilder();
+    }
+
+    @Test
+    void shouldBuildSubjectForBirthdayAlbums() {
+        var expected = String.format(
+                MessageConstants.SUBJECT,
+                MonthDay.of(12, 22)
+                        .format(MONTH_DAY_FORMATTER));
+        var actual = mailSubjectBuilder.build(BIRTHDAY_ALBUMS);
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    void shouldBuildSubjectForEmptyBirthdayAlbums() {
+        var expected = String.format(
+                MessageConstants.SUBJECT,
+                MonthDay.of(1, 22)
+                        .format(MONTH_DAY_FORMATTER));
+        var actual = mailSubjectBuilder.build(NO_RESULTS_BIRTHDAY_ALBUMS);
+        assertEquals(expected, actual);
+    }
+}
