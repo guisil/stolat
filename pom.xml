@@ -36,6 +36,9 @@
         </profile>
         <profile>
             <id>stolat-all</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
             <modules>
                 <module>stolat-model</module>
                 <module>stolat-dao</module>
