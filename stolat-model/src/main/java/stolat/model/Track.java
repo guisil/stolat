@@ -1,7 +1,10 @@
 package stolat.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.ToString;
 import org.jaudiotagger.tag.FieldKey;
 
@@ -12,7 +15,7 @@ import java.util.UUID;
 @ToString
 public class Track {
 
-    private final UUID trackMusicBrainzId;
+    private final UUID trackMbId;
     private final int trackNumber;
     private final String trackName;
     private final int trackLength;
@@ -20,6 +23,25 @@ public class Track {
     private final String trackFileType;
     private final Album album;
     private int discNumber = 1;
+
+    @JsonCreator
+    public Track(
+            @JsonProperty("trackMusicBrainzId") @NonNull UUID trackMbId,
+            @JsonProperty("discNumber") int discNumber,
+            @JsonProperty("trackNumber") int trackNumber,
+            @JsonProperty("trackName") @NonNull String trackName,
+            @JsonProperty("trackLength") int trackLength,
+            @JsonProperty("trackRelativePath") @NonNull String trackRelativePath,
+            @JsonProperty("album") @NonNull Album album) {
+        this.trackMbId = trackMbId;
+        this.discNumber = discNumber;
+        this.trackNumber = trackNumber;
+        this.trackName = trackName;
+        this.trackLength = trackLength;
+        this.trackRelativePath = trackRelativePath;
+        this.trackFileType = getFileType(trackRelativePath);
+        this.album = album;
+    }
 
     public Track(
             String trackMbidTag, String trackNumberTag,
@@ -31,7 +53,7 @@ public class Track {
             String trackMbidTag, String discNumberTag, String trackNumberTag,
             String trackNameTag, int trackLength, String trackRelativePath, Album album) {
 
-        this.trackMusicBrainzId = TagValidator.getUUID(FieldKey.MUSICBRAINZ_TRACK_ID.name(), trackMbidTag);
+        this.trackMbId = TagValidator.getUUID(FieldKey.MUSICBRAINZ_TRACK_ID.name(), trackMbidTag);
         if (discNumberTag != null && !discNumberTag.isBlank()) {
             this.discNumber = TagValidator.getPositiveInteger(FieldKey.DISC_NO.name(), discNumberTag);
         }

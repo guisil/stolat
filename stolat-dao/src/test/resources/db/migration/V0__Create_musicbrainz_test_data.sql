@@ -181,6 +181,9 @@ INSERT INTO musicbrainz.artist (id, gid, name, sort_name, begin_date_year, begin
 INSERT INTO musicbrainz.artist (id, gid, name, sort_name, begin_date_year, begin_date_month, begin_date_day, end_date_year, end_date_month, end_date_day, type, area, gender, comment, edits_pending, last_updated, ended, begin_area, end_area) VALUES (14521, '7bbfd77c-1102-4831-9ba8-246fb67460b3', 'Ayreon', 'Ayreon', 1995, NULL, NULL, NULL, NULL, NULL, 2, 150, NULL, '', 0, '2018-03-31 19:52:14.32+00', false, 150, NULL);
 INSERT INTO musicbrainz.artist (id, gid, name, sort_name, begin_date_year, begin_date_month, begin_date_day, end_date_year, end_date_month, end_date_day, type, area, gender, comment, edits_pending, last_updated, ended, begin_area, end_area) VALUES (16043, 'c14b4180-dc87-481e-b17a-64e4150f90f6', 'Opeth', 'Opeth', 1990, NULL, NULL, NULL, NULL, NULL, 2, 202, NULL, '', 0, '2013-06-15 11:00:18.966549+00', false, 5114, NULL);
 INSERT INTO musicbrainz.artist (id, gid, name, sort_name, begin_date_year, begin_date_month, begin_date_day, end_date_year, end_date_month, end_date_day, type, area, gender, comment, edits_pending, last_updated, ended, begin_area, end_area) VALUES (343789, '092ae9e2-60bf-4b66-aa33-9e31754d1924', 'Dead Combo', 'Dead Combo', 2003, NULL, NULL, NULL, NULL, NULL, 2, 171, NULL, 'Portuguese group', 0, '2015-07-18 02:00:45.563088+00', false, 5062, NULL);
+INSERT INTO musicbrainz.artist (id, gid, name, sort_name, begin_date_year, begin_date_month, begin_date_day, end_date_year, end_date_month, end_date_day, type, area, gender, comment, edits_pending, last_updated, ended, begin_area, end_area) VALUES (37377, 'f3df0b46-d21a-4230-9a94-4082e8d6860b', 'Rodrigo Leão', 'Leão, Rodrigo', 1964, 10, 15, NULL, NULL, NULL, 1, 171, 1, '', 0, '2017-08-28 20:00:33.950753+00', false, 5062, NULL);
+INSERT INTO musicbrainz.artist (id, gid, name, sort_name, begin_date_year, begin_date_month, begin_date_day, end_date_year, end_date_month, end_date_day, type, area, gender, comment, edits_pending, last_updated, ended, begin_area, end_area) VALUES (485529, '925842f9-d48a-42d9-9597-d99a775ac45b', 'Orquestra Gulbenkian', 'Orquestra Gulbenkian', 1962, NULL, NULL, NULL, NULL, NULL, 5, 5062, NULL, '', 0, '2020-01-12 23:00:27.816323+00', false, NULL, NULL);
+INSERT INTO musicbrainz.artist (id, gid, name, sort_name, begin_date_year, begin_date_month, begin_date_day, end_date_year, end_date_month, end_date_day, type, area, gender, comment, edits_pending, last_updated, ended, begin_area, end_area) VALUES (641523, '6c245d32-4efc-4aaa-9ef2-0f355a323088', 'Coro Gulbenkian', 'Coro Gulbenkian', 1964, NULL, NULL, NULL, NULL, NULL, 2, 171, NULL, '', 0, '2012-12-07 06:10:48.690471+00', false, NULL, NULL);
 
 -- ARTIST CREDIT
 
@@ -231,6 +234,7 @@ INSERT INTO musicbrainz.artist_credit (id, name, artist_count, ref_count, create
 INSERT INTO musicbrainz.artist_credit (id, name, artist_count, ref_count, created, edits_pending) VALUES (2184716, 'Stream of Passion featuring Ayreon', 2, 1, '2018-03-25 21:00:17.279543+00', 0);
 INSERT INTO musicbrainz.artist_credit (id, name, artist_count, ref_count, created, edits_pending) VALUES (1262449, 'Mogwai / Fuck Buttons', 2, 3, '2014-01-15 16:52:57.812544+00', 0);
 INSERT INTO musicbrainz.artist_credit (id, name, artist_count, ref_count, created, edits_pending) VALUES (1482952, 'Sentience / Iron Maiden', 2, 3, '2015-05-27 19:36:24.452059+00', 0);
+INSERT INTO musicbrainz.artist_credit (id, name, artist_count, ref_count, created, edits_pending) VALUES (2017019, 'Rodrigo Leão, Orquestra Gulbenkian & Coro Gulbenkian', 3, 56, '2017-06-13 14:21:30.801632+00', 0);
 
 CREATE TABLE musicbrainz.artist_credit_name (
     artist_credit integer NOT NULL, -- references artist_credit.id
@@ -278,6 +282,9 @@ INSERT INTO musicbrainz.artist_credit_name (artist_credit, "position", artist, n
 INSERT INTO musicbrainz.artist_credit_name (artist_credit, "position", artist, name, join_phrase) VALUES (1423723, 1, 343789, 'Dead Combo', '');
 INSERT INTO musicbrainz.artist_credit_name (artist_credit, "position", artist, name, join_phrase) VALUES (2274514, 1, 343789, 'Dead Combo', '');
 INSERT INTO musicbrainz.artist_credit_name (artist_credit, "position", artist, name, join_phrase) VALUES (2467320, 0, 343789, 'Dead Combo', ' feat. ');
+INSERT INTO musicbrainz.artist_credit_name (artist_credit, "position", artist, name, join_phrase) VALUES (2017019, 0, 37377, 'Rodrigo Leão', ', ');
+INSERT INTO musicbrainz.artist_credit_name (artist_credit, "position", artist, name, join_phrase) VALUES (2017019, 1, 485529, 'Orquestra Gulbenkian', ' & ');
+INSERT INTO musicbrainz.artist_credit_name (artist_credit, "position", artist, name, join_phrase) VALUES (2017019, 2, 641523, 'Coro Gulbenkian', '');
 
 -- RELEASE_GROUP
 
@@ -324,6 +331,7 @@ INSERT INTO musicbrainz.release_group (id, gid, name, artist_credit, type, comme
 INSERT INTO musicbrainz.release_group (id, gid, name, artist_credit, type, comment, edits_pending, last_updated) VALUES (384931, '00f78b7d-bd0a-356a-aec4-925e529023f8', 'Ghost Reveries', 16043, 1, '', 0, '2010-10-15 13:02:32.333198+00');
 INSERT INTO musicbrainz.release_group (id, gid, name, artist_credit, type, comment, edits_pending, last_updated) VALUES (508330, '4adf1192-df7a-3967-a8e6-d39963c62994', 'Vol. II - Quando a alma não é pequena', 343789, 1, '', 0, '2009-05-24 20:47:00.490177+00');
 INSERT INTO musicbrainz.release_group (id, gid, name, artist_credit, type, comment, edits_pending, last_updated) VALUES (1309730, '6281bcfe-058e-4cd3-85bc-66f47c28960b', 'The Theory of Everything', 14521, 1, '', 0, '2013-10-16 18:35:23.061087+00');
+INSERT INTO musicbrainz.release_group (id, gid, name, artist_credit, type, comment, edits_pending, last_updated) VALUES (1818143, '8ecbcc35-69eb-4233-af8a-a351eb3cadb6', 'O retiro', 2017019, 1, '', 0, '2017-06-20 15:00:35.568156+00');
 
 -- RELEASE
 
@@ -464,6 +472,9 @@ INSERT INTO musicbrainz.release (id, gid, name, artist_credit, release_group, st
 INSERT INTO musicbrainz.release (id, gid, name, artist_credit, release_group, status, packaging, language, script, barcode, comment, edits_pending, quality, last_updated) VALUES (2150830, 'f8f76d51-6fb0-40c1-b102-a7a12dea95e3', 'Beautiful Freak', 1008798, 4588, 1, 4, 120, 28, '600753377154', '', 0, -1, '2018-04-17 09:00:59.63863+00');
 INSERT INTO musicbrainz.release (id, gid, name, artist_credit, release_group, status, packaging, language, script, barcode, comment, edits_pending, quality, last_updated) VALUES (2150835, '8e7d4966-675a-4830-a251-d1ae5896eb67', 'Beautiful Freak', 1008798, 4588, 1, 7, 120, 28, '', '', 0, -1, '2018-04-17 09:00:59.575144+00');
 INSERT INTO musicbrainz.release (id, gid, name, artist_credit, release_group, status, packaging, language, script, barcode, comment, edits_pending, quality, last_updated) VALUES (2600180, 'd5da9fec-ba9a-4ccc-8cae-1237418d1da3', 'Beautiful Freak', 1008798, 4588, 1, 1, 120, 28, '4988067025654', '', 0, -1, '2020-03-08 12:00:25.214245+00');
+INSERT INTO musicbrainz.release (id, gid, name, artist_credit, release_group, status, packaging, language, script, barcode, comment, edits_pending, quality, last_updated) VALUES (1981769, '231f710b-4aa0-42ef-93d4-53e6de28bd6f', 'O retiro', 2017019, 1818143, 1, 3, 340, 28, '602547632326', '', 0, -1, '2017-06-20 18:00:15.209119+00');
+INSERT INTO musicbrainz.release (id, gid, name, artist_credit, release_group, status, packaging, language, script, barcode, comment, edits_pending, quality, last_updated) VALUES (1981772, '17d70c91-59fe-4aeb-b6eb-6721205ee60b', 'O retiro', 2017019, 1818143, 1, 7, 340, 28, NULL, '', 0, -1, '2017-06-20 18:00:15.263994+00');
+INSERT INTO musicbrainz.release (id, gid, name, artist_credit, release_group, status, packaging, language, script, barcode, comment, edits_pending, quality, last_updated) VALUES (1981782, 'e0771e2f-7b4a-4faa-9b30-e156d7da2a39', 'O retiro', 2017019, 1818143, 1, 4, 340, 28, '602547690432', '', 0, -1, '2017-06-20 18:00:15.312152+00');
 
 CREATE TABLE musicbrainz.release_country (
   release INTEGER NOT NULL,  -- PK, references release.id
@@ -556,6 +567,9 @@ INSERT INTO musicbrainz.release_country (release, country, date_year, date_month
 INSERT INTO musicbrainz.release_country (release, country, date_year, date_month, date_day) VALUES (29608, 222, 1996, 8, 13);
 INSERT INTO musicbrainz.release_country (release, country, date_year, date_month, date_day) VALUES (2150830, 241, 2015, 10, 30);
 INSERT INTO musicbrainz.release_country (release, country, date_year, date_month, date_day) VALUES (2600180, 107, 1996, 9, 21);
+INSERT INTO musicbrainz.release_country (release, country, date_year, date_month, date_day) VALUES (1981782, 171, 2015, 10, 30);
+INSERT INTO musicbrainz.release_country (release, country, date_year, date_month, date_day) VALUES (1981769, 171, 2015, 10, 30);
+INSERT INTO musicbrainz.release_country (release, country, date_year, date_month, date_day) VALUES (1981772, 240, 2015, 10, 30);
 
 CREATE TABLE musicbrainz.release_unknown_country (
   release INTEGER NOT NULL,  -- PK, references release.id

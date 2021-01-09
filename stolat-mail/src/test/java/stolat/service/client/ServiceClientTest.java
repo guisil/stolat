@@ -8,6 +8,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.client.RestTemplate;
 import stolat.model.Album;
 import stolat.model.AlbumBirthday;
+import stolat.model.Artist;
 import stolat.model.BirthdayAlbums;
 
 import java.net.URI;
@@ -40,7 +41,7 @@ class ServiceClientTest {
                 List.of(new AlbumBirthday(
                         new Album(
                                 UUID.randomUUID(), "Some Album",
-                                UUID.randomUUID(), "Some Artist"),
+                                List.of(new Artist(UUID.randomUUID(), "Some Artist"))),
                         2000, 12, 22)));
 
         when(mockRestTemplate.getForObject(GET_BIRTHDAYS_URI, BirthdayAlbums.class)).thenReturn(expected);

@@ -17,6 +17,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import stolat.dao.AlbumBirthdayDao;
 import stolat.model.Album;
 import stolat.model.AlbumBirthday;
+import stolat.model.Artist;
 import stolat.model.BirthdayAlbums;
 
 import java.time.*;
@@ -67,13 +68,13 @@ class StolatControllerTest {
                 new AlbumBirthday(
                         new Album(
                                 UUID.randomUUID(), "Some Album",
-                                UUID.randomUUID(), "Some Artist"),
+                                List.of(new Artist(UUID.randomUUID(), "Some Artist"))),
                         2000, 3, 28);
         var secondBirthday =
                 new AlbumBirthday(
                         new Album(
                                 UUID.randomUUID(), "Some Other Album",
-                                UUID.randomUUID(), "Some Other Artists"),
+                                List.of(new Artist(UUID.randomUUID(), "Some Other Artists"))),
                         1983, 4, 2);
         var from = MonthDay.of(3, 25);
         var to = MonthDay.of(4, 5);
@@ -104,7 +105,7 @@ class StolatControllerTest {
                 new AlbumBirthday(
                         new Album(
                                 UUID.randomUUID(), "Some Album",
-                                UUID.randomUUID(), "Some Artist"),
+                                List.of(new Artist(UUID.randomUUID(), "Some Artist"))),
                         2000, 3, 28);
         var today = MonthDay.of(
                 FIXED_DATE_TIME.get(ChronoField.MONTH_OF_YEAR),
@@ -136,7 +137,7 @@ class StolatControllerTest {
                 new AlbumBirthday(
                         new Album(
                                 UUID.randomUUID(), "Some Album",
-                                UUID.randomUUID(), "Some Artist"),
+                                List.of(new Artist(UUID.randomUUID(), "Some Artist"))),
                         2000, 3, 28);
         var from = MonthDay.of(2, 20);
         var today = MonthDay.of(
@@ -167,7 +168,7 @@ class StolatControllerTest {
                 new AlbumBirthday(
                         new Album(
                                 UUID.randomUUID(), "Some Album",
-                                UUID.randomUUID(), "Some Artist"),
+                                List.of(new Artist(UUID.randomUUID(), "Some Artist"))),
                         2000, 3, 28);
         var today = MonthDay.of(
                 FIXED_DATE_TIME.get(ChronoField.MONTH_OF_YEAR),

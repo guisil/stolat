@@ -9,11 +9,15 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Repository;
 import stolat.model.Album;
+import stolat.model.Artist;
 import stolat.model.Track;
 
 import java.sql.Types;
+import java.util.Collection;
 import java.util.List;
 import java.util.StringJoiner;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static stolat.dao.StolatDatabaseConstants.*;
 
@@ -29,33 +33,107 @@ public class JdbcTrackCollectionDao implements TrackCollectionDao {
     @Override
     public void clearTrackCollection() {
         log.info("Clearing album/track collection");
+        jdbcTemplate.update("TRUNCATE TABLE " + TRACK_TABLE_FULL_NAME + " CASCADE");
         jdbcTemplate.update("TRUNCATE TABLE " + ALBUM_TABLE_FULL_NAME + " CASCADE");
+        jdbcTemplate.update("TRUNCATE TABLE " + ARTIST_TABLE_FULL_NAME + " CASCADE");
+        jdbcTemplate.update("TRUNCATE TABLE " + ALBUM_ARTIST_TABLE_FULL_NAME + " CASCADE");
     }
 
     @Override
-    public void updateTrackCollection(List<Track> trackBatch, boolean force) {
-        log.info("Populating album/track collection{}", force ? " (forcing update)" : "");
+    public void updateTrackCollection(List<Track> trackBatch) {
+        log.info("Populating album/track collection");
+
+        List<Album> albumBatch = trackBatch
+                .stream()
+                .map(Track::getAlbum)
+                .distinct()
+                .collect(Collectors.toList());
+        List<Artist> artistBatch = trackBatch
+                .stream()
+                .map(Track::getAlbum)
+                .distinct()
+                .map(Album::getArtists)
+                .flatMap(Collection::stream)
+                .distinct()
+                .collect(Collectors.toList());
+
+        //insert artists
         namedParameterJdbcTemplate.batchUpdate(
-                getAlbumInsertStatement(force),
-                trackBatch.stream()
-                        .map(Track::getAlbum)
-                        .distinct()
+                getArtistInsertStatement(),
+                artistBatch
+                        .stream()
+                        .map(this::getArtistInsertNamedParameters)
+                        .toArray(MapSqlParameterSource[]::new));
+        //insert albums
+        namedParameterJdbcTemplate.batchUpdate(
+                getAlbumInsertStatement(),
+                albumBatch
+                        .stream()
                         .map(this::getAlbumInsertNamedParameters)
                         .toArray(MapSqlParameterSource[]::new));
+        //remove and insert album-artist connections
+        albumBatch.forEach(album -> namedParameterJdbcTemplate.batchUpdate(
+                    getAlbumArtistDeleteStatement(),
+                    new MapSqlParameterSource[] {getAlbumArtistDeleteNamedParameters(album)}));
+        albumBatch
+                .forEach(album -> {
+                    namedParameterJdbcTemplate.batchUpdate(
+                            getAlbumArtistInsertStatement(),
+                            IntStream.range(0, album.getArtists().size())
+                                    .mapToObj(i -> {
+                                    	Artist artist = album.getArtists().get(i);
+                                    	return getAlbumArtistInsertNamedParameters(album, artist, i);
+                                    })
+                                    .toArray(MapSqlParameterSource[]::new));
+                });
+        //insert tracks
         namedParameterJdbcTemplate.batchUpdate(
-                getTrackInsertStatement(force),
+                getTrackInsertStatement(),
                 trackBatch.stream()
                         .map(this::getTrackInsertNamedParameters)
                         .toArray(MapSqlParameterSource[]::new));
     }
 
-    private String getAlbumInsertStatement(boolean force) {
+    private String getArtistInsertStatement() {
+        return new StringBuilder()
+                .append("INSERT INTO ")
+                .append(ARTIST_TABLE_FULL_NAME)
+                .append(" VALUES ").append(getArtistInsertValues())
+                .append(" ON CONFLICT (").append(ARTIST_MBID_COLUMN).append(") ")
+                .append(getArtistOnConflictStatement())
+                .toString();
+    }
+
+    private String getArtistInsertValues() {
+        return new StringJoiner(",", "(", ")")
+                .add(":" + ARTIST_MBID_COLUMN)
+                .add(":" + ARTIST_NAME_COLUMN)
+                .add("now()")
+                .toString();
+    }
+
+    private String getArtistOnConflictStatement() {
+        return "DO UPDATE SET " +
+                new StringJoiner(",")
+                        .add(ARTIST_MBID_COLUMN + "=:" + ARTIST_MBID_COLUMN)
+                        .add(ARTIST_NAME_COLUMN + "=:" + ARTIST_NAME_COLUMN)
+                        .add(LAST_UPDATED_COLUMN + "=now()")
+                        .toString();
+    }
+
+    private SqlParameterSource getArtistInsertNamedParameters(Artist artist) {
+        return new MapSqlParameterSource()
+                .addValue(ARTIST_MBID_COLUMN, artist.getArtistMusicBrainzId(), Types.OTHER, UUID_SQL_TYPE)
+                .addValue(ARTIST_NAME_COLUMN, artist.getArtistName());
+    }
+
+    private String getAlbumInsertStatement() {
         return new StringBuilder()
                 .append("INSERT INTO ")
                 .append(ALBUM_TABLE_FULL_NAME)
                 .append(" VALUES ").append(getAlbumInsertValues())
                 .append(" ON CONFLICT (").append(ALBUM_MBID_COLUMN).append(") ")
-                .append(getAlbumOnConflictStatement(force))
+                .append(getAlbumOnConflictStatement())
                 .toString();
     }
 
@@ -64,44 +142,76 @@ public class JdbcTrackCollectionDao implements TrackCollectionDao {
                 .add(":" + ALBUM_MBID_COLUMN)
                 .add(":" + ALBUM_NAME_COLUMN)
                 .add(":" + ALBUM_SOURCE_COLUMN)
-                .add(":" + ARTIST_MBID_COLUMN)
-                .add(":" + ARTIST_NAME_COLUMN)
                 .add("now()")
                 .toString();
     }
 
-    private String getAlbumOnConflictStatement(boolean force) {
-        if (force) {
-            return "DO UPDATE SET " +
-                    new StringJoiner(",")
-                            .add(ALBUM_MBID_COLUMN + "=:" + ALBUM_MBID_COLUMN)
-                            .add(ALBUM_NAME_COLUMN + "=:" + ALBUM_NAME_COLUMN)
-                            .add(ALBUM_SOURCE_COLUMN + "=:" + ALBUM_SOURCE_COLUMN)
-                            .add(ARTIST_MBID_COLUMN + "=:" + ARTIST_MBID_COLUMN)
-                            .add(ARTIST_NAME_COLUMN + "=:" + ARTIST_NAME_COLUMN)
-                            .add(LAST_UPDATED_COLUMN + "=now()")
-                            .toString();
-        } else {
-            return "DO NOTHING";
-        }
+    private String getAlbumOnConflictStatement() {
+        return "DO UPDATE SET " +
+                new StringJoiner(",")
+                        .add(ALBUM_MBID_COLUMN + "=:" + ALBUM_MBID_COLUMN)
+                        .add(ALBUM_NAME_COLUMN + "=:" + ALBUM_NAME_COLUMN)
+                        .add(ALBUM_SOURCE_COLUMN + "=:" + ALBUM_SOURCE_COLUMN)
+                        .add(LAST_UPDATED_COLUMN + "=now()")
+                        .toString();
     }
 
     private SqlParameterSource getAlbumInsertNamedParameters(Album album) {
         return new MapSqlParameterSource()
-                .addValue(ALBUM_MBID_COLUMN, album.getAlbumMusicBrainzId(), Types.OTHER, MBID_SQL_TYPE)
+                .addValue(ALBUM_MBID_COLUMN, album.getAlbumMbId(), Types.OTHER, UUID_SQL_TYPE)
                 .addValue(ALBUM_NAME_COLUMN, album.getAlbumName())
-                .addValue(ALBUM_SOURCE_COLUMN, LOCAL_ALBUM_SOURCE)
-                .addValue(ARTIST_MBID_COLUMN, album.getArtistMusicBrainzId(), Types.OTHER, MBID_SQL_TYPE)
-                .addValue(ARTIST_NAME_COLUMN, album.getArtistName());
+                .addValue(ALBUM_SOURCE_COLUMN, LOCAL_ALBUM_SOURCE);
     }
 
-    private String getTrackInsertStatement(boolean force) {
+    private String getAlbumArtistDeleteStatement() {
+        return new StringBuilder()
+                .append("DELETE FROM ")
+                .append(ALBUM_ARTIST_TABLE_FULL_NAME)
+                .append(" WHERE ")
+                .append(ALBUM_MBID_COLUMN)
+                .append("=")
+                .append(":").append(ALBUM_MBID_COLUMN)
+                .toString();
+    }
+
+    private MapSqlParameterSource getAlbumArtistDeleteNamedParameters(Album album) {
+        return new MapSqlParameterSource()
+                .addValue(ALBUM_MBID_COLUMN, album.getAlbumMbId(), Types.OTHER, UUID_SQL_TYPE);
+    }
+
+    private String getAlbumArtistInsertStatement() {
+        return new StringBuilder()
+                .append("INSERT INTO ")
+                .append(ALBUM_ARTIST_TABLE_FULL_NAME)
+                .append(" VALUES ").append(getAlbumArtistInsertValues())
+                .append(" ON CONFLICT ON CONSTRAINT ")
+                .append(ALBUM_ARTIST_TABLE_PKEY)
+                .append(" DO NOTHING")
+                .toString();
+    }
+
+    private String getAlbumArtistInsertValues() {
+        return new StringJoiner(",", "(", ")")
+                .add(":" + ALBUM_MBID_COLUMN)
+                .add(":" + ARTIST_MBID_COLUMN)
+                .add(":" + ARTIST_POSITION_COLUMN)
+                .toString();
+    }
+
+    private SqlParameterSource getAlbumArtistInsertNamedParameters(Album album, Artist artist, int artistPosition) {
+        return new MapSqlParameterSource()
+                .addValue(ALBUM_MBID_COLUMN, album.getAlbumMbId(), Types.OTHER, UUID_SQL_TYPE)
+                .addValue(ARTIST_MBID_COLUMN, artist.getArtistMusicBrainzId())
+                .addValue(ARTIST_POSITION_COLUMN, artistPosition);
+    }
+
+    private String getTrackInsertStatement() {
         return new StringBuilder()
                 .append("INSERT INTO ")
                 .append(TRACK_TABLE_FULL_NAME)
                 .append(" VALUES ").append(getTrackInsertValues())
                 .append(" ON CONFLICT (").append(TRACK_MBID_COLUMN).append(") ")
-                .append(getTrackOnConflictStatement(force))
+                .append(getTrackOnConflictStatement())
                 .toString();
     }
 
@@ -119,34 +229,30 @@ public class JdbcTrackCollectionDao implements TrackCollectionDao {
                 .toString();
     }
 
-    private String getTrackOnConflictStatement(boolean force) {
-        if (force) {
-            return "DO UPDATE SET " +
-                    new StringJoiner(",")
-                            .add(TRACK_MBID_COLUMN + "=:" + TRACK_MBID_COLUMN)
-                            .add(DISC_NUMBER_COLUMN + "=:" + DISC_NUMBER_COLUMN)
-                            .add(TRACK_NUMBER_COLUMN + "=:" + TRACK_NUMBER_COLUMN)
-                            .add(TRACK_NAME_COLUMN + "=:" + TRACK_NAME_COLUMN)
-                            .add(TRACK_LENGTH_COLUMN + "=:" + TRACK_LENGTH_COLUMN)
-                            .add(TRACK_FILE_TYPE_COLUMN + "=:" + TRACK_FILE_TYPE_COLUMN)
-                            .add(TRACK_PATH_COLUMN + "=:" + TRACK_PATH_COLUMN)
-                            .add(ALBUM_MBID_COLUMN + "=:" + ALBUM_MBID_COLUMN)
-                            .add(LAST_UPDATED_COLUMN + "=now()")
-                            .toString();
-        } else {
-            return "DO NOTHING";
-        }
+    private String getTrackOnConflictStatement() {
+        return "DO UPDATE SET " +
+                new StringJoiner(",")
+                        .add(TRACK_MBID_COLUMN + "=:" + TRACK_MBID_COLUMN)
+                        .add(DISC_NUMBER_COLUMN + "=:" + DISC_NUMBER_COLUMN)
+                        .add(TRACK_NUMBER_COLUMN + "=:" + TRACK_NUMBER_COLUMN)
+                        .add(TRACK_NAME_COLUMN + "=:" + TRACK_NAME_COLUMN)
+                        .add(TRACK_LENGTH_COLUMN + "=:" + TRACK_LENGTH_COLUMN)
+                        .add(TRACK_FILE_TYPE_COLUMN + "=:" + TRACK_FILE_TYPE_COLUMN)
+                        .add(TRACK_PATH_COLUMN + "=:" + TRACK_PATH_COLUMN)
+                        .add(ALBUM_MBID_COLUMN + "=:" + ALBUM_MBID_COLUMN)
+                        .add(LAST_UPDATED_COLUMN + "=now()")
+                        .toString();
     }
 
     private SqlParameterSource getTrackInsertNamedParameters(Track track) {
         return new MapSqlParameterSource()
-                .addValue(TRACK_MBID_COLUMN, track.getTrackMusicBrainzId(), Types.OTHER, MBID_SQL_TYPE)
+                .addValue(TRACK_MBID_COLUMN, track.getTrackMbId(), Types.OTHER, UUID_SQL_TYPE)
                 .addValue(DISC_NUMBER_COLUMN, track.getDiscNumber())
                 .addValue(TRACK_NUMBER_COLUMN, track.getTrackNumber())
                 .addValue(TRACK_NAME_COLUMN, track.getTrackName())
                 .addValue(TRACK_LENGTH_COLUMN, track.getTrackLength())
                 .addValue(TRACK_FILE_TYPE_COLUMN, track.getTrackFileType())
                 .addValue(TRACK_PATH_COLUMN, track.getTrackRelativePath())
-                .addValue(ALBUM_MBID_COLUMN, track.getAlbum().getAlbumMusicBrainzId(), Types.OTHER, MBID_SQL_TYPE);
+                .addValue(ALBUM_MBID_COLUMN, track.getAlbum().getAlbumMbId(), Types.OTHER, UUID_SQL_TYPE);
     }
 }

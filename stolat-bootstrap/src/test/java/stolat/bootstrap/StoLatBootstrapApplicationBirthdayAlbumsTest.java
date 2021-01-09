@@ -36,7 +36,6 @@ class StoLatBootstrapApplicationBirthdayAlbumsTest {
         assertTrue(command.albumBirthday);
         assertFalse(command.albumCollection);
         assertFalse(command.truncate);
-        assertFalse(command.force);
         assertNull(command.path);
     }
 

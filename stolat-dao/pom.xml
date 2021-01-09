@@ -21,7 +21,7 @@
             <dependency>
                 <groupId>io.zonky.test.postgres</groupId>
                 <artifactId>embedded-postgres-binaries-bom</artifactId>
-                <version>12.1.0</version>
+                <version>12.1.0-1</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -59,13 +59,13 @@
         <dependency>
             <groupId>io.zonky.test</groupId>
             <artifactId>embedded-postgres</artifactId>
-            <version>1.2.8</version>
+            <version>1.2.9</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
-            <version>7.1.1</version>
+            <version>7.3.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -100,13 +100,15 @@
                     <compilerArgs>
                         <arg>-Aproject=${project.groupId}/${project.artifactId}</arg>
                     </compilerArgs>
+                    <source>14</source>
+                    <target>14</target>
                 </configuration>
             </plugin>
 
             <plugin>
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-maven-plugin</artifactId>
-                <version>7.1.1</version>
+                <version>7.3.1</version>
             </plugin>
 
             <plugin>

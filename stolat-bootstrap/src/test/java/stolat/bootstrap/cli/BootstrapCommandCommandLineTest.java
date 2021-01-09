@@ -38,7 +38,6 @@ class BootstrapCommandCommandLineTest {
         command.albumBirthday = false;
         command.albumCollection = false;
         command.truncate = false;
-        command.force = false;
         command.path = null;
     }
 
@@ -94,17 +93,5 @@ class BootstrapCommandCommandLineTest {
     void shouldParseVerboseTruncateCommandLineOption() {
         ParseResult parseResult = new CommandLine(command, factory).parseArgs("--truncate");
         assertTrue(command.truncate);
-    }
-
-    @Test
-    void shouldParseForceCommandLineOption() {
-        ParseResult parseResult = new CommandLine(command, factory).parseArgs("-f");
-        assertTrue(command.force);
-    }
-
-    @Test
-    void shouldParseVerboseForceCommandLineOption() {
-        ParseResult parseResult = new CommandLine(command, factory).parseArgs("--force");
-        assertTrue(command.force);
     }
 }

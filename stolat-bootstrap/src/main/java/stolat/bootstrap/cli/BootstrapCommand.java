@@ -30,8 +30,6 @@ public class BootstrapCommand implements Callable<Integer> {
     public boolean albumCollection;
     @Option(names = {"-t", "--truncate"}, description = "truncate table(s) before starting")
     public boolean truncate;
-    @Option(names = {"-f", "--force"}, description = "forces an update when an album/track entry already exists")
-    public boolean force;
     @Option(names = {"-p", "--path"}, description = "overrides the path where the album collection is to be fetched")
     public Path path;
     @Option(names = "--spring.config.location", hidden = true)
@@ -93,14 +91,14 @@ public class BootstrapCommand implements Callable<Integer> {
 
     private void triggerAlbumCollectionUpdate() {
         final String truncateAnd = truncate ? "truncate and " : "";
-        final String forceUpdate = force ? "force update" : "update";
+        final String update = "update";
         final Runnable updateAlbumCollectionDatabase;
         if (path != null) {
-            log.debug("Triggered option to {}{} album collection from path {}.", truncateAnd, forceUpdate, path);
-            updateAlbumCollectionDatabase = () -> albumCollectionCommand.updateAlbumCollectionDatabase(truncate, path, force);
+            log.debug("Triggered option to {}{} album collection from path {}.", truncateAnd, update, path);
+            updateAlbumCollectionDatabase = () -> albumCollectionCommand.updateAlbumCollectionDatabase(truncate, path);
         } else {
-            log.debug("Triggered option to {}{} album collection from root path.", truncateAnd, forceUpdate);
-            updateAlbumCollectionDatabase = () -> albumCollectionCommand.updateAlbumCollectionDatabase(truncate, force);
+            log.debug("Triggered option to {}{} album collection from root path.", truncateAnd, update);
+            updateAlbumCollectionDatabase = () -> albumCollectionCommand.updateAlbumCollectionDatabase(truncate);
         }
         futures.add(CompletableFuture.runAsync(updateAlbumCollectionDatabase));
     }

@@ -37,7 +37,6 @@ public class StolatBootstrapApplicationAlbumCollectionTruncateForcePathTest {
         assertFalse(command.albumBirthday);
         assertTrue(command.albumCollection);
         assertTrue(command.truncate);
-        assertTrue(command.force);
         assertEquals(Path.of("testpath"), command.path);
     }
 

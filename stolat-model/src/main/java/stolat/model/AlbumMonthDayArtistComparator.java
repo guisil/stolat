@@ -1,6 +1,8 @@
 package stolat.model;
 
 import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class AlbumMonthDayArtistComparator implements Comparator<AlbumBirthday> {
 
@@ -25,6 +27,13 @@ public class AlbumMonthDayArtistComparator implements Comparator<AlbumBirthday> 
             return -1;
         }
 
-        return o1.getAlbum().getArtistName().compareTo(o2.getAlbum().getArtistName());
+        String firstJoinedArtistNames = getJoinedArtistNames(o1.getAlbum().getArtists());
+        String secondJoinedArtistNames = getJoinedArtistNames(o2.getAlbum().getArtists());
+
+        return firstJoinedArtistNames.compareTo(secondJoinedArtistNames);
+    }
+
+    private String getJoinedArtistNames(List<Artist> artists) {
+        return artists.stream().map(Artist::getArtistName).collect(Collectors.joining());
     }
 }

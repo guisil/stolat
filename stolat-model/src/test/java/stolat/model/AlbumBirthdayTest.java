@@ -2,6 +2,7 @@ package stolat.model;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -13,7 +14,7 @@ class AlbumBirthdayTest {
         new AlbumBirthday(
                 new Album(
                         UUID.randomUUID(), "Some Album",
-                        UUID.randomUUID(), "Some Artist"),
+                        List.of(new Artist(UUID.randomUUID(), "Some Artist"))),
                 2000, 4, 30);
     }
 
@@ -22,7 +23,7 @@ class AlbumBirthdayTest {
         new AlbumBirthday(
                 new Album(
                         UUID.randomUUID(), "Some Album",
-                        UUID.randomUUID(), "Some Artist"),
+                        List.of(new Artist(UUID.randomUUID(), "Some Artist"))),
                 2000, 12, null);
     }
 
@@ -31,7 +32,7 @@ class AlbumBirthdayTest {
         new AlbumBirthday(
                 new Album(
                         UUID.randomUUID(), "Some Album",
-                        UUID.randomUUID(), "Some Artist"),
+                        List.of(new Artist(UUID.randomUUID(), "Some Artist"))),
                 2000, null, null);
     }
 
@@ -46,51 +47,43 @@ class AlbumBirthdayTest {
         assertThrows(IllegalArgumentException.class, () -> new AlbumBirthday(
                 new Album(
                         UUID.randomUUID(), "Some Album",
-                        UUID.randomUUID(), "Some Artist"),
+                        List.of(new Artist(UUID.randomUUID(), "Some Artist"))),
                 null, null, null));
     }
 
     @Test
     void shouldNotCreateAlbumWithInvalidMonth() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            final var albumBirthday = new AlbumBirthday(
-                    new Album(
-                            UUID.randomUUID(), "Some Album",
-                            UUID.randomUUID(), "Some Artist"),
-                    2000, 13, null);
-        });
+        assertThrows(IllegalArgumentException.class, () -> new AlbumBirthday(
+                new Album(
+                        UUID.randomUUID(), "Some Album",
+                        List.of(new Artist(UUID.randomUUID(), "Some Artist"))),
+                2000, 13, null));
     }
 
     @Test
     void shouldNotCreateAlbumWithMonthInvalidForDay() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            final var albumBirthday = new AlbumBirthday(
-                    new Album(
-                            UUID.randomUUID(), "Some Album",
-                            UUID.randomUUID(), "Some Artist"),
-                    2000, null, 31);
-        });
+        assertThrows(IllegalArgumentException.class, () -> new AlbumBirthday(
+                new Album(
+                        UUID.randomUUID(), "Some Album",
+                        List.of(new Artist(UUID.randomUUID(), "Some Artist"))),
+                2000, null, 31));
     }
 
     @Test
     void shouldNotCreateAlbumWithInvalidDay() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            final var albumBirthday = new AlbumBirthday(
-                    new Album(
-                            UUID.randomUUID(), "Some Album",
-                            UUID.randomUUID(), "Some Artist"),
-                    2000, 4, 55);
-        });
+        assertThrows(IllegalArgumentException.class, () -> new AlbumBirthday(
+                new Album(
+                        UUID.randomUUID(), "Some Album",
+                        List.of(new Artist(UUID.randomUUID(), "Some Artist"))),
+                2000, 4, 55));
     }
 
     @Test
     void shouldNotCreateAlbumWithDayInvalidForMonth() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            final var albumBirthday = new AlbumBirthday(
-                    new Album(
-                            UUID.randomUUID(), "Some Album",
-                            UUID.randomUUID(), "Some Artist"),
-                    2000, 4, 31);
-        });
+        assertThrows(IllegalArgumentException.class, () -> new AlbumBirthday(
+                new Album(
+                        UUID.randomUUID(), "Some Album",
+                        List.of(new Artist(UUID.randomUUID(), "Some Artist"))),
+                2000, 4, 31));
     }
 }

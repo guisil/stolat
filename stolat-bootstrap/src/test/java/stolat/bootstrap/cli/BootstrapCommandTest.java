@@ -77,26 +77,13 @@ public class BootstrapCommandTest {
     }
 
     @Test
-    void shouldIgnoreForceOptionWhenBirthdayOptionSelected() {
-        command.albumBirthday = true;
-        command.force = true;
-        command.call();
-
-        waitForExecutorsToFinish();
-
-        verify(mockAlbumBirthdayCommand).updateAlbumBirthdayDatabase();
-        verifyNoMoreInteractions(mockAlbumBirthdayCommand);
-        verifyNoInteractions(mockAlbumCollectionCommand);
-    }
-
-    @Test
     void shouldUpdateAlbumCollectionDatabaseWhenCollectionOptionSelected() {
         command.albumCollection = true;
         command.call();
 
         waitForExecutorsToFinish();
 
-        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(false, false);
+        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(false);
         verifyNoMoreInteractions(mockAlbumCollectionCommand);
         verifyNoInteractions(mockAlbumBirthdayCommand);
     }
@@ -110,7 +97,7 @@ public class BootstrapCommandTest {
 
         waitForExecutorsToFinish();
 
-        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(false, path, false);
+        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(false, path);
         verifyNoMoreInteractions(mockAlbumCollectionCommand);
         verifyNoInteractions(mockAlbumBirthdayCommand);
     }
@@ -123,20 +110,7 @@ public class BootstrapCommandTest {
 
         waitForExecutorsToFinish();
 
-        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(true, false);
-        verifyNoMoreInteractions(mockAlbumCollectionCommand);
-        verifyNoInteractions(mockAlbumBirthdayCommand);
-    }
-
-    @Test
-    void shouldForceUpdateAlbumCollectionDatabaseWhenCollectionAndForceOptionsSelected() {
-        command.albumCollection = true;
-        command.force = true;
-        command.call();
-
-        waitForExecutorsToFinish();
-
-        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(false, true);
+        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(true);
         verifyNoMoreInteractions(mockAlbumCollectionCommand);
         verifyNoInteractions(mockAlbumBirthdayCommand);
     }
@@ -151,22 +125,7 @@ public class BootstrapCommandTest {
 
         waitForExecutorsToFinish();
 
-        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(true, path, false);
-        verifyNoMoreInteractions(mockAlbumCollectionCommand);
-        verifyNoInteractions(mockAlbumBirthdayCommand);
-    }
-
-    @Test
-    void shouldForceUpdateAlbumCollectionDatabaseFromFolderWhenCollectionAndForceAndPathOptionsSelected() {
-        final Path path = Path.of(File.separator, "some", "other", "path");
-        command.albumCollection = true;
-        command.force = true;
-        command.path = path;
-        command.call();
-
-        waitForExecutorsToFinish();
-
-        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(false, path, true);
+        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(true, path);
         verifyNoMoreInteractions(mockAlbumCollectionCommand);
         verifyNoInteractions(mockAlbumBirthdayCommand);
     }
@@ -180,7 +139,7 @@ public class BootstrapCommandTest {
         waitForExecutorsToFinish();
 
         verify(mockAlbumBirthdayCommand).updateAlbumBirthdayDatabase();
-        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(false, false);
+        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(false);
         verifyNoMoreInteractions(mockAlbumBirthdayCommand, mockAlbumCollectionCommand);
     }
 
@@ -194,36 +153,7 @@ public class BootstrapCommandTest {
         waitForExecutorsToFinish();
 
         verify(mockAlbumBirthdayCommand).updateAlbumBirthdayDatabase();
-        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(true, false);
-        verifyNoMoreInteractions(mockAlbumBirthdayCommand, mockAlbumCollectionCommand);
-    }
-
-    @Test
-    void shouldUpdateAlbumBirthdayAndForceUpdateAlbumCollectionWhenBothOptionsAndForceOptionSelected() {
-        command.albumBirthday = true;
-        command.albumCollection = true;
-        command.force = true;
-        command.call();
-
-        waitForExecutorsToFinish();
-
-        verify(mockAlbumBirthdayCommand).updateAlbumBirthdayDatabase();
-        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(false, true);
-        verifyNoMoreInteractions(mockAlbumBirthdayCommand, mockAlbumCollectionCommand);
-    }
-
-    @Test
-    void shouldUpdateAlbumBirthdayAndTruncateAndForceUpdateAlbumCollectionWhenBothOptionsAndTruncateAndForceOptionSelected() {
-        command.albumBirthday = true;
-        command.albumCollection = true;
-        command.truncate = true;
-        command.force = true;
-        command.call();
-
-        waitForExecutorsToFinish();
-
-        verify(mockAlbumBirthdayCommand).updateAlbumBirthdayDatabase();
-        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(true, true);
+        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(true);
         verifyNoMoreInteractions(mockAlbumBirthdayCommand, mockAlbumCollectionCommand);
     }
 
@@ -238,7 +168,7 @@ public class BootstrapCommandTest {
         waitForExecutorsToFinish();
 
         verify(mockAlbumBirthdayCommand).updateAlbumBirthdayDatabase();
-        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(false, path, false);
+        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(false, path);
         verifyNoMoreInteractions(mockAlbumBirthdayCommand, mockAlbumCollectionCommand);
     }
 
@@ -254,24 +184,7 @@ public class BootstrapCommandTest {
         waitForExecutorsToFinish();
 
         verify(mockAlbumBirthdayCommand).updateAlbumBirthdayDatabase();
-        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(true, path, false);
-        verifyNoMoreInteractions(mockAlbumBirthdayCommand, mockAlbumCollectionCommand);
-    }
-
-    @Test
-    void shouldUpdateAlbumBirthdayAndTruncateAndForceUpdateAlbumCollectionFromFolderWhenBothOptionsAndPathAndTruncateAndForceOptionSelected() {
-        final Path path = Path.of(File.separator, "some", "other", "path");
-        command.albumBirthday = true;
-        command.albumCollection = true;
-        command.truncate = true;
-        command.force = true;
-        command.path = path;
-        command.call();
-
-        waitForExecutorsToFinish();
-
-        verify(mockAlbumBirthdayCommand).updateAlbumBirthdayDatabase();
-        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(true, path, true);
+        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(true, path);
         verifyNoMoreInteractions(mockAlbumBirthdayCommand, mockAlbumCollectionCommand);
     }
 
@@ -282,7 +195,7 @@ public class BootstrapCommandTest {
         waitForExecutorsToFinish();
 
         verify(mockAlbumBirthdayCommand).updateAlbumBirthdayDatabase();
-        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(false, false);
+        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(false);
         verifyNoMoreInteractions(mockAlbumBirthdayCommand, mockAlbumCollectionCommand);
     }
 
@@ -294,32 +207,7 @@ public class BootstrapCommandTest {
         waitForExecutorsToFinish();
 
         verify(mockAlbumBirthdayCommand).updateAlbumBirthdayDatabase();
-        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(true, false);
-        verifyNoMoreInteractions(mockAlbumBirthdayCommand, mockAlbumCollectionCommand);
-    }
-
-    @Test
-    void shouldUpdateAlbumBirthdayAndForceUpdateAlbumCollectionWhenOnlyForceOptionSelected() {
-        command.force = true;
-        command.call();
-
-        waitForExecutorsToFinish();
-
-        verify(mockAlbumBirthdayCommand).updateAlbumBirthdayDatabase();
-        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(false, true);
-        verifyNoMoreInteractions(mockAlbumBirthdayCommand, mockAlbumCollectionCommand);
-    }
-
-    @Test
-    void shouldUpdateAlbumBirthdayAndTruncateAndForceUpdateAlbumCollectionWhenOnlyTruncateAndForceOptionsSelected() {
-        command.truncate = true;
-        command.force = true;
-        command.call();
-
-        waitForExecutorsToFinish();
-
-        verify(mockAlbumBirthdayCommand).updateAlbumBirthdayDatabase();
-        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(true, true);
+        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(true);
         verifyNoMoreInteractions(mockAlbumBirthdayCommand, mockAlbumCollectionCommand);
     }
 
@@ -332,7 +220,7 @@ public class BootstrapCommandTest {
         waitForExecutorsToFinish();
 
         verify(mockAlbumBirthdayCommand).updateAlbumBirthdayDatabase();
-        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(false, path, false);
+        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(false, path);
         verifyNoMoreInteractions(mockAlbumBirthdayCommand, mockAlbumCollectionCommand);
     }
 
@@ -346,36 +234,7 @@ public class BootstrapCommandTest {
         waitForExecutorsToFinish();
 
         verify(mockAlbumBirthdayCommand).updateAlbumBirthdayDatabase();
-        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(true, path, false);
-        verifyNoMoreInteractions(mockAlbumBirthdayCommand, mockAlbumCollectionCommand);
-    }
-
-    @Test
-    void shouldUpdateAlbumBirthdayAndForceUpdateAlbumCollectionFromFolderWhenOnlyPathAndForceOptionSelected() {
-        final Path path = Path.of(File.separator, "some", "other", "path");
-        command.path = path;
-        command.force = true;
-        command.call();
-
-        waitForExecutorsToFinish();
-
-        verify(mockAlbumBirthdayCommand).updateAlbumBirthdayDatabase();
-        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(false, path, true);
-        verifyNoMoreInteractions(mockAlbumBirthdayCommand, mockAlbumCollectionCommand);
-    }
-
-    @Test
-    void shouldUpdateAlbumBirthdayAndTruncateAndForceUpdateAlbumCollectionFromFolderWhenOnlyPathAndTruncateAndForceOptionSelected() {
-        final Path path = Path.of(File.separator, "some", "other", "path");
-        command.path = path;
-        command.truncate = true;
-        command.force = true;
-        command.call();
-
-        waitForExecutorsToFinish();
-
-        verify(mockAlbumBirthdayCommand).updateAlbumBirthdayDatabase();
-        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(true, path, true);
+        verify(mockAlbumCollectionCommand).updateAlbumCollectionDatabase(true, path);
         verifyNoMoreInteractions(mockAlbumBirthdayCommand, mockAlbumCollectionCommand);
     }
 }

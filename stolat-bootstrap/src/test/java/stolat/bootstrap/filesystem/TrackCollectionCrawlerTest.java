@@ -35,6 +35,10 @@ class TrackCollectionCrawlerTest {
     private static final String SECOND_ALBUM_SECOND_TRACK = "yetanothertrack.flac";
     private static final String SECOND_ALBUM_OUT_OF_PLACE_TRACK = "should be somewhere else.mp3";
     private static final String SECOND_ALBUM_PDF = "something.pdf";
+    private static final String THIRD_ALBUM_FOLDER = "Third Album";
+    private static final String THIRD_ALBUM_FIRST_TRACK = "What is this.flac";
+    private static final String THIRD_ALBUM_SECOND_TRACK = "And what about this.flac";
+    private static final String THIRD_ALBUM_COVER = "another_cover.jpg";
     private static final String EMPTY_ALBUM_FOLDER = "Empty Album";
 
     @TempDir
@@ -51,11 +55,15 @@ class TrackCollectionCrawlerTest {
     private File firstAlbumSecondTrackFile;
     private File secondAlbumFirstTrackFile;
     private File secondAlbumSecondTrackFile;
+    private File thirdAlbumFirstTrackFile;
+    private File thirdAlbumSecondTrackFile;
 
     private Track firstAlbumFirstTrack;
     private Track firstAlbumSecondTrack;
     private Track secondAlbumFirstTrack;
     private Track secondAlbumSecondTrack;
+    private Track thirdAlbumFirstTrack;
+    private Track thirdAlbumSecondTrack;
 
     private TrackCollectionCrawler trackCollectionCrawler;
 
@@ -88,18 +96,27 @@ class TrackCollectionCrawlerTest {
         secondAlbumSecondTrackFile.createNewFile();
         new File(secondAlbumFolder, SECOND_ALBUM_OUT_OF_PLACE_TRACK).createNewFile();
         new File(secondAlbumFolder, SECOND_ALBUM_PDF).createNewFile();
+        final File thirdAlbumFolder = new File(someArtistFolder, THIRD_ALBUM_FOLDER);
+        thirdAlbumFolder.mkdirs();
+        thirdAlbumFirstTrackFile = new File(thirdAlbumFolder, THIRD_ALBUM_FIRST_TRACK);
+        thirdAlbumFirstTrackFile.createNewFile();
+        thirdAlbumSecondTrackFile = new File(thirdAlbumFolder, THIRD_ALBUM_SECOND_TRACK);
+        thirdAlbumSecondTrackFile.createNewFile();
+        new File(thirdAlbumFolder, THIRD_ALBUM_COVER).createNewFile();
         final File emptyAlbumFolder = new File(someOtherArtistFolder, EMPTY_ALBUM_FOLDER);
         emptyAlbumFolder.mkdirs();
 
         lenient().when(mockFileSystemProperties.getAlbumCollectionPath()).thenReturn(collectionRootFolder.getAbsolutePath());
-        lenient().when(mockFileSystemProperties.getAlbumCollectionBatchSize()).thenReturn(2);
+        lenient().when(mockFileSystemProperties.getAlbumCollectionBatchSize()).thenReturn(3);
         lenient().when(mockFileSystemProperties.getMusicFileExtensions()).thenReturn(List.of("flac"));
     }
 
     private void initialiseTracks() {
-        final Album firstAlbum = new Album(
+        final String firstArtistMbid = UUID.randomUUID().toString();
+		final String firstArtistName = "Some Artist";
+		final Album firstAlbum = new Album(
                 UUID.randomUUID().toString(), "First Album",
-                UUID.randomUUID().toString(), "Some Artist");
+                List.of(firstArtistMbid), List.of(firstArtistName));
         firstAlbumFirstTrack = new Track(
                 UUID.randomUUID().toString(), "1", "1", "Some Track",
                 123, Path.of(SOME_ARTIST_FOLDER, FIRST_ALBUM_FOLDER, FIRST_ALBUM_FIRST_TRACK).toString(), firstAlbum);
@@ -107,27 +124,41 @@ class TrackCollectionCrawlerTest {
                 UUID.randomUUID().toString(), "1", "2", "Some Other Track",
                 132, Path.of(SOME_ARTIST_FOLDER, FIRST_ALBUM_FOLDER, FIRST_ALBUM_SECOND_TRACK).toString(), firstAlbum);
 
+        final String secondArtistMbid = UUID.randomUUID().toString();
+        final String secondArtistName = "Some other Artist";
         final Album secondAlbum = new Album(
                 UUID.randomUUID().toString(), "Second Album",
-                UUID.randomUUID().toString(), "Some other Artist");
+                List.of(secondArtistMbid), List.of(secondArtistName));
         secondAlbumFirstTrack = new Track(
                 UUID.randomUUID().toString(), "1", "1", "Something Else",
                 111, Path.of(SOME_OTHER_ARTIST_FOLDER, SECOND_ALBUM_FOLDER, SECOND_ALBUM_FIRST_TRACK).toString(), secondAlbum);
         secondAlbumSecondTrack = new Track(
                 UUID.randomUUID().toString(), "1", "2", "Yet Another Track",
                 222, Path.of(SOME_OTHER_ARTIST_FOLDER, SECOND_ALBUM_FOLDER, SECOND_ALBUM_SECOND_TRACK).toString(), secondAlbum);
+        
+        final Album thirdAlbum = new Album(
+        		UUID.randomUUID().toString(), "Third Album",
+        		List.of(firstArtistMbid, secondArtistMbid), List.of(firstArtistName, secondArtistName));
+        thirdAlbumFirstTrack = new Track(
+        		UUID.randomUUID().toString(), "1", "1", "What is this",
+        		121, Path.of(SOME_ARTIST_FOLDER, THIRD_ALBUM_FOLDER, THIRD_ALBUM_FIRST_TRACK).toString(), thirdAlbum);
+        thirdAlbumSecondTrack = new Track(
+        		UUID.randomUUID().toString(), "1", "2", "And what about this",
+        		212, Path.of(SOME_ARTIST_FOLDER, THIRD_ALBUM_FOLDER, THIRD_ALBUM_SECOND_TRACK).toString(), thirdAlbum);
 
         lenient().when(mockTagInfoReader.getTrackBatchInfo(anyList())).thenCallRealMethod();
         lenient().when(mockTagInfoReader.getTrackInfo(firstAlbumFirstTrackFile)).thenReturn(Optional.of(firstAlbumFirstTrack));
         lenient().when(mockTagInfoReader.getTrackInfo(firstAlbumSecondTrackFile)).thenReturn(Optional.of(firstAlbumSecondTrack));
         lenient().when(mockTagInfoReader.getTrackInfo(secondAlbumFirstTrackFile)).thenReturn(Optional.of(secondAlbumFirstTrack));
         lenient().when(mockTagInfoReader.getTrackInfo(secondAlbumSecondTrackFile)).thenReturn(Optional.of(secondAlbumSecondTrack));
+        lenient().when(mockTagInfoReader.getTrackInfo(thirdAlbumFirstTrackFile)).thenReturn(Optional.of(thirdAlbumFirstTrack));
+        lenient().when(mockTagInfoReader.getTrackInfo(thirdAlbumSecondTrackFile)).thenReturn(Optional.of(thirdAlbumSecondTrack));
     }
 
     @Test
     void shouldProcessTrackCollectionFromConfiguredPath() {
         final Set<Track> expected =
-                Set.of(firstAlbumFirstTrack, firstAlbumSecondTrack, secondAlbumFirstTrack, secondAlbumSecondTrack);
+                Set.of(firstAlbumFirstTrack, firstAlbumSecondTrack, secondAlbumFirstTrack, secondAlbumSecondTrack, thirdAlbumFirstTrack, thirdAlbumSecondTrack);
         final Set<Track> processed = new HashSet<>();
         trackCollectionCrawler.processTrackCollection(processed::addAll);
 

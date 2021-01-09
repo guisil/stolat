@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import stolat.model.Album;
 import stolat.model.AlbumBirthday;
+import stolat.model.Artist;
 import stolat.model.BirthdayAlbums;
 
 import java.time.MonthDay;
@@ -15,17 +16,21 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class MailSubjectBuilderTest {
+    
+	private static final Artist SOME_ARTIST = new Artist(UUID.randomUUID(), "Some Artist");
+	private static final Artist ANOTHER_ARTIST = new Artist(UUID.randomUUID(), "Another Artist");
+	
     private static final AlbumBirthday FIRST_ALBUM_BIRTHDAY =
             new AlbumBirthday(
                     new Album(
                             UUID.randomUUID(), "Some Album",
-                            UUID.randomUUID(), "Some Artist"),
+                            List.of(SOME_ARTIST)),
                     2000, 12, 22);
     private static final AlbumBirthday SECOND_ALBUM_BIRTHDAY =
             new AlbumBirthday(
                     new Album(
                             UUID.randomUUID(), "Some Other Album",
-                            UUID.randomUUID(), "Another Artist"),
+                            List.of(ANOTHER_ARTIST, SOME_ARTIST)),
                     2000, 12, 22);
     private static final BirthdayAlbums BIRTHDAY_ALBUMS =
             new BirthdayAlbums(

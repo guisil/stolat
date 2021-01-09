@@ -1,5 +1,6 @@
 package stolat.model;
 
+import java.util.List;
 import java.util.UUID;
 
 public final class TagValidator {
@@ -40,5 +41,11 @@ public final class TagValidator {
             return tagValue;
         }
         throw getInvalidTagException(tagName, tagValue, null);
+    }
+
+    static <T> void checkListsHaveSameSize(List<T> firstList, List<T> secondList, String listsContentDescription) {
+        if (firstList.size() != secondList.size()) {
+            throw new IllegalArgumentException("Lists containing " + listsContentDescription + " do not have the same size");
+        }
     }
 }

@@ -17,7 +17,7 @@ class BirthdayAlbumsTest {
                 List.of(new AlbumBirthday(
                         new Album(
                                 UUID.randomUUID(), "Some Album",
-                                UUID.randomUUID(), "Some Artist"),
+                                List.of(new Artist(UUID.randomUUID(), "Some Artist"))),
                         2000, 12, 22)));
     }
 
@@ -27,7 +27,10 @@ class BirthdayAlbumsTest {
                 null,
                 MonthDay.of(7, 27),
                 List.of(new AlbumBirthday(
-                        null, 2000, null, null))));
+                        new Album(
+                                UUID.randomUUID(), "Some Album",
+                                List.of(new Artist(UUID.randomUUID(), "Some Artist"))),
+                        2000, 12, 22))));
     }
 
     @Test
@@ -36,7 +39,10 @@ class BirthdayAlbumsTest {
                 MonthDay.of(7, 25),
                 null,
                 List.of(new AlbumBirthday(
-                        null, 2000, null, null))));
+                        new Album(
+                                UUID.randomUUID(), "Some Album",
+                                List.of(new Artist(UUID.randomUUID(), "Some Artist"))),
+                        2000, 12, 22))));
     }
 
     @Test

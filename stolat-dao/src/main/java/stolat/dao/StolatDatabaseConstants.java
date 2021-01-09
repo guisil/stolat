@@ -13,6 +13,11 @@ public final class StolatDatabaseConstants {
     public static final String BIRTHDAY_TABLE_INTERMEDIATE_FULL_NAME = SCHEMA_NAME + "." + BIRTHDAY_TABLE_INTERMEDIATE_NAME;
     public static final String ALBUM_TABLE_NAME = "local_collection_album";
     public static final String ALBUM_TABLE_FULL_NAME = SCHEMA_NAME + "." + ALBUM_TABLE_NAME;
+    public static final String ARTIST_TABLE_NAME = "local_collection_artist";
+    public static final String ARTIST_TABLE_FULL_NAME = SCHEMA_NAME + "." + ARTIST_TABLE_NAME;
+    public static final String ALBUM_ARTIST_TABLE_NAME = "local_collection_album_artist";
+    public static final String ALBUM_ARTIST_TABLE_FULL_NAME = SCHEMA_NAME + "." + ALBUM_ARTIST_TABLE_NAME;
+    public static final String ALBUM_ARTIST_TABLE_PKEY = "album_artist_pkey";
     public static final String TRACK_TABLE_NAME = "local_collection_track";
     public static final String TRACK_TABLE_FULL_NAME = SCHEMA_NAME + "." + TRACK_TABLE_NAME;
 
@@ -21,6 +26,7 @@ public final class StolatDatabaseConstants {
     public static final String ALBUM_SOURCE_COLUMN = "album_source";
     public static final String ARTIST_MBID_COLUMN = "artist_mbid";
     public static final String ARTIST_NAME_COLUMN = "artist_name";
+    public static final String ARTIST_POSITION_COLUMN = "artist_position";
 
     public static final String ALBUM_YEAR_COLUMN = "album_year";
     public static final String ALBUM_MONTH_COLUMN = "album_month";
@@ -37,5 +43,6 @@ public final class StolatDatabaseConstants {
     public static final String LAST_UPDATED_COLUMN = "last_updated";
 
     public static final String LOCAL_ALBUM_SOURCE = "local";
-    public static final String MBID_SQL_TYPE = "uuid";
+    public static final String UUID_SQL_TYPE = "uuid";
+    public static final String VARCHAR_SQL_TYPE = "varchar";
 }

@@ -5,19 +5,28 @@ import io.zonky.test.db.postgres.junit5.PreparedDbExtension;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import stolat.model.Album;
 import stolat.model.AlbumBirthday;
+import stolat.model.Artist;
+import stolat.model.Track;
 
+import java.nio.file.Path;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.MonthDay;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static stolat.dao.StolatDatabaseConstants.*;
@@ -37,49 +46,61 @@ class JdbcAlbumBirthdayDaoTest {
                     new Album(
                             UUID.fromString("68b9f75b-34b5-3228-9972-82efea767eca"),
                             "Come On Die Young",
-                            UUID.fromString("d700b3f5-45af-4d02-95ed-57d301bda93e"),
-                            "Mogwai"),
+                            List.of(new Artist(UUID.fromString("d700b3f5-45af-4d02-95ed-57d301bda93e"),
+                            "Mogwai"))),
                     1999, 3, 29);
     private final AlbumBirthday expectedOpeth =
             new AlbumBirthday(
                     new Album(
                             UUID.fromString("00f78b7d-bd0a-356a-aec4-925e529023f8"),
                             "Ghost Reveries",
-                            UUID.fromString("c14b4180-dc87-481e-b17a-64e4150f90f6"),
-                            "Opeth"),
+                            List.of(new Artist(UUID.fromString("c14b4180-dc87-481e-b17a-64e4150f90f6"),
+                            "Opeth"))),
                     2005, 8, 26);
     private final AlbumBirthday expectedDeadCombo =
             new AlbumBirthday(
                     new Album(
                             UUID.fromString("4adf1192-df7a-3967-a8e6-d39963c62994"),
                             "Vol. II - Quando a alma não é pequena",
-                            UUID.fromString("092ae9e2-60bf-4b66-aa33-9e31754d1924"),
-                            "Dead Combo"),
+                            List.of(new Artist(UUID.fromString("092ae9e2-60bf-4b66-aa33-9e31754d1924"),
+                            "Dead Combo"))),
                     2006, 3, 20);
     private final AlbumBirthday expectedAyreon =
             new AlbumBirthday(
                     new Album(
                             UUID.fromString("6281bcfe-058e-4cd3-85bc-66f47c28960b"),
                             "The Theory of Everything",
-                            UUID.fromString("7bbfd77c-1102-4831-9ba8-246fb67460b3"),
-                            "Ayreon"),
+                            List.of(new Artist(UUID.fromString("7bbfd77c-1102-4831-9ba8-246fb67460b3"),
+                            "Ayreon"))),
                     2013, 9, 25);
     private final AlbumBirthday expectedIronMaiden =
             new AlbumBirthday(
                     new Album(
                             UUID.fromString("4ebfe175-e7ed-34cd-8e91-67c7e4a53579"),
                             "The Number of the Beast",
-                            UUID.fromString("ca891d65-d9b0-4258-89f7-e6ba29d83767"),
-                            "Iron Maiden"),
+                            List.of(new Artist(UUID.fromString("ca891d65-d9b0-4258-89f7-e6ba29d83767"),
+                            "Iron Maiden"))),
                     1982, 3, 29);
     private final AlbumBirthday expectedEels =
             new AlbumBirthday(
                     new Album(
                             UUID.fromString("119a9488-9980-3645-be68-f50210a35a26"),
                             "Beautiful Freak",
-                            UUID.fromString("14387b0f-765c-4852-852f-135335790466"),
-                            "EELS"),
+                            List.of(new Artist(UUID.fromString("14387b0f-765c-4852-852f-135335790466"),
+                            "EELS"))),
                     1996, 8, 5);
+    private final AlbumBirthday expectedRodrigoLeao =
+            new AlbumBirthday(
+                    new Album(
+                            UUID.fromString("8ecbcc35-69eb-4233-af8a-a351eb3cadb6"),
+                            "O retiro",
+                            List.of(new Artist(UUID.fromString("f3df0b46-d21a-4230-9a94-4082e8d6860b"),
+                                    "Rodrigo Leão"),
+                                    new Artist(UUID.fromString("925842f9-d48a-42d9-9597-d99a775ac45b"),
+                                            "Orquestra Gulbenkian"),
+                                    new Artist(UUID.fromString("6c245d32-4efc-4aaa-9ef2-0f355a323088"),
+                                            "Coro Gulbenkian"))),
+                    2015,10,30);
 
     private JdbcTemplate jdbcTemplate;
 
@@ -94,7 +115,7 @@ class JdbcAlbumBirthdayDaoTest {
     void shouldClearAlbumBirthdays() {
         initialiseTestVariables();
         // the album birthdays need to be filled in first
-        insertTestData();
+        insertTestData(true);
 
         albumBirthdayDao.clearAlbumBirthdays();
         String selectBirthdayCount = "SELECT COUNT(*) FROM " + BIRTHDAY_TABLE_FULL_NAME;
@@ -107,16 +128,28 @@ class JdbcAlbumBirthdayDaoTest {
     void shouldPopulateAlbumBirthdays() {
 
         initialiseTestVariables();
+        insertTestData(false);
 
         Set<AlbumBirthday> expectedAlbumBirthdays =
                 Set.of(expectedMogwai, expectedOpeth,
                         expectedDeadCombo, expectedAyreon,
-                        expectedIronMaiden, expectedEels);
+                        expectedIronMaiden, expectedEels, expectedRodrigoLeao);
 
         albumBirthdayDao.populateAlbumBirthdays();
 
-        String selectAllAlbumBirthdays = "SELECT * FROM " + BIRTHDAY_TABLE_FULL_NAME;
-        List<AlbumBirthday> actualAlbumBirthdays = jdbcTemplate.query(selectAllAlbumBirthdays, new AlbumBirthdayRowMapper());
+        String selectAllAlbumBirthdays = "SELECT " +
+                "al." + ALBUM_MBID_COLUMN + " AS " + ALBUM_MBID_COLUMN + "," +
+                "al." + ALBUM_NAME_COLUMN + " AS " + ALBUM_NAME_COLUMN + "," +
+                "ar." + ARTIST_MBID_COLUMN + " AS " + ARTIST_MBID_COLUMN + "," +
+                "ar." + ARTIST_NAME_COLUMN + " AS " + ARTIST_NAME_COLUMN + "," +
+                "b." + ALBUM_YEAR_COLUMN + " AS " + ALBUM_YEAR_COLUMN + "," +
+                "b." + ALBUM_MONTH_COLUMN + " AS " + ALBUM_MONTH_COLUMN + "," +
+                "b." + ALBUM_DAY_COLUMN + " AS " + ALBUM_DAY_COLUMN +
+                " FROM " + BIRTHDAY_TABLE_FULL_NAME + " b" +
+                " INNER JOIN " + ALBUM_TABLE_FULL_NAME + " al" + " ON " + " b." + ALBUM_MBID_COLUMN + " = " + "al." + ALBUM_MBID_COLUMN +
+                " INNER JOIN " + ALBUM_ARTIST_TABLE_FULL_NAME + " alar ON al." + ALBUM_MBID_COLUMN + " = alar." + ALBUM_MBID_COLUMN +
+                " INNER JOIN " + ARTIST_TABLE_FULL_NAME + " ar ON alar." + ARTIST_MBID_COLUMN + " = ar." + ARTIST_MBID_COLUMN;
+        List<AlbumBirthday> actualAlbumBirthdays = jdbcTemplate.query(selectAllAlbumBirthdays, new AlbumBirthdayListExtractor());
         assertEquals(expectedAlbumBirthdays.size(), actualAlbumBirthdays.size());
         assertTrue(actualAlbumBirthdays.containsAll(expectedAlbumBirthdays));
 
@@ -128,10 +161,10 @@ class JdbcAlbumBirthdayDaoTest {
     void shouldGetAlbumBirthdaysForSingleDay() {
 
         initialiseTestVariables();
-        insertTestData();
+        insertTestData(true);
 
         List<AlbumBirthday> expected =
-                List.of(expectedIronMaiden, expectedMogwai);
+                List.of(expectedMogwai, expectedIronMaiden);
 
         List<AlbumBirthday> actual =
                 albumBirthdayDao.getAlbumBirthdays(
@@ -144,10 +177,10 @@ class JdbcAlbumBirthdayDaoTest {
     void shouldGetAlbumBirthdaysForMultipleDays() {
 
         initialiseTestVariables();
-        insertTestData();
+        insertTestData(true);
 
         List<AlbumBirthday> expected =
-                List.of(expectedDeadCombo, expectedIronMaiden, expectedMogwai);
+                List.of(expectedDeadCombo, expectedMogwai, expectedIronMaiden);
 
         List<AlbumBirthday> actual =
                 albumBirthdayDao.getAlbumBirthdays(
@@ -161,7 +194,7 @@ class JdbcAlbumBirthdayDaoTest {
     void shouldGetAlbumBirthdaysForMultipleDaysInDifferentMonths() {
 
         initialiseTestVariables();
-        insertTestData();
+        insertTestData(true);
 
         List<AlbumBirthday> expected =
                 List.of(expectedOpeth, expectedAyreon);
@@ -178,11 +211,11 @@ class JdbcAlbumBirthdayDaoTest {
     void shouldGetAlbumBirthdaysForWholeYear() {
 
         initialiseTestVariables();
-        insertTestData();
+        insertTestData(true);
 
         List<AlbumBirthday> expected =
-                List.of(expectedDeadCombo, expectedIronMaiden, expectedMogwai,
-                        expectedEels, expectedOpeth, expectedAyreon);
+                List.of(expectedDeadCombo, expectedMogwai, expectedIronMaiden,
+                        expectedEels, expectedOpeth, expectedAyreon, expectedRodrigoLeao);
 
         List<AlbumBirthday> actual =
                 albumBirthdayDao.getAlbumBirthdays(
@@ -196,10 +229,10 @@ class JdbcAlbumBirthdayDaoTest {
     void shouldGetAlbumBirthdaysForMultipleDaysInDifferentMonthsCrossingTheEndOfTheYear() {
 
         initialiseTestVariables();
-        insertTestData();
+        insertTestData(true);
 
         List<AlbumBirthday> expected =
-                List.of(expectedDeadCombo, expectedAyreon);
+                List.of(expectedDeadCombo, expectedAyreon, expectedRodrigoLeao);
 
         List<AlbumBirthday> actual =
                 albumBirthdayDao.getAlbumBirthdays(
@@ -213,11 +246,11 @@ class JdbcAlbumBirthdayDaoTest {
     void shouldGetAlbumBirthdaysForMultipleDaysInTheSameMonthCrossingTheEndOfTheYear() {
 
         initialiseTestVariables();
-        insertTestData();
+        insertTestData(true);
 
         List<AlbumBirthday> expected =
-                List.of(expectedDeadCombo, expectedIronMaiden, expectedMogwai,
-                        expectedEels, expectedOpeth, expectedAyreon);
+                List.of(expectedDeadCombo, expectedMogwai, expectedIronMaiden,
+                        expectedEels, expectedOpeth, expectedAyreon, expectedRodrigoLeao);
 
         List<AlbumBirthday> actual =
                 albumBirthdayDao.getAlbumBirthdays(
@@ -236,29 +269,35 @@ class JdbcAlbumBirthdayDaoTest {
     }
 
     private void clearTestData() {
+    	jdbcTemplate.update("DELETE FROM " + ALBUM_ARTIST_TABLE_FULL_NAME);
+    	jdbcTemplate.update("DELETE FROM " + ARTIST_TABLE_FULL_NAME);
         jdbcTemplate.update("DELETE FROM " + ALBUM_TABLE_FULL_NAME);
         jdbcTemplate.update("DELETE FROM " + BIRTHDAY_TABLE_FULL_NAME);
     }
 
-    private void insertTestData() {
+    private void insertTestData(boolean insertBirthdays) {
 
         Instant oneHourAgo = Instant.now().minus(1, ChronoUnit.HOURS);
-
-        insertBirthday(expectedMogwai, oneHourAgo);
+        if (insertBirthdays) {
+            insertBirthday(expectedMogwai, oneHourAgo);
+            insertBirthday(expectedOpeth, oneHourAgo);
+            insertBirthday(expectedDeadCombo, oneHourAgo);
+            insertBirthday(expectedAyreon, oneHourAgo);
+            insertBirthday(expectedIronMaiden, oneHourAgo);
+            insertBirthday(expectedEels, oneHourAgo);
+            insertBirthday(expectedRodrigoLeao, oneHourAgo);
+            String selectBirthdayCount = "SELECT COUNT(*) FROM " + BIRTHDAY_TABLE_FULL_NAME;
+            assertEquals(7, jdbcTemplate.queryForObject(selectBirthdayCount, Integer.TYPE));
+        }
         insertAlbum(expectedMogwai.getAlbum(), oneHourAgo);
-        insertBirthday(expectedOpeth, oneHourAgo);
         insertAlbum(expectedOpeth.getAlbum(), oneHourAgo);
-        insertBirthday(expectedDeadCombo, oneHourAgo);
         insertAlbum(expectedDeadCombo.getAlbum(), oneHourAgo);
-        insertBirthday(expectedAyreon, oneHourAgo);
         insertAlbum(expectedAyreon.getAlbum(), oneHourAgo);
-        insertBirthday(expectedIronMaiden, oneHourAgo);
         insertAlbum(expectedIronMaiden.getAlbum(), oneHourAgo);
-        insertBirthday(expectedEels, oneHourAgo);
         insertAlbum(expectedEels.getAlbum(), oneHourAgo);
-
-        String selectBirthdayCount = "SELECT COUNT(*) FROM " + BIRTHDAY_TABLE_FULL_NAME;
-        assertEquals(6, jdbcTemplate.queryForObject(selectBirthdayCount, Integer.TYPE));
+        insertAlbum(expectedRodrigoLeao.getAlbum(), oneHourAgo);
+        String selectAlbumCount = "SELECT COUNT(*) FROM " + ALBUM_TABLE_FULL_NAME;
+        assertEquals(7, jdbcTemplate.queryForObject(selectAlbumCount, Integer.TYPE));
     }
 
     private void insertBirthday(AlbumBirthday birthday, Instant instant) {
@@ -266,13 +305,10 @@ class JdbcAlbumBirthdayDaoTest {
                 .withSchemaName(SCHEMA_NAME)
                 .withTableName(BIRTHDAY_TABLE_NAME)
                 .usingColumns(
-                        ALBUM_MBID_COLUMN, ALBUM_NAME_COLUMN, ARTIST_MBID_COLUMN, ARTIST_NAME_COLUMN,
+                        ALBUM_MBID_COLUMN,
                         ALBUM_YEAR_COLUMN, ALBUM_MONTH_COLUMN, ALBUM_DAY_COLUMN, LAST_UPDATED_COLUMN);
         MapSqlParameterSource albumParameterSource = new MapSqlParameterSource();
-        albumParameterSource.addValue(ALBUM_MBID_COLUMN, birthday.getAlbum().getAlbumMusicBrainzId());
-        albumParameterSource.addValue(ALBUM_NAME_COLUMN, birthday.getAlbum().getAlbumName());
-        albumParameterSource.addValue(ARTIST_MBID_COLUMN, birthday.getAlbum().getArtistMusicBrainzId());
-        albumParameterSource.addValue(ARTIST_NAME_COLUMN, birthday.getAlbum().getArtistName());
+        albumParameterSource.addValue(ALBUM_MBID_COLUMN, birthday.getAlbum().getAlbumMbId());
         albumParameterSource.addValue(ALBUM_YEAR_COLUMN, birthday.getAlbumYear());
         albumParameterSource.addValue(ALBUM_MONTH_COLUMN, birthday.getAlbumMonth());
         albumParameterSource.addValue(ALBUM_DAY_COLUMN, birthday.getAlbumDay());
@@ -282,20 +318,41 @@ class JdbcAlbumBirthdayDaoTest {
     }
 
     private void insertAlbum(Album album, Instant instant) {
-        SimpleJdbcInsert birthdayInsert = new SimpleJdbcInsert(jdbcTemplate)
+        SimpleJdbcInsert albumInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withSchemaName(SCHEMA_NAME)
                 .withTableName(ALBUM_TABLE_NAME)
-                .usingColumns(
-                        ALBUM_MBID_COLUMN, ALBUM_NAME_COLUMN, ALBUM_SOURCE_COLUMN,
-                        ARTIST_MBID_COLUMN, ARTIST_NAME_COLUMN, LAST_UPDATED_COLUMN);
+                .usingColumns(ALBUM_MBID_COLUMN, ALBUM_NAME_COLUMN, ALBUM_SOURCE_COLUMN, LAST_UPDATED_COLUMN);
         MapSqlParameterSource albumParameterSource = new MapSqlParameterSource();
-        albumParameterSource.addValue(ALBUM_MBID_COLUMN, album.getAlbumMusicBrainzId());
+        albumParameterSource.addValue(ALBUM_MBID_COLUMN, album.getAlbumMbId());
         albumParameterSource.addValue(ALBUM_NAME_COLUMN, album.getAlbumName());
         albumParameterSource.addValue(ALBUM_SOURCE_COLUMN, LOCAL_ALBUM_SOURCE);
-        albumParameterSource.addValue(ARTIST_MBID_COLUMN, album.getArtistMusicBrainzId());
-        albumParameterSource.addValue(ARTIST_NAME_COLUMN, album.getArtistName());
         albumParameterSource.addValue(LAST_UPDATED_COLUMN, Timestamp.from(instant));
 
-        birthdayInsert.execute(albumParameterSource);
+        albumInsert.execute(albumParameterSource);
+        
+        IntStream.range(0, album.getArtists().size()).forEach(i -> {
+        	Artist artist = album.getArtists().get(i);
+            SimpleJdbcInsert artistInsert = new SimpleJdbcInsert(jdbcTemplate)
+                    .withSchemaName(SCHEMA_NAME)
+                    .withTableName(ARTIST_TABLE_NAME)
+                    .usingColumns(ARTIST_MBID_COLUMN, ARTIST_NAME_COLUMN, LAST_UPDATED_COLUMN);
+            MapSqlParameterSource artistParameterSource = new MapSqlParameterSource();
+            artistParameterSource.addValue(ARTIST_MBID_COLUMN, artist.getArtistMusicBrainzId());
+            artistParameterSource.addValue(ARTIST_NAME_COLUMN, artist.getArtistName());
+            artistParameterSource.addValue(LAST_UPDATED_COLUMN, Timestamp.from(instant));
+
+            artistInsert.execute(artistParameterSource);
+
+            SimpleJdbcInsert albumArtistInsert = new SimpleJdbcInsert(jdbcTemplate)
+                    .withSchemaName(SCHEMA_NAME)
+                    .withTableName(ALBUM_ARTIST_TABLE_NAME)
+                    .usingColumns(ALBUM_MBID_COLUMN, ARTIST_MBID_COLUMN, ARTIST_POSITION_COLUMN);
+            MapSqlParameterSource albumArtistParameterSource = new MapSqlParameterSource();
+            albumArtistParameterSource.addValue(ALBUM_MBID_COLUMN, album.getAlbumMbId());
+            albumArtistParameterSource.addValue(ARTIST_MBID_COLUMN, artist.getArtistMusicBrainzId());
+            albumArtistParameterSource.addValue(ARTIST_POSITION_COLUMN, i);
+
+            albumArtistInsert.execute(albumArtistParameterSource);
+        });
     }
 }

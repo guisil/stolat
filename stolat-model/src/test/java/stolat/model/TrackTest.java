@@ -2,6 +2,7 @@ package stolat.model;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -11,7 +12,7 @@ class TrackTest {
     private final Album album =
             new Album(
                     UUID.randomUUID().toString(), "Some Album",
-                    UUID.randomUUID().toString(), "Some Artist");
+                    List.of(UUID.randomUUID().toString()), List.of("Some Artist"));
 
     @Test
     void shouldCreateTrackWhenTagsAreValid() {
@@ -29,7 +30,7 @@ class TrackTest {
                 "some/path/to/track.flac",
                 new Album(
                         UUID.randomUUID().toString(), "Some Album",
-                        UUID.randomUUID().toString(), "Some Artist"));
+                        List.of(UUID.randomUUID().toString()), List.of("Some Artist")));
     }
 
     @Test

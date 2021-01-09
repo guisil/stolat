@@ -64,15 +64,27 @@ public class JdbcAlbumBirthdayDao implements AlbumBirthdayDao {
         String orderBy = getOrderBy();
         String fullSql = selectBody + dateConditions + orderBy;
 
-        return jdbcTemplate.query(fullSql, new AlbumBirthdayRowMapper());
+        return jdbcTemplate.query(fullSql, new AlbumBirthdayListExtractor());
     }
 
     private String getSelectBody() {
         return new StringBuilder()
-                .append("SELECT * FROM ")
-                .append(BIRTHDAY_TABLE_FULL_NAME)
-                .append(" WHERE ").append(ALBUM_MBID_COLUMN).append(" IN ")
-                .append("(SELECT ").append(ALBUM_MBID_COLUMN).append(" FROM ").append(ALBUM_TABLE_FULL_NAME).append(")")
+                .append("SELECT ")
+                .append("al").append(".").append(ALBUM_MBID_COLUMN).append(",")
+                .append("al").append(".").append(ALBUM_NAME_COLUMN).append(",")
+                .append("ar").append(".").append(ARTIST_MBID_COLUMN).append(",")
+                .append("ar").append(".").append(ARTIST_NAME_COLUMN).append(",")
+                .append("b").append(".").append(ALBUM_YEAR_COLUMN).append(",")
+                .append("b").append(".").append(ALBUM_MONTH_COLUMN).append(",")
+                .append("b").append(".").append(ALBUM_DAY_COLUMN)
+                .append(" FROM ")
+                .append(BIRTHDAY_TABLE_FULL_NAME).append(" b")
+                .append(" INNER JOIN ").append(ALBUM_TABLE_FULL_NAME).append(" al").append(" ON ")
+                .append("b").append(".").append(ALBUM_MBID_COLUMN).append(" = ").append("al").append(".").append(ALBUM_MBID_COLUMN)
+                .append(" INNER JOIN ").append(ALBUM_ARTIST_TABLE_FULL_NAME).append(" alar").append(" ON ")
+                .append("al").append(".").append(ALBUM_MBID_COLUMN).append(" = ").append("alar").append(".").append(ALBUM_MBID_COLUMN)
+                .append(" INNER JOIN ").append(ARTIST_TABLE_FULL_NAME).append(" ar").append(" ON ")
+                .append("alar").append(".").append(ARTIST_MBID_COLUMN).append(" = ").append("ar").append(".").append(ARTIST_MBID_COLUMN)
                 .toString();
     }
 
@@ -85,15 +97,15 @@ public class JdbcAlbumBirthdayDao implements AlbumBirthdayDao {
             conditionGetter = this::getDateConditionsForDifferentMonths;
         }
 
-        if (to.isBefore(from)) {
+        if (crossEndOfYear) {
             final MonthDay intermediateTo = MonthDay.of(12, 31);
             final MonthDay intermediateFrom = MonthDay.of(1, 1);
-            return " AND (" +
+            return " WHERE (" +
                     conditionGetter.apply(from, intermediateTo) +
                     ") OR (" +
                     conditionGetter.apply(intermediateFrom, to) + ")";
         } else {
-            return " AND " + conditionGetter.apply(from, to);
+            return " WHERE " + conditionGetter.apply(from, to);
         }
     }
 
@@ -103,27 +115,28 @@ public class JdbcAlbumBirthdayDao implements AlbumBirthdayDao {
     }
 
     private String getDateConditionsForSameMonth(MonthDay from, MonthDay to) {
-        return new StringBuilder().append(ALBUM_MONTH_COLUMN).append("=").append(from.getMonthValue())
-                .append(" AND ").append(ALBUM_DAY_COLUMN).append(">=").append(from.getDayOfMonth())
-                .append(" AND ").append(ALBUM_DAY_COLUMN).append("<=").append(to.getDayOfMonth())
+        return new StringBuilder().append("b").append(".").append(ALBUM_MONTH_COLUMN).append("=").append(from.getMonthValue())
+                .append(" AND ").append("b").append(".").append(ALBUM_DAY_COLUMN).append(">=").append(from.getDayOfMonth())
+                .append(" AND ").append("b").append(".").append(ALBUM_DAY_COLUMN).append("<=").append(to.getDayOfMonth())
                 .toString();
     }
 
     private String getDateConditionsForDifferentMonths(MonthDay from, MonthDay to) {
-        return new StringBuilder().append("((").append(ALBUM_MONTH_COLUMN).append("=").append(from.getMonthValue())
-                .append(" AND ").append(ALBUM_DAY_COLUMN).append(">=").append(from.getDayOfMonth()).append(")")
-                .append(" OR (").append(ALBUM_MONTH_COLUMN).append(">").append(from.getMonthValue())
-                .append(" AND ").append(ALBUM_MONTH_COLUMN).append("<").append(to.getMonthValue()).append(")")
-                .append(" OR (").append(ALBUM_MONTH_COLUMN).append("=").append(to.getMonthValue())
-                .append(" AND ").append(ALBUM_DAY_COLUMN).append("<=").append(to.getDayOfMonth()).append("))")
+        return new StringBuilder().append("((").append("b").append(".").append(ALBUM_MONTH_COLUMN).append("=").append(from.getMonthValue())
+                .append(" AND ").append("b").append(".").append(ALBUM_DAY_COLUMN).append(">=").append(from.getDayOfMonth()).append(")")
+                .append(" OR (").append("b").append(".").append(ALBUM_MONTH_COLUMN).append(">").append(from.getMonthValue())
+                .append(" AND ").append("b").append(".").append(ALBUM_MONTH_COLUMN).append("<").append(to.getMonthValue()).append(")")
+                .append(" OR (").append("b").append(".").append(ALBUM_MONTH_COLUMN).append("=").append(to.getMonthValue())
+                .append(" AND ").append("b").append(".").append(ALBUM_DAY_COLUMN).append("<=").append(to.getDayOfMonth()).append("))")
                 .toString();
     }
 
     private String getOrderBy() {
         return new StringBuilder().append(" ORDER BY")
-                .append(" ").append(ALBUM_MONTH_COLUMN).append(",")
-                .append(" ").append(ALBUM_DAY_COLUMN).append(",")
-                .append(" ").append(ARTIST_NAME_COLUMN)
+                .append(" ").append("b").append(".").append(ALBUM_MONTH_COLUMN).append(",")
+                .append(" ").append("b").append(".").append(ALBUM_DAY_COLUMN).append(",")
+                .append(" ").append("al").append(".").append(ALBUM_NAME_COLUMN).append(",")
+                .append(" ").append("alar").append(".").append(ARTIST_POSITION_COLUMN)
                 .toString();
     }
 }

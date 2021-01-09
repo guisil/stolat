@@ -5,7 +5,6 @@ SELECT
 FROM (
     SELECT
         album_mbid,
-        album_name,
         artist_mbid,
         artist_name,
         album_year,

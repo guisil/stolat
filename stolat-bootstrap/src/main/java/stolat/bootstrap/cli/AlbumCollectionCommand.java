@@ -19,17 +19,17 @@ public class AlbumCollectionCommand {
     private final TrackCollectionDao trackCollectionDao;
     private final TrackCollectionCrawler trackCollectionCrawler;
 
-    public void updateAlbumCollectionDatabase(boolean truncate, boolean force) {
-        log.info("Triggering Album/Track Collection update for configured path{}{}", truncate ? " [truncate]" : "", force ? " [force]" : "");
+    public void updateAlbumCollectionDatabase(boolean truncate) {
+        log.info("Triggering Album/Track Collection update for configured path{}", truncate ? " [truncate]" : "");
         initTrackCollection(truncate);
-        trackCollectionCrawler.processTrackCollection(getTrackBatchProcessor(force));
+        trackCollectionCrawler.processTrackCollection(getTrackBatchProcessor());
         log.info("Album/Track Collection update triggered");
     }
 
-    public void updateAlbumCollectionDatabase(boolean truncate, Path rootPath, boolean force) {
-        log.info("Triggering Album/Track Collection update for path '{}'{}{}", rootPath, truncate ? " [truncate]" : "", force ? " [force]" : "");
+    public void updateAlbumCollectionDatabase(boolean truncate, Path rootPath) {
+        log.info("Triggering Album/Track Collection update for path '{}'{}", rootPath, truncate ? " [truncate]" : "");
         initTrackCollection(truncate);
-        trackCollectionCrawler.processTrackCollection(rootPath, getTrackBatchProcessor(force));
+        trackCollectionCrawler.processTrackCollection(rootPath, getTrackBatchProcessor());
         log.info("Album/Track Collection update triggered");
     }
 
@@ -40,7 +40,7 @@ public class AlbumCollectionCommand {
         }
     }
 
-    private Consumer<List<Track>> getTrackBatchProcessor(boolean force) {
-        return trackBatch -> trackCollectionDao.updateTrackCollection(trackBatch, force);
+    private Consumer<List<Track>> getTrackBatchProcessor() {
+        return trackBatch -> trackCollectionDao.updateTrackCollection(trackBatch);
     }
 }

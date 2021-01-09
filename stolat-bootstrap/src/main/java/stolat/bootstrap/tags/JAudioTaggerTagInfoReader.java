@@ -42,8 +42,8 @@ public class JAudioTaggerTagInfoReader implements TagInfoReader {
             final Album album = new Album(
                     tag.getFirst(FieldKey.MUSICBRAINZ_RELEASE_GROUP_ID),
                     tag.getFirst(FieldKey.ALBUM),
-                    tag.getFirst(FieldKey.MUSICBRAINZ_ARTISTID),
-                    tag.getFirst(FieldKey.ARTIST));
+                    tag.getAll(FieldKey.MUSICBRAINZ_ARTISTID),
+                    tag.getAll(FieldKey.ARTIST));
 
             Path rootCollectionPath = Paths.get(fileSystemProperties.getAlbumCollectionPath());
             Path other = file.toPath();

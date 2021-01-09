@@ -36,7 +36,6 @@ public class StolatBootstrapApplicationAlbumCollectionTest {
         assertFalse(command.albumBirthday);
         assertTrue(command.albumCollection);
         assertFalse(command.truncate);
-        assertFalse(command.force);
         assertNull(command.path);
     }
 

@@ -8,5 +8,5 @@ public interface TrackCollectionDao {
 
     void clearTrackCollection();
 
-    void updateTrackCollection(List<Track> trackBatch, boolean force);
+    void updateTrackCollection(List<Track> trackBatch);
 }

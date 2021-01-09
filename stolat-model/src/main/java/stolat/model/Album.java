@@ -2,12 +2,11 @@ package stolat.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.ToString;
+import lombok.*;
 import org.jaudiotagger.tag.FieldKey;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -15,30 +14,30 @@ import java.util.UUID;
 @ToString
 public class Album {
 
-    private final UUID albumMusicBrainzId;
+    private final UUID albumMbId;
     private final String albumName;
-    private final UUID artistMusicBrainzId;
-    private final String artistName;
+    private final List<Artist> artists;
 
     @JsonCreator
     public Album(
-            @JsonProperty("albumMusicBrainzId") @NonNull UUID albumMusicBrainzId,
+            @JsonProperty("albumMusicBrainzId") @NonNull UUID albumMbId,
             @JsonProperty("albumName") @NonNull String albumName,
-            @JsonProperty("artistMusicBrainzId") @NonNull UUID artistMusicBrainzId,
-            @JsonProperty("artistName") @NonNull String artistName) {
-        this.albumMusicBrainzId = albumMusicBrainzId;
+            @JsonProperty("artists") @NonNull List<Artist> artists) {
+        this.albumMbId = albumMbId;
         this.albumName = albumName;
-        this.artistMusicBrainzId = artistMusicBrainzId;
-        this.artistName = artistName;
+        this.artists = artists;
     }
 
     public Album(
             String albumMbidTag, String albumNameTag,
-            String artistMbidTag, String artistNameTag) {
+            List<String> artistMbidTags, List<String> artistNameTags) {
 
-        this.albumMusicBrainzId = TagValidator.getUUID(FieldKey.MUSICBRAINZ_RELEASE_GROUP_ID.name(), albumMbidTag);
+        this.albumMbId = TagValidator.getUUID(FieldKey.MUSICBRAINZ_RELEASE_GROUP_ID.name(), albumMbidTag);
         this.albumName = TagValidator.getString(FieldKey.ALBUM.name(), albumNameTag);
-        this.artistMusicBrainzId = TagValidator.getUUID(FieldKey.MUSICBRAINZ_ARTISTID.name(), artistMbidTag);
-        this.artistName = TagValidator.getString(FieldKey.ARTIST.name(), artistNameTag);
+        TagValidator.checkListsHaveSameSize(artistMbidTags, artistNameTags, "artists MBIDs and names");
+        artists = new ArrayList<>();
+        for (int i = 0; i < artistMbidTags.size(); i++ ) {
+            artists.add(new Artist(artistMbidTags.get(i), artistNameTags.get(i)));
+        }
     }
 }
