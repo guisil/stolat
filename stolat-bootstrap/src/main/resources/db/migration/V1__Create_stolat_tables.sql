@@ -20,11 +20,11 @@ CREATE INDEX IF NOT EXISTS idx_album_birthday_month
 
 -- ALBUM COLLECTION
 
-CREATE TABLE stolat.local_collection_artist {
+CREATE TABLE stolat.local_collection_artist (
     artist_mbid UUID PRIMARY KEY,
     artist_name VARCHAR NOT NULL,
     last_updated TIMESTAMP
-};
+);
 
 CREATE TABLE stolat.local_collection_album (
     album_mbid UUID PRIMARY KEY,
@@ -33,12 +33,12 @@ CREATE TABLE stolat.local_collection_album (
     last_updated TIMESTAMP
 );
 
-CREATE TABLE stolat.local_collection_album_artist {
+CREATE TABLE stolat.local_collection_album_artist (
     album_mbid UUID,
     artist_mbid UUID,
     artist_position INTEGER NOT NULL,
     CONSTRAINT album_artist_mbid PRIMARY KEY(album_mbid,artist_mbid)
-};
+);
 
 CREATE TABLE stolat.local_collection_track (
     track_mbid UUID PRIMARY KEY,
