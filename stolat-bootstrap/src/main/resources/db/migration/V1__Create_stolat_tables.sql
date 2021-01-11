@@ -37,7 +37,7 @@ CREATE TABLE stolat.local_collection_album_artist (
     album_mbid UUID,
     artist_mbid UUID,
     artist_position INTEGER NOT NULL,
-    CONSTRAINT album_artist_mbid PRIMARY KEY(album_mbid,artist_mbid)
+    CONSTRAINT album_artist_pkey PRIMARY KEY(album_mbid,artist_mbid)
 );
 
 CREATE TABLE stolat.local_collection_track (
