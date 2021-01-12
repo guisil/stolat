@@ -26,7 +26,7 @@ public class Track {
 
     @JsonCreator
     public Track(
-            @JsonProperty("trackMusicBrainzId") @NonNull UUID trackMbId,
+            @JsonProperty("trackMbId") @NonNull UUID trackMbId,
             @JsonProperty("discNumber") int discNumber,
             @JsonProperty("trackNumber") int trackNumber,
             @JsonProperty("trackName") @NonNull String trackName,

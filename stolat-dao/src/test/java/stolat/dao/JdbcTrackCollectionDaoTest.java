@@ -7,7 +7,6 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
@@ -22,7 +21,6 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.IntStream;
@@ -230,7 +228,7 @@ class JdbcTrackCollectionDaoTest {
 
         updatedFirstAlbum = new Album(
                 initialFirstAlbum.getAlbumMbId().toString(), "First Album Name Has Changed",
-                List.of(initialFirstAlbum.getArtists().get(0).getArtistMusicBrainzId().toString()), List.of(initialFirstAlbum.getArtists().get(0).getArtistName()));
+                List.of(initialFirstAlbum.getArtists().get(0).getArtistMbId().toString()), List.of(initialFirstAlbum.getArtists().get(0).getArtistName()));
         updatedFirstAlbumFirstTrack = new Track(
                 initialFirstAlbumFirstTrack.getTrackMbId().toString(),
                 Integer.toString(initialFirstAlbumFirstTrack.getDiscNumber()),
@@ -315,7 +313,7 @@ class JdbcTrackCollectionDaoTest {
                     .withTableName(ARTIST_TABLE_NAME)
                     .usingColumns(ARTIST_MBID_COLUMN, ARTIST_NAME_COLUMN, LAST_UPDATED_COLUMN);
             MapSqlParameterSource artistParameterSource = new MapSqlParameterSource();
-            artistParameterSource.addValue(ARTIST_MBID_COLUMN, artist.getArtistMusicBrainzId());
+            artistParameterSource.addValue(ARTIST_MBID_COLUMN, artist.getArtistMbId());
             artistParameterSource.addValue(ARTIST_NAME_COLUMN, artist.getArtistName());
             artistParameterSource.addValue(LAST_UPDATED_COLUMN, Timestamp.from(instant));
 
@@ -327,7 +325,7 @@ class JdbcTrackCollectionDaoTest {
                     .usingColumns(ALBUM_MBID_COLUMN, ARTIST_MBID_COLUMN, ARTIST_POSITION_COLUMN);
             MapSqlParameterSource albumArtistParameterSource = new MapSqlParameterSource();
             albumArtistParameterSource.addValue(ALBUM_MBID_COLUMN, album.getAlbumMbId());
-            albumArtistParameterSource.addValue(ARTIST_MBID_COLUMN, artist.getArtistMusicBrainzId());
+            albumArtistParameterSource.addValue(ARTIST_MBID_COLUMN, artist.getArtistMbId());
             albumArtistParameterSource.addValue(ARTIST_POSITION_COLUMN, i);
 
             albumArtistInsert.execute(albumArtistParameterSource);

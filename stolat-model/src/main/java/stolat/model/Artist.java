@@ -15,21 +15,21 @@ import java.util.UUID;
 @ToString
 public class Artist {
 
-    private final UUID artistMusicBrainzId;
+    private final UUID artistMbId;
     private final String artistName;
 
     @JsonCreator
     public Artist(
-            @JsonProperty("artistMusicBrainzId") @NonNull UUID artistMusicBrainzId,
+            @JsonProperty("artistMbId") @NonNull UUID artistMbId,
             @JsonProperty("artistName") @NonNull String artistName) {
-        this.artistMusicBrainzId = artistMusicBrainzId;
+        this.artistMbId = artistMbId;
         this.artistName = artistName;
     }
 
     public Artist(
             String artistMbidTag, String artistNameTag) {
 
-        this.artistMusicBrainzId = TagValidator.getUUID(FieldKey.MUSICBRAINZ_ARTISTID.name(), artistMbidTag);
+        this.artistMbId = TagValidator.getUUID(FieldKey.MUSICBRAINZ_ARTISTID.name(), artistMbidTag);
         this.artistName = TagValidator.getString(FieldKey.ARTIST.name(), artistNameTag);
     }
 }

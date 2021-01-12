@@ -123,7 +123,7 @@ public class JdbcTrackCollectionDao implements TrackCollectionDao {
 
     private SqlParameterSource getArtistInsertNamedParameters(Artist artist) {
         return new MapSqlParameterSource()
-                .addValue(ARTIST_MBID_COLUMN, artist.getArtistMusicBrainzId(), Types.OTHER, UUID_SQL_TYPE)
+                .addValue(ARTIST_MBID_COLUMN, artist.getArtistMbId(), Types.OTHER, UUID_SQL_TYPE)
                 .addValue(ARTIST_NAME_COLUMN, artist.getArtistName());
     }
 
@@ -201,7 +201,7 @@ public class JdbcTrackCollectionDao implements TrackCollectionDao {
     private SqlParameterSource getAlbumArtistInsertNamedParameters(Album album, Artist artist, int artistPosition) {
         return new MapSqlParameterSource()
                 .addValue(ALBUM_MBID_COLUMN, album.getAlbumMbId(), Types.OTHER, UUID_SQL_TYPE)
-                .addValue(ARTIST_MBID_COLUMN, artist.getArtistMusicBrainzId())
+                .addValue(ARTIST_MBID_COLUMN, artist.getArtistMbId())
                 .addValue(ARTIST_POSITION_COLUMN, artistPosition);
     }
 

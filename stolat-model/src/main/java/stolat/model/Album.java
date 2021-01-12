@@ -20,7 +20,7 @@ public class Album {
 
     @JsonCreator
     public Album(
-            @JsonProperty("albumMusicBrainzId") @NonNull UUID albumMbId,
+            @JsonProperty("albumMbId") @NonNull UUID albumMbId,
             @JsonProperty("albumName") @NonNull String albumName,
             @JsonProperty("artists") @NonNull List<Artist> artists) {
         this.albumMbId = albumMbId;
