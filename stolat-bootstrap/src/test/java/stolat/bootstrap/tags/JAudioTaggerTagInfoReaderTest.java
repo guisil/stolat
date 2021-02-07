@@ -132,7 +132,7 @@ class JAudioTaggerTagInfoReaderTest {
         lenient().when(mockTag.getFirst(FieldKey.MUSICBRAINZ_RELEASE_GROUP_ID)).thenReturn(albumMbidTag);
         lenient().when(mockTag.getFirst(FieldKey.ALBUM)).thenReturn(albumNameTag);
         lenient().when(mockTag.getAll(FieldKey.MUSICBRAINZ_ARTISTID)).thenReturn(artistMbidTags);
-        lenient().when(mockTag.getAll(FieldKey.ARTIST)).thenReturn(artistNameTags);
+        lenient().when(mockTag.getAll(FieldKey.ARTISTS)).thenReturn(artistNameTags);
     }
 
     @Test
