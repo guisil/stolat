@@ -2,15 +2,13 @@ package stolat.bootstrap.dao;
 
 import io.zonky.test.db.AutoConfigureEmbeddedDatabase;
 import org.flywaydb.core.Flyway;
-import org.flywaydb.test.annotation.FlywayTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Import;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.TestPropertySource;
 import stolat.dao.AlbumBirthdayDao;
 import stolat.dao.JdbcAlbumBirthdayDao;
 import stolat.dao.JdbcTrackCollectionDao;
@@ -21,10 +19,9 @@ import javax.sql.DataSource;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@ExtendWith(SpringExtension.class)
-@FlywayTest
-@AutoConfigureEmbeddedDatabase(beanName = "dataSource")
-@Import({DataSourceTestConfiguration.class})
+@SpringBootTest(args = {"-b", "-c", "-t", "-f", "-ptestpath"})
+@AutoConfigureEmbeddedDatabase
+@TestPropertySource("classpath:test-application.properties")
 public class DataSourceTest {
 
     @Autowired
