@@ -30,6 +30,7 @@ CREATE TABLE stolat.local_collection_album (
     album_mbid UUID PRIMARY KEY,
     album_name VARCHAR NOT NULL,
     album_source VARCHAR NOT NULL,
+    album_artist_display_name VARCHAR,
     last_updated TIMESTAMP
 );
 

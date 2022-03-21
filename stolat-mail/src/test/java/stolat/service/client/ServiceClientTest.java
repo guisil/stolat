@@ -41,7 +41,7 @@ class ServiceClientTest {
                 List.of(new AlbumBirthday(
                         new Album(
                                 UUID.randomUUID(), "Some Album",
-                                List.of(new Artist(UUID.randomUUID(), "Some Artist"))),
+                                List.of(new Artist(UUID.randomUUID(), "Some Artist")), "Some Artist"),
                         2000, 12, 22)));
 
         when(mockRestTemplate.getForObject(GET_BIRTHDAYS_URI, BirthdayAlbums.class)).thenReturn(expected);

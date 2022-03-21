@@ -73,16 +73,16 @@ public class JdbcTrackCollectionDao implements TrackCollectionDao {
                         .toArray(MapSqlParameterSource[]::new));
         //remove and insert album-artist connections
         albumBatch.forEach(album -> namedParameterJdbcTemplate.batchUpdate(
-                    getAlbumArtistDeleteStatement(),
-                    new MapSqlParameterSource[] {getAlbumArtistDeleteNamedParameters(album)}));
+                getAlbumArtistDeleteStatement(),
+                new MapSqlParameterSource[]{getAlbumArtistDeleteNamedParameters(album)}));
         albumBatch
                 .forEach(album -> {
                     namedParameterJdbcTemplate.batchUpdate(
                             getAlbumArtistInsertStatement(),
                             IntStream.range(0, album.getArtists().size())
                                     .mapToObj(i -> {
-                                    	Artist artist = album.getArtists().get(i);
-                                    	return getAlbumArtistInsertNamedParameters(album, artist, i);
+                                        Artist artist = album.getArtists().get(i);
+                                        return getAlbumArtistInsertNamedParameters(album, artist, i);
                                     })
                                     .toArray(MapSqlParameterSource[]::new));
                 });
@@ -142,6 +142,7 @@ public class JdbcTrackCollectionDao implements TrackCollectionDao {
                 .add(":" + ALBUM_MBID_COLUMN)
                 .add(":" + ALBUM_NAME_COLUMN)
                 .add(":" + ALBUM_SOURCE_COLUMN)
+                .add(":" + ALBUM_ARTIST_DISPLAY_NAME_COLUMN)
                 .add("now()")
                 .toString();
     }
@@ -152,6 +153,7 @@ public class JdbcTrackCollectionDao implements TrackCollectionDao {
                         .add(ALBUM_MBID_COLUMN + "=:" + ALBUM_MBID_COLUMN)
                         .add(ALBUM_NAME_COLUMN + "=:" + ALBUM_NAME_COLUMN)
                         .add(ALBUM_SOURCE_COLUMN + "=:" + ALBUM_SOURCE_COLUMN)
+                        .add(ALBUM_ARTIST_DISPLAY_NAME_COLUMN + "=:" + ALBUM_ARTIST_DISPLAY_NAME_COLUMN)
                         .add(LAST_UPDATED_COLUMN + "=now()")
                         .toString();
     }
@@ -160,7 +162,8 @@ public class JdbcTrackCollectionDao implements TrackCollectionDao {
         return new MapSqlParameterSource()
                 .addValue(ALBUM_MBID_COLUMN, album.getAlbumMbId(), Types.OTHER, UUID_SQL_TYPE)
                 .addValue(ALBUM_NAME_COLUMN, album.getAlbumName())
-                .addValue(ALBUM_SOURCE_COLUMN, LOCAL_ALBUM_SOURCE);
+                .addValue(ALBUM_SOURCE_COLUMN, LOCAL_ALBUM_SOURCE)
+                .addValue(ALBUM_ARTIST_DISPLAY_NAME_COLUMN, album.getDisplayArtist());
     }
 
     private String getAlbumArtistDeleteStatement() {

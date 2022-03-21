@@ -24,6 +24,7 @@ public final class StolatDatabaseConstants {
     public static final String ALBUM_MBID_COLUMN = "album_mbid";
     public static final String ALBUM_NAME_COLUMN = "album_name";
     public static final String ALBUM_SOURCE_COLUMN = "album_source";
+    public static final String ALBUM_ARTIST_DISPLAY_NAME_COLUMN = "album_artist_display_name";
     public static final String ARTIST_MBID_COLUMN = "artist_mbid";
     public static final String ARTIST_NAME_COLUMN = "artist_name";
     public static final String ARTIST_POSITION_COLUMN = "artist_position";

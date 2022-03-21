@@ -1,6 +1,5 @@
 package stolat.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.BeforeEach;
@@ -70,13 +69,13 @@ class StolatControllerTest {
                 new AlbumBirthday(
                         new Album(
                                 UUID.randomUUID(), "Some Album",
-                                List.of(new Artist(UUID.randomUUID(), "Some Artist"))),
+                                List.of(new Artist(UUID.randomUUID(), "Some Artist")), "Some Artist"),
                         2000, 3, 28);
         var secondBirthday =
                 new AlbumBirthday(
                         new Album(
                                 UUID.randomUUID(), "Some Other Album",
-                                List.of(new Artist(UUID.randomUUID(), "Some Other Artists"))),
+                                List.of(new Artist(UUID.randomUUID(), "Some Other Artists")), "Some Other Artists"),
                         1983, 4, 2);
         var from = MonthDay.of(3, 25);
         var to = MonthDay.of(4, 5);
@@ -88,9 +87,9 @@ class StolatControllerTest {
 
         MockHttpServletResponse response =
                 mvc.perform(get("/stolat/birthdays")
-                        .param("from", from.toString())
-                        .param("to", to.toString())
-                        .accept(MediaType.APPLICATION_JSON))
+                                .param("from", from.toString())
+                                .param("to", to.toString())
+                                .accept(MediaType.APPLICATION_JSON))
                         .andReturn().getResponse();
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
@@ -107,7 +106,7 @@ class StolatControllerTest {
                 new AlbumBirthday(
                         new Album(
                                 UUID.randomUUID(), "Some Album",
-                                List.of(new Artist(UUID.randomUUID(), "Some Artist"))),
+                                List.of(new Artist(UUID.randomUUID(), "Some Artist")), "Some Artist"),
                         2000, 3, 28);
         var today = MonthDay.of(
                 FIXED_DATE_TIME.get(ChronoField.MONTH_OF_YEAR),
@@ -121,8 +120,8 @@ class StolatControllerTest {
 
         MockHttpServletResponse response =
                 mvc.perform(get("/stolat/birthdays")
-                        .param("to", to.toString())
-                        .accept(MediaType.APPLICATION_JSON))
+                                .param("to", to.toString())
+                                .accept(MediaType.APPLICATION_JSON))
                         .andReturn().getResponse();
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
@@ -139,7 +138,7 @@ class StolatControllerTest {
                 new AlbumBirthday(
                         new Album(
                                 UUID.randomUUID(), "Some Album",
-                                List.of(new Artist(UUID.randomUUID(), "Some Artist"))),
+                                List.of(new Artist(UUID.randomUUID(), "Some Artist")), "Some Artist"),
                         2000, 3, 28);
         var from = MonthDay.of(2, 20);
         var today = MonthDay.of(
@@ -153,8 +152,8 @@ class StolatControllerTest {
 
         MockHttpServletResponse response =
                 mvc.perform(get("/stolat/birthdays")
-                        .param("from", from.toString())
-                        .accept(MediaType.APPLICATION_JSON))
+                                .param("from", from.toString())
+                                .accept(MediaType.APPLICATION_JSON))
                         .andReturn().getResponse();
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
@@ -170,7 +169,7 @@ class StolatControllerTest {
                 new AlbumBirthday(
                         new Album(
                                 UUID.randomUUID(), "Some Album",
-                                List.of(new Artist(UUID.randomUUID(), "Some Artist"))),
+                                List.of(new Artist(UUID.randomUUID(), "Some Artist")), "Some Artist"),
                         2000, 3, 28);
         var today = MonthDay.of(
                 FIXED_DATE_TIME.get(ChronoField.MONTH_OF_YEAR),
@@ -183,7 +182,7 @@ class StolatControllerTest {
 
         MockHttpServletResponse response =
                 mvc.perform(get("/stolat/birthdays")
-                        .accept(MediaType.APPLICATION_JSON))
+                                .accept(MediaType.APPLICATION_JSON))
                         .andReturn().getResponse();
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());

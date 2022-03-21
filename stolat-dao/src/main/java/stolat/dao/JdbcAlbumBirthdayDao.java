@@ -72,6 +72,7 @@ public class JdbcAlbumBirthdayDao implements AlbumBirthdayDao {
                 .append("SELECT ")
                 .append("al").append(".").append(ALBUM_MBID_COLUMN).append(",")
                 .append("al").append(".").append(ALBUM_NAME_COLUMN).append(",")
+                .append("al").append(".").append(ALBUM_ARTIST_DISPLAY_NAME_COLUMN).append(",")
                 .append("ar").append(".").append(ARTIST_MBID_COLUMN).append(",")
                 .append("ar").append(".").append(ARTIST_NAME_COLUMN).append(",")
                 .append("b").append(".").append(ALBUM_YEAR_COLUMN).append(",")

@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class AlbumTest {
@@ -15,14 +16,14 @@ class AlbumTest {
     void shouldCreateAlbumWhenTagsAreValid() {
         new Album(
                 UUID.randomUUID().toString(), "Some Album",
-                List.of(UUID.randomUUID().toString()), List.of("Some Artist"));
+                List.of(UUID.randomUUID().toString()), List.of("Some Artist"), "Some Artist");
     }
 
     @Test
     void shouldCreateAlbumWithMultipleArtistsWhenTagsAreValid() {
         new Album(
                 UUID.randomUUID().toString(), "Some Album",
-                List.of(UUID.randomUUID().toString(), UUID.randomUUID().toString()), List.of("Some Artist", "Some Other Artist"));
+                List.of(UUID.randomUUID().toString(), UUID.randomUUID().toString()), List.of("Some Artist", "Some Other Artist"), "Some Artist & Some Other Artist");
     }
 
     @Test
@@ -30,7 +31,7 @@ class AlbumTest {
         assertThrows(IllegalArgumentException.class, () ->
                 new Album(
                         "invalid UUID", "Some Album",
-                        List.of(UUID.randomUUID().toString()), List.of("Some Artist")));
+                        List.of(UUID.randomUUID().toString()), List.of("Some Artist"), "Some Artist"));
     }
 
     @Test
@@ -38,7 +39,7 @@ class AlbumTest {
         assertThrows(IllegalArgumentException.class, () ->
                 new Album(
                         "", "Some Album",
-                        List.of(UUID.randomUUID().toString()), List.of("Some Artist")));
+                        List.of(UUID.randomUUID().toString()), List.of("Some Artist"), "Some Artist"));
     }
 
     @Test
@@ -46,7 +47,7 @@ class AlbumTest {
         assertThrows(IllegalArgumentException.class, () ->
                 new Album(
                         null, "Some Album",
-                        List.of(UUID.randomUUID().toString()), List.of("Some Artist")));
+                        List.of(UUID.randomUUID().toString()), List.of("Some Artist"), "Some Artist"));
     }
 
     @Test
@@ -54,7 +55,7 @@ class AlbumTest {
         assertThrows(IllegalArgumentException.class, () ->
                 new Album(
                         UUID.randomUUID().toString(), "",
-                        List.of(UUID.randomUUID().toString()), List.of("Some Artist")));
+                        List.of(UUID.randomUUID().toString()), List.of("Some Artist"), "Some Artist"));
     }
 
     @Test
@@ -62,7 +63,7 @@ class AlbumTest {
         assertThrows(IllegalArgumentException.class, () ->
                 new Album(
                         UUID.randomUUID().toString(), null,
-                        List.of(UUID.randomUUID().toString()), List.of("Some Artist")));
+                        List.of(UUID.randomUUID().toString()), List.of("Some Artist"), "Some Artist"));
     }
 
     @Test
@@ -70,7 +71,7 @@ class AlbumTest {
         assertThrows(IllegalArgumentException.class, () ->
                 new Album(
                         UUID.randomUUID().toString(), "Some Album",
-                        List.of("invalid UUID"), List.of("Some Artist")));
+                        List.of("invalid UUID"), List.of("Some Artist"), "Some Artist"));
     }
 
     @Test
@@ -78,7 +79,7 @@ class AlbumTest {
         assertThrows(IllegalArgumentException.class, () ->
                 new Album(
                         UUID.randomUUID().toString(), "Some Album",
-                        List.of(UUID.randomUUID().toString(), "invalid UUID"), List.of("Some Artist", "Some Other Artist")));
+                        List.of(UUID.randomUUID().toString(), "invalid UUID"), List.of("Some Artist", "Some Other Artist"), "Some Artist & Some Other Artist"));
     }
 
     @Test
@@ -86,7 +87,7 @@ class AlbumTest {
         assertThrows(IllegalArgumentException.class, () ->
                 new Album(
                         UUID.randomUUID().toString(), "Some Album",
-                        List.of(""), List.of("Some Artist")));
+                        List.of(""), List.of("Some Artist"), "Some Artist"));
     }
 
     @Test
@@ -94,7 +95,7 @@ class AlbumTest {
         assertThrows(IllegalArgumentException.class, () ->
                 new Album(
                         UUID.randomUUID().toString(), "Some Album",
-                        List.of("", UUID.randomUUID().toString()), List.of("Some Artist", "Some Other Artist")));
+                        List.of("", UUID.randomUUID().toString()), List.of("Some Artist", "Some Other Artist"), "Some Artist & Some Other Artist"));
     }
 
     @Test
@@ -102,7 +103,7 @@ class AlbumTest {
         assertThrows(IllegalArgumentException.class, () ->
                 new Album(
                         UUID.randomUUID().toString(), "Some Album",
-                        Collections.singletonList(null), List.of("Some Artist")));
+                        Collections.singletonList(null), List.of("Some Artist"), "Some Artist"));
     }
 
     @Test
@@ -110,7 +111,7 @@ class AlbumTest {
         assertThrows(IllegalArgumentException.class, () ->
                 new Album(
                         UUID.randomUUID().toString(), "Some Album",
-                        Arrays.asList(UUID.randomUUID().toString(), null), List.of("Some Artist", "Some Other Artist")));
+                        Arrays.asList(UUID.randomUUID().toString(), null), List.of("Some Artist", "Some Other Artist"), "Some Artist & Some Other Artist"));
     }
 
     @Test
@@ -118,7 +119,7 @@ class AlbumTest {
         assertThrows(IllegalArgumentException.class, () ->
                 new Album(
                         UUID.randomUUID().toString(), "Some Album",
-                        List.of(UUID.randomUUID().toString()), List.of("")));
+                        List.of(UUID.randomUUID().toString()), List.of(""), ""));
     }
 
     @Test
@@ -126,7 +127,7 @@ class AlbumTest {
         assertThrows(IllegalArgumentException.class, () ->
                 new Album(
                         UUID.randomUUID().toString(), "Some Album",
-                        List.of(UUID.randomUUID().toString(), UUID.randomUUID().toString()), List.of("", "Some Other Artist")));
+                        List.of(UUID.randomUUID().toString(), UUID.randomUUID().toString()), List.of("", "Some Other Artist"), "Some Other Artist"));
     }
 
     @Test
@@ -134,7 +135,7 @@ class AlbumTest {
         assertThrows(IllegalArgumentException.class, () ->
                 new Album(
                         UUID.randomUUID().toString(), "Some Album",
-                        List.of(UUID.randomUUID().toString()), Collections.singletonList(null)));
+                        List.of(UUID.randomUUID().toString()), Collections.singletonList(null), "Some Other Artist"));
     }
 
     @Test
@@ -142,7 +143,7 @@ class AlbumTest {
         assertThrows(IllegalArgumentException.class, () ->
                 new Album(
                         UUID.randomUUID().toString(), "Some Album",
-                        List.of(UUID.randomUUID().toString(), UUID.randomUUID().toString()), Arrays.asList("Some Artist", null)));
+                        List.of(UUID.randomUUID().toString(), UUID.randomUUID().toString()), Arrays.asList("Some Artist", null), "Some Artist"));
     }
 
     @Test
@@ -150,7 +151,31 @@ class AlbumTest {
         assertThrows(IllegalArgumentException.class, () ->
                 new Album(
                         UUID.randomUUID().toString(), "Some Album",
-                        List.of(UUID.randomUUID().toString(), UUID.randomUUID().toString()), List.of("Some Artist")
+                        List.of(UUID.randomUUID().toString(), UUID.randomUUID().toString()), List.of("Some Artist"), "Some Artist"
                 ));
+    }
+
+    @Test
+    void shouldCreateAlbumWithArtistNameWhenArtistDisplayNameIsEmpty() {
+        Album actual = new Album(UUID.randomUUID().toString(), "Some Album", List.of(UUID.randomUUID().toString()), List.of("This Artist"), "");
+        assertEquals("This Artist", actual.getDisplayArtist());
+    }
+
+    @Test
+    void shouldCreateAlbumWithArtistNameWhenArtistDisplayNameIsNull() {
+        Album actual = new Album(UUID.randomUUID().toString(), "Some Album", List.of(UUID.randomUUID().toString()), List.of("This Artist"), null);
+        assertEquals("This Artist", actual.getDisplayArtist());
+    }
+
+    @Test
+    void shouldCreateAlbumWithMultipleArtistNamesWhenArtistDisplayNameIsEmpty() {
+        Album actual = new Album(UUID.randomUUID().toString(), "Some Album", List.of(UUID.randomUUID().toString(), UUID.randomUUID().toString()), List.of("This Artist", "That Artist"), "");
+        assertEquals("This Artist, That Artist", actual.getDisplayArtist());
+    }
+
+    @Test
+    void shouldCreateAlbumWithMultipleArtistNamesWhenArtistDisplayNameIsNull() {
+        Album actual = new Album(UUID.randomUUID().toString(), "Some Album", List.of(UUID.randomUUID().toString(), UUID.randomUUID().toString()), List.of("This Artist", "That Artist"), null);
+        assertEquals("This Artist, That Artist", actual.getDisplayArtist());
     }
 }

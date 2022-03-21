@@ -49,7 +49,7 @@ class JdbcTrackCollectionDaoTest {
     private static final String FOURTH_ALBUM_FIRST_TRACK_NAME = "This is not such a great track";
     private static final String FOURTH_ALBUM_SECOND_TRACK_NAME = "And this is really a dreadful track";
     private static final String TRACK_FILE_TYPE = "flac";
-    
+
     @RegisterExtension
     public static PreparedDbExtension db =
             EmbeddedPostgresExtension.preparedDatabase(
@@ -57,7 +57,7 @@ class JdbcTrackCollectionDaoTest {
                             List.of("db/migration"),
                             List.of("stolat", "musicbrainz"),
                             "stolat"));
-    
+
     private Album initialFirstAlbum;
     private Album initialSecondAlbum;
     private Track initialFirstAlbumFirstTrack;
@@ -181,7 +181,7 @@ class JdbcTrackCollectionDaoTest {
 
         initialFirstAlbum = new Album(
                 UUID.randomUUID().toString(), FIRST_ALBUM_NAME,
-                List.of(UUID.randomUUID().toString()), List.of(SOME_ARTIST_NAME));
+                List.of(UUID.randomUUID().toString()), List.of(SOME_ARTIST_NAME), SOME_ARTIST_NAME);
         initialFirstAlbumFirstTrack = new Track(
                 UUID.randomUUID().toString(), "1", "1", FIRST_ALBUM_FIRST_TRACK_NAME,
                 123,
@@ -195,7 +195,7 @@ class JdbcTrackCollectionDaoTest {
 
         initialSecondAlbum = new Album(
                 UUID.randomUUID().toString(), SECOND_ALBUM_NAME,
-                List.of(UUID.randomUUID().toString()), List.of(SOME_OTHER_ARTIST_NAME));
+                List.of(UUID.randomUUID().toString()), List.of(SOME_OTHER_ARTIST_NAME), SOME_OTHER_ARTIST_NAME);
         initialSecondAlbumFirstTrack = new Track(
                 UUID.randomUUID().toString(), "1", "1", SECOND_ALBUM_FIRST_TRACK_NAME,
                 111,
@@ -228,7 +228,7 @@ class JdbcTrackCollectionDaoTest {
 
         updatedFirstAlbum = new Album(
                 initialFirstAlbum.getAlbumMbId().toString(), "First Album Name Has Changed",
-                List.of(initialFirstAlbum.getArtists().get(0).getArtistMbId().toString()), List.of(initialFirstAlbum.getArtists().get(0).getArtistName()));
+                List.of(initialFirstAlbum.getArtists().get(0).getArtistMbId().toString()), List.of(initialFirstAlbum.getArtists().get(0).getArtistName()), initialFirstAlbum.getDisplayArtist());
         updatedFirstAlbumFirstTrack = new Track(
                 initialFirstAlbumFirstTrack.getTrackMbId().toString(),
                 Integer.toString(initialFirstAlbumFirstTrack.getDiscNumber()),
@@ -245,7 +245,7 @@ class JdbcTrackCollectionDaoTest {
 
         updatedSecondAlbum = new Album(
                 initialSecondAlbum.getAlbumMbId().toString(), initialSecondAlbum.getAlbumName(),
-                List.of(UUID.randomUUID().toString()), List.of("Some totally different Artist"));
+                List.of(UUID.randomUUID().toString()), List.of("Some totally different Artist"), "Some totally different Artist");
         updatedSecondAlbumFirstTrack = new Track(
                 initialSecondAlbumFirstTrack.getTrackMbId().toString(), "1", "1",
                 "Something Else entirely", 111,
@@ -260,7 +260,7 @@ class JdbcTrackCollectionDaoTest {
         var yetAnotherArtistUuid = UUID.randomUUID().toString();
         updatedThirdAlbum = new Album(
                 UUID.randomUUID().toString(), THIRD_ALBUM_NAME,
-                List.of(yetAnotherArtistUuid), List.of(YET_ANOTHER_ARTIST_NAME));
+                List.of(yetAnotherArtistUuid), List.of(YET_ANOTHER_ARTIST_NAME), YET_ANOTHER_ARTIST_NAME);
         updatedThirdAlbumFirstTrack = new Track(
                 UUID.randomUUID().toString(), "1", "1",
                 THIRD_ALBUM_FIRST_TRACK_NAME, 222,
@@ -279,7 +279,7 @@ class JdbcTrackCollectionDaoTest {
 
         updatedFourthAlbum = new Album(
                 UUID.randomUUID().toString(), FOURTH_ALBUM_NAME,
-                List.of(yetAnotherArtistUuid, UUID.randomUUID().toString()), List.of(YET_ANOTHER_ARTIST_NAME, AND_NOW_THE_LAST_ARTIST_NAME));
+                List.of(yetAnotherArtistUuid, UUID.randomUUID().toString()), List.of(YET_ANOTHER_ARTIST_NAME, AND_NOW_THE_LAST_ARTIST_NAME), YET_ANOTHER_ARTIST_NAME + " & " + AND_NOW_THE_LAST_ARTIST_NAME);
         updatedFourthAlbumFirstTrack = new Track(
                 UUID.randomUUID().toString(), "1", "1",
                 FOURTH_ALBUM_FIRST_TRACK_NAME, 145,
@@ -297,17 +297,18 @@ class JdbcTrackCollectionDaoTest {
         SimpleJdbcInsert albumInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withSchemaName(SCHEMA_NAME)
                 .withTableName(ALBUM_TABLE_NAME)
-                .usingColumns(ALBUM_MBID_COLUMN, ALBUM_NAME_COLUMN, ALBUM_SOURCE_COLUMN, LAST_UPDATED_COLUMN);
+                .usingColumns(ALBUM_MBID_COLUMN, ALBUM_NAME_COLUMN, ALBUM_SOURCE_COLUMN, ALBUM_ARTIST_DISPLAY_NAME_COLUMN, LAST_UPDATED_COLUMN);
         MapSqlParameterSource albumParameterSource = new MapSqlParameterSource();
         albumParameterSource.addValue(ALBUM_MBID_COLUMN, album.getAlbumMbId());
         albumParameterSource.addValue(ALBUM_NAME_COLUMN, album.getAlbumName());
         albumParameterSource.addValue(ALBUM_SOURCE_COLUMN, LOCAL_ALBUM_SOURCE);
+        albumParameterSource.addValue(ALBUM_ARTIST_DISPLAY_NAME_COLUMN, album.getDisplayArtist());
         albumParameterSource.addValue(LAST_UPDATED_COLUMN, Timestamp.from(instant));
 
         albumInsert.execute(albumParameterSource);
 
         IntStream.range(0, album.getArtists().size()).forEach(i -> {
-        	Artist artist = album.getArtists().get(i);
+            Artist artist = album.getArtists().get(i);
             SimpleJdbcInsert artistInsert = new SimpleJdbcInsert(jdbcTemplate)
                     .withSchemaName(SCHEMA_NAME)
                     .withTableName(ARTIST_TABLE_NAME)
@@ -355,6 +356,7 @@ class JdbcTrackCollectionDaoTest {
         return "SELECT " +
                 "al." + ALBUM_MBID_COLUMN + " AS " + ALBUM_MBID_COLUMN + "," +
                 "al." + ALBUM_NAME_COLUMN + " AS " + ALBUM_NAME_COLUMN + "," +
+                "al." + ALBUM_ARTIST_DISPLAY_NAME_COLUMN + " AS " + ALBUM_ARTIST_DISPLAY_NAME_COLUMN + "," +
                 "ar." + ARTIST_MBID_COLUMN + " AS " + ARTIST_MBID_COLUMN + "," +
                 "ar." + ARTIST_NAME_COLUMN + " AS " + ARTIST_NAME_COLUMN + " " +
                 "FROM " + ALBUM_TABLE_FULL_NAME + " al" +
@@ -372,6 +374,7 @@ class JdbcTrackCollectionDaoTest {
                 "tr." + TRACK_PATH_COLUMN + " AS " + TRACK_PATH_COLUMN + "," +
                 "al." + ALBUM_MBID_COLUMN + " AS " + ALBUM_MBID_COLUMN + "," +
                 "al." + ALBUM_NAME_COLUMN + " AS " + ALBUM_NAME_COLUMN + " ," +
+                "al." + ALBUM_ARTIST_DISPLAY_NAME_COLUMN + " AS " + ALBUM_ARTIST_DISPLAY_NAME_COLUMN + "," +
                 "ar." + ARTIST_MBID_COLUMN + " AS " + ARTIST_MBID_COLUMN + "," +
                 "ar." + ARTIST_NAME_COLUMN + " AS " + ARTIST_NAME_COLUMN + " " +
                 " FROM " + TRACK_TABLE_FULL_NAME + " tr" +
@@ -388,20 +391,6 @@ class JdbcTrackCollectionDaoTest {
         jdbcTemplate.update("DELETE FROM " + ARTIST_TABLE_FULL_NAME);
     }
 
-//    private class AlbumRowMapper implements RowMapper<Album> {
-//
-//        @Override
-//        public Album mapRow(ResultSet resultSet, int i) throws SQLException {
-//            final UUID albumMbid = resultSet.getObject(ALBUM_MBID_COLUMN, UUID.class);
-//            final String albumName = resultSet.getString(ALBUM_NAME_COLUMN);
-//            List<String> artistMbids = Collections.emptyList();//Arrays.stream((UUID[])resultSet.getArray(ARTIST_MBIDS_COLUMN).getArray()).map(UUID::toString).collect(Collectors.toList());
-//            List<String> artistNames = Collections.emptyList();//Arrays.stream((String[])resultSet.getArray(ARTIST_NAMES_COLUMN).getArray()).collect(Collectors.toList());
-//            return new Album(
-//                    albumMbid.toString(), albumName,
-//                    artistMbids, artistNames);
-//        }
-//    }
-
     private class AlbumListExtractor implements ResultSetExtractor<List<Album>> {
 
         @Override
@@ -409,22 +398,26 @@ class JdbcTrackCollectionDaoTest {
             List<Album> albums = new ArrayList<>();
             UUID currentAlbumMbid = null;
             String currentAlbumName = null;
+            String currentArtistDisplayName = null;
             List<Artist> currentArtists = new ArrayList<>();
-            while(resultSet.next()) {
-                    UUID mbid = resultSet.getObject(ALBUM_MBID_COLUMN, UUID.class);
-                    String name = resultSet.getString(ALBUM_NAME_COLUMN);
-                    Artist artist = new Artist(
-                            resultSet.getObject(ARTIST_MBID_COLUMN, UUID.class),
-                            resultSet.getString(ARTIST_NAME_COLUMN));
+            while (resultSet.next()) {
+                UUID mbid = resultSet.getObject(ALBUM_MBID_COLUMN, UUID.class);
+                String name = resultSet.getString(ALBUM_NAME_COLUMN);
+                String artistDisplayName = resultSet.getString(ALBUM_ARTIST_DISPLAY_NAME_COLUMN);
+                Artist artist = new Artist(
+                        resultSet.getObject(ARTIST_MBID_COLUMN, UUID.class),
+                        resultSet.getString(ARTIST_NAME_COLUMN));
                 if (!mbid.equals(currentAlbumMbid)) {
                     if (currentAlbumMbid != null) { // new object
                         albums.add(new Album(
                                 currentAlbumMbid,
                                 currentAlbumName,
-                                currentArtists));
+                                currentArtists,
+                                currentArtistDisplayName));
                     }
                     currentAlbumMbid = mbid;
                     currentAlbumName = name;
+                    currentArtistDisplayName = artistDisplayName;
                     currentArtists = new ArrayList<>();
                 }
                 currentArtists.add(artist);
@@ -433,31 +426,13 @@ class JdbcTrackCollectionDaoTest {
                 albums.add(new Album(
                         currentAlbumMbid,
                         currentAlbumName,
-                        currentArtists));
+                        currentArtists,
+                        currentArtistDisplayName));
             }
 
             return albums;
         }
     }
-
-//    private class TrackRowMapper implements RowMapper<Track> {
-//
-//        @Override
-//        public Track mapRow(ResultSet resultSet, int i) throws SQLException {
-//            final UUID trackMbid = resultSet.getObject(TRACK_MBID_COLUMN, UUID.class);
-//            final int discNumber = resultSet.getInt(DISC_NUMBER_COLUMN);
-//            final int trackNumber = resultSet.getInt(TRACK_NUMBER_COLUMN);
-//            final String trackName = resultSet.getString(TRACK_NAME_COLUMN);
-//            final int trackLength = resultSet.getInt(TRACK_LENGTH_COLUMN);
-//            final Path trackPath = Path.of(resultSet.getString(TRACK_PATH_COLUMN));
-////            final Album album = new AlbumRowMapper().mapRow(resultSet, i);
-//            Album album = new AlbumListExtractor().extractData(resultSet).get(0);
-//            return new Track(
-//                    trackMbid.toString(),
-//                    Integer.toString(discNumber), Integer.toString(trackNumber),
-//                    trackName, trackLength, trackPath.toString(), album);
-//        }
-//    }
 
     private class TrackListExtractor implements ResultSetExtractor<List<Track>> {
 
@@ -472,8 +447,9 @@ class JdbcTrackCollectionDaoTest {
             Path currentTrackPath = null;
             UUID currentAlbumMbid = null;
             String currentAlbumName = null;
+            String currentArtistDisplayName = null;
             List<Artist> currentArtists = new ArrayList<>();
-            while(resultSet.next()) {
+            while (resultSet.next()) {
                 UUID trackMbid = resultSet.getObject(TRACK_MBID_COLUMN, UUID.class);
                 int discNumber = resultSet.getInt(DISC_NUMBER_COLUMN);
                 int trackNumber = resultSet.getInt(TRACK_NUMBER_COLUMN);
@@ -482,6 +458,7 @@ class JdbcTrackCollectionDaoTest {
                 Path trackPath = Path.of(resultSet.getString(TRACK_PATH_COLUMN));
                 UUID albumMbid = resultSet.getObject(ALBUM_MBID_COLUMN, UUID.class);
                 String albumName = resultSet.getString(ALBUM_NAME_COLUMN);
+                String artistDisplayName = resultSet.getString(ALBUM_ARTIST_DISPLAY_NAME_COLUMN);
                 Artist artist = new Artist(
                         resultSet.getObject(ARTIST_MBID_COLUMN, UUID.class),
                         resultSet.getString(ARTIST_NAME_COLUMN));
@@ -495,8 +472,9 @@ class JdbcTrackCollectionDaoTest {
                                 currentTrackLength,
                                 currentTrackPath.toString(),
                                 new Album(currentAlbumMbid,
-                                currentAlbumName,
-                                currentArtists)));
+                                        currentAlbumName,
+                                        currentArtists,
+                                        currentArtistDisplayName)));
                     }
                     currentTrackMbid = trackMbid;
                     currentDiscNumber = discNumber;
@@ -506,6 +484,7 @@ class JdbcTrackCollectionDaoTest {
                     currentTrackPath = trackPath;
                     currentAlbumMbid = albumMbid;
                     currentAlbumName = albumName;
+                    currentArtistDisplayName = artistDisplayName;
                     currentArtists = new ArrayList<>();
                 }
                 currentArtists.add(artist);
@@ -521,7 +500,8 @@ class JdbcTrackCollectionDaoTest {
                         new Album(
                                 currentAlbumMbid,
                                 currentAlbumName,
-                                currentArtists)));
+                                currentArtists,
+                                currentArtistDisplayName)));
             }
 
             return tracks;

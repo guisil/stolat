@@ -5,7 +5,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import stolat.model.AlbumBirthday;
 import stolat.model.AlbumMonthDayArtistComparator;
-import stolat.model.Artist;
 import stolat.model.BirthdayAlbums;
 
 import java.time.LocalDate;
@@ -35,15 +34,15 @@ public class TextMailContentBuilder implements MailContentBuilder {
         return albumBirthdays.stream().sorted(new AlbumMonthDayArtistComparator())
                 .map(albumBirthday -> {
                     return new StringBuilder()
-                            .append(albumBirthday.getAlbum().getArtists().stream().map(Artist::getArtistName).collect(Collectors.joining(",")))
+                            .append(albumBirthday.getAlbum().getDisplayArtist())
                             .append(" - ")
                             .append(albumBirthday.getAlbum().getAlbumName())
                             .append(" (")
                             .append(
                                     LocalDate.of(
-                                            albumBirthday.getAlbumYear(),
-                                            albumBirthday.getAlbumMonth(),
-                                            albumBirthday.getAlbumDay())
+                                                    albumBirthday.getAlbumYear(),
+                                                    albumBirthday.getAlbumMonth(),
+                                                    albumBirthday.getAlbumDay())
                                             .format(MessageConstants.DATE_FORMATTER))
                             .append(")")
                             .toString();

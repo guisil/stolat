@@ -12,7 +12,7 @@ class TrackTest {
     private final Album album =
             new Album(
                     UUID.randomUUID().toString(), "Some Album",
-                    List.of(UUID.randomUUID().toString()), List.of("Some Artist"));
+                    List.of(UUID.randomUUID().toString()), List.of("Some Artist"), "Some Artist");
 
     @Test
     void shouldCreateTrackWhenTagsAreValid() {
@@ -30,7 +30,7 @@ class TrackTest {
                 "some/path/to/track.flac",
                 new Album(
                         UUID.randomUUID().toString(), "Some Album",
-                        List.of(UUID.randomUUID().toString()), List.of("Some Artist")));
+                        List.of(UUID.randomUUID().toString()), List.of("Some Artist"), "Some Artist"));
     }
 
     @Test

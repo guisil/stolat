@@ -39,11 +39,17 @@ public class JAudioTaggerTagInfoReader implements TagInfoReader {
             final Tag tag = audioFile.getTag();
             final AudioHeader audioHeader = audioFile.getAudioHeader();
 
+            String artistDisplayName = tag.getFirst(FieldKey.ALBUM_ARTIST);
+            if (artistDisplayName == null || artistDisplayName.isBlank()) {
+                artistDisplayName = tag.getFirst(FieldKey.ARTIST);
+            }
+
             final Album album = new Album(
                     tag.getFirst(FieldKey.MUSICBRAINZ_RELEASE_GROUP_ID),
                     tag.getFirst(FieldKey.ALBUM),
                     tag.getAll(FieldKey.MUSICBRAINZ_ARTISTID),
-                    tag.getAll(FieldKey.ARTISTS));
+                    tag.getAll(FieldKey.ARTISTS),
+                    artistDisplayName);
 
             Path rootCollectionPath = Paths.get(fileSystemProperties.getAlbumCollectionPath());
             Path other = file.toPath();

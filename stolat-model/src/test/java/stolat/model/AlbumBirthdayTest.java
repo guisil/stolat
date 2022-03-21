@@ -14,7 +14,7 @@ class AlbumBirthdayTest {
         new AlbumBirthday(
                 new Album(
                         UUID.randomUUID(), "Some Album",
-                        List.of(new Artist(UUID.randomUUID(), "Some Artist"))),
+                        List.of(new Artist(UUID.randomUUID(), "Some Artist")), "Some Artist"),
                 2000, 4, 30);
     }
 
@@ -23,7 +23,7 @@ class AlbumBirthdayTest {
         new AlbumBirthday(
                 new Album(
                         UUID.randomUUID(), "Some Album",
-                        List.of(new Artist(UUID.randomUUID(), "Some Artist"))),
+                        List.of(new Artist(UUID.randomUUID(), "Some Artist")), "Some Artist"),
                 2000, 12, null);
     }
 
@@ -32,7 +32,7 @@ class AlbumBirthdayTest {
         new AlbumBirthday(
                 new Album(
                         UUID.randomUUID(), "Some Album",
-                        List.of(new Artist(UUID.randomUUID(), "Some Artist"))),
+                        List.of(new Artist(UUID.randomUUID(), "Some Artist")), "Some Artist"),
                 2000, null, null);
     }
 
@@ -47,7 +47,7 @@ class AlbumBirthdayTest {
         assertThrows(IllegalArgumentException.class, () -> new AlbumBirthday(
                 new Album(
                         UUID.randomUUID(), "Some Album",
-                        List.of(new Artist(UUID.randomUUID(), "Some Artist"))),
+                        List.of(new Artist(UUID.randomUUID(), "Some Artist")), "Some Artist"),
                 null, null, null));
     }
 
@@ -56,7 +56,7 @@ class AlbumBirthdayTest {
         assertThrows(IllegalArgumentException.class, () -> new AlbumBirthday(
                 new Album(
                         UUID.randomUUID(), "Some Album",
-                        List.of(new Artist(UUID.randomUUID(), "Some Artist"))),
+                        List.of(new Artist(UUID.randomUUID(), "Some Artist")), "Some Artist"),
                 2000, 13, null));
     }
 
@@ -65,7 +65,7 @@ class AlbumBirthdayTest {
         assertThrows(IllegalArgumentException.class, () -> new AlbumBirthday(
                 new Album(
                         UUID.randomUUID(), "Some Album",
-                        List.of(new Artist(UUID.randomUUID(), "Some Artist"))),
+                        List.of(new Artist(UUID.randomUUID(), "Some Artist")), "Some Artist"),
                 2000, null, 31));
     }
 
@@ -74,7 +74,7 @@ class AlbumBirthdayTest {
         assertThrows(IllegalArgumentException.class, () -> new AlbumBirthday(
                 new Album(
                         UUID.randomUUID(), "Some Album",
-                        List.of(new Artist(UUID.randomUUID(), "Some Artist"))),
+                        List.of(new Artist(UUID.randomUUID(), "Some Artist")), "Some Artist"),
                 2000, 4, 55));
     }
 
@@ -83,7 +83,7 @@ class AlbumBirthdayTest {
         assertThrows(IllegalArgumentException.class, () -> new AlbumBirthday(
                 new Album(
                         UUID.randomUUID(), "Some Album",
-                        List.of(new Artist(UUID.randomUUID(), "Some Artist"))),
+                        List.of(new Artist(UUID.randomUUID(), "Some Artist")), "Some Artist"),
                 2000, 4, 31));
     }
 }

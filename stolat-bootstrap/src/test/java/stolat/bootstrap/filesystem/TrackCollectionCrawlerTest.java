@@ -113,10 +113,10 @@ class TrackCollectionCrawlerTest {
 
     private void initialiseTracks() {
         final String firstArtistMbid = UUID.randomUUID().toString();
-		final String firstArtistName = "Some Artist";
-		final Album firstAlbum = new Album(
+        final String firstArtistName = "Some Artist";
+        final Album firstAlbum = new Album(
                 UUID.randomUUID().toString(), "First Album",
-                List.of(firstArtistMbid), List.of(firstArtistName));
+                List.of(firstArtistMbid), List.of(firstArtistName), firstArtistName);
         firstAlbumFirstTrack = new Track(
                 UUID.randomUUID().toString(), "1", "1", "Some Track",
                 123, Path.of(SOME_ARTIST_FOLDER, FIRST_ALBUM_FOLDER, FIRST_ALBUM_FIRST_TRACK).toString(), firstAlbum);
@@ -128,23 +128,23 @@ class TrackCollectionCrawlerTest {
         final String secondArtistName = "Some other Artist";
         final Album secondAlbum = new Album(
                 UUID.randomUUID().toString(), "Second Album",
-                List.of(secondArtistMbid), List.of(secondArtistName));
+                List.of(secondArtistMbid), List.of(secondArtistName), secondArtistName);
         secondAlbumFirstTrack = new Track(
                 UUID.randomUUID().toString(), "1", "1", "Something Else",
                 111, Path.of(SOME_OTHER_ARTIST_FOLDER, SECOND_ALBUM_FOLDER, SECOND_ALBUM_FIRST_TRACK).toString(), secondAlbum);
         secondAlbumSecondTrack = new Track(
                 UUID.randomUUID().toString(), "1", "2", "Yet Another Track",
                 222, Path.of(SOME_OTHER_ARTIST_FOLDER, SECOND_ALBUM_FOLDER, SECOND_ALBUM_SECOND_TRACK).toString(), secondAlbum);
-        
+
         final Album thirdAlbum = new Album(
-        		UUID.randomUUID().toString(), "Third Album",
-        		List.of(firstArtistMbid, secondArtistMbid), List.of(firstArtistName, secondArtistName));
+                UUID.randomUUID().toString(), "Third Album",
+                List.of(firstArtistMbid, secondArtistMbid), List.of(firstArtistName, secondArtistName), firstArtistName + " & " + secondArtistName);
         thirdAlbumFirstTrack = new Track(
-        		UUID.randomUUID().toString(), "1", "1", "What is this",
-        		121, Path.of(SOME_ARTIST_FOLDER, THIRD_ALBUM_FOLDER, THIRD_ALBUM_FIRST_TRACK).toString(), thirdAlbum);
+                UUID.randomUUID().toString(), "1", "1", "What is this",
+                121, Path.of(SOME_ARTIST_FOLDER, THIRD_ALBUM_FOLDER, THIRD_ALBUM_FIRST_TRACK).toString(), thirdAlbum);
         thirdAlbumSecondTrack = new Track(
-        		UUID.randomUUID().toString(), "1", "2", "And what about this",
-        		212, Path.of(SOME_ARTIST_FOLDER, THIRD_ALBUM_FOLDER, THIRD_ALBUM_SECOND_TRACK).toString(), thirdAlbum);
+                UUID.randomUUID().toString(), "1", "2", "And what about this",
+                212, Path.of(SOME_ARTIST_FOLDER, THIRD_ALBUM_FOLDER, THIRD_ALBUM_SECOND_TRACK).toString(), thirdAlbum);
 
         lenient().when(mockTagInfoReader.getTrackBatchInfo(anyList())).thenCallRealMethod();
         lenient().when(mockTagInfoReader.getTrackInfo(firstAlbumFirstTrackFile)).thenReturn(Optional.of(firstAlbumFirstTrack));

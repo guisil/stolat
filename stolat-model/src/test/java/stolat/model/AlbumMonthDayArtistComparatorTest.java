@@ -16,34 +16,36 @@ class AlbumMonthDayArtistComparatorTest {
     private static final AlbumBirthday EXPECTED_FIRST = new AlbumBirthday(
             new Album(
                     UUID.randomUUID(), "Some Album",
-                    List.of(new Artist(UUID.randomUUID(), "Some Artist"))),
+                    List.of(new Artist(UUID.randomUUID(), "Some Artist")), "Some Artist"),
             2000, 1, 22);
     private static final AlbumBirthday EXPECTED_SECOND = new AlbumBirthday(
             new Album(
                     UUID.randomUUID(), "Some Album",
-                    List.of(new Artist(UUID.randomUUID(), "Artist"))),
+                    List.of(new Artist(UUID.randomUUID(), "Artist")), "Artist"),
             2000, 2, 17);
     private static final AlbumBirthday EXPECTED_THIRD = new AlbumBirthday(
             new Album(
                     UUID.randomUUID(), "Some Album",
-                    List.of(new Artist(UUID.randomUUID(), "Another Artist"))),
+                    List.of(new Artist(UUID.randomUUID(), "Another Artist")), "Another Artist"),
             2000, 2, 18);
     private static final AlbumBirthday EXPECTED_FOURTH = new AlbumBirthday(
             new Album(
                     UUID.randomUUID(), "Album with Multiple Artists",
                     List.of(new Artist(UUID.randomUUID(), "Artistic Artist"),
-                            new Artist(UUID.randomUUID(), "Another Artistic Artist"))),
+                            new Artist(UUID.randomUUID(), "Another Artistic Artist")),
+                    "Artistic Artist & Another Artistic Artist"),
             2000, 2, 18);
     private static final AlbumBirthday EXPECTED_FIFTH = new AlbumBirthday(
             new Album(
                     UUID.randomUUID(), "Album with Multiple Artists",
                     List.of(new Artist(UUID.randomUUID(), "Second Artistic Artist"),
-                            new Artist(UUID.randomUUID(), "Another Artistic Artist"))),
+                            new Artist(UUID.randomUUID(), "Another Artistic Artist")),
+                    "Some Alternative Name for these Multiple Artists"),
             2000, 2, 18);
     private static final AlbumBirthday EXPECTED_SIXTH = new AlbumBirthday(
             new Album(
                     UUID.randomUUID(), "Some Album",
-                    List.of(new Artist(UUID.randomUUID(), "Some Artist"))),
+                    List.of(new Artist(UUID.randomUUID(), "Some Artist")), "Some Artist"),
             2000, 2, 18);
     private static final List<AlbumBirthday> EXPECTED_SORTED_LIST =
             List.of(EXPECTED_FIRST, EXPECTED_SECOND, EXPECTED_THIRD, EXPECTED_FOURTH, EXPECTED_FIFTH, EXPECTED_SIXTH);
@@ -60,22 +62,22 @@ class AlbumMonthDayArtistComparatorTest {
         final var expectedFirst = new AlbumBirthday(
                 new Album(
                         UUID.randomUUID(), "Some Album",
-                        List.of(new Artist(UUID.randomUUID(), "Some Artist"))),
+                        List.of(new Artist(UUID.randomUUID(), "Some Artist")), "Some Artist"),
                 2000, 2, null);
         final var expectedSecond = new AlbumBirthday(
                 new Album(
                         UUID.randomUUID(), "Some Album",
-                        List.of(new Artist(UUID.randomUUID(), "Another Artist"))),
+                        List.of(new Artist(UUID.randomUUID(), "Another Artist")), "Another Artist"),
                 2000, 3, null);
         final var expectedThird = new AlbumBirthday(
                 new Album(
                         UUID.randomUUID(), "Some Album",
-                        List.of(new Artist(UUID.randomUUID(), "Some Artist"))),
+                        List.of(new Artist(UUID.randomUUID(), "Some Artist")), "Some Artist"),
                 2000, 3, null);
         final var expectedEquallyThird = new AlbumBirthday(
                 new Album(
                         UUID.randomUUID(), "Some Other Album",
-                        List.of(new Artist(UUID.randomUUID(), "Some Artist"))),
+                        List.of(new Artist(UUID.randomUUID(), "Some Artist")), "Some Artist"),
                 2000, 3, null);
 
         assertTrue(comparator.compare(expectedFirst, expectedSecond) < 0);
@@ -93,22 +95,22 @@ class AlbumMonthDayArtistComparatorTest {
         final var expectedFirst = new AlbumBirthday(
                 new Album(
                         UUID.randomUUID(), "Some Album",
-                        List.of(new Artist(UUID.randomUUID(), "Some Artist"))),
+                        List.of(new Artist(UUID.randomUUID(), "Some Artist")), "Some Artist"),
                 2000, 2, null);
         final var expectedSecond = new AlbumBirthday(
                 new Album(
                         UUID.randomUUID(), "Some Album",
-                        List.of(new Artist(UUID.randomUUID(), "Some Artist"))),
+                        List.of(new Artist(UUID.randomUUID(), "Some Artist")), "Some Artist"),
                 2000, 3, 1);
         final var expectedEquallySecond = new AlbumBirthday(
                 new Album(
                         UUID.randomUUID(), "Some Other Album",
-                        List.of(new Artist(UUID.randomUUID(), "Some Artist"))),
+                        List.of(new Artist(UUID.randomUUID(), "Some Artist")), "Some Artist"),
                 2000, 3, 1);
         final var expectedThird = new AlbumBirthday(
                 new Album(
                         UUID.randomUUID(), "Some Album",
-                        List.of(new Artist(UUID.randomUUID(), "Another Artist"))),
+                        List.of(new Artist(UUID.randomUUID(), "Another Artist")), "Another Artist"),
                 2000, 3, null);
 
         assertTrue(comparator.compare(expectedFirst, expectedSecond) < 0);
@@ -126,17 +128,17 @@ class AlbumMonthDayArtistComparatorTest {
         final var expectedFirst = new AlbumBirthday(
                 new Album(
                         UUID.randomUUID(), "Some Album",
-                        List.of(new Artist(UUID.randomUUID(), "Another Artist"))),
+                        List.of(new Artist(UUID.randomUUID(), "Another Artist")), "Another Artist"),
                 2000, null, null);
         final var expectedSecond = new AlbumBirthday(
                 new Album(
                         UUID.randomUUID(), "Some Album",
-                        List.of(new Artist(UUID.randomUUID(), "Some Artist"))),
+                        List.of(new Artist(UUID.randomUUID(), "Some Artist")), "Some Artist"),
                 2000, null, null);
         final var expectedEquallySecond = new AlbumBirthday(
                 new Album(
                         UUID.randomUUID(), "Some Album",
-                        List.of(new Artist(UUID.randomUUID(), "Some Artist"))),
+                        List.of(new Artist(UUID.randomUUID(), "Some Artist")), "Some Artist"),
                 2000, null, null);
 
         assertTrue(comparator.compare(expectedFirst, expectedSecond) < 0);
@@ -150,22 +152,22 @@ class AlbumMonthDayArtistComparatorTest {
         final var expectedFirst = new AlbumBirthday(
                 new Album(
                         UUID.randomUUID(), "Some Album",
-                        List.of(new Artist(UUID.randomUUID(), "Some Artist"))),
+                        List.of(new Artist(UUID.randomUUID(), "Some Artist")), "Some Artist"),
                 2000, 2, null);
         final var expectedSecond = new AlbumBirthday(
                 new Album(
                         UUID.randomUUID(), "Some Album",
-                        List.of(new Artist(UUID.randomUUID(), "Some Artist"))),
+                        List.of(new Artist(UUID.randomUUID(), "Some Artist")), "Some Artist"),
                 2000, 3, 1);
         final var expectedEquallySecond = new AlbumBirthday(
                 new Album(
                         UUID.randomUUID(), "Some Other Album",
-                        List.of(new Artist(UUID.randomUUID(), "Some Artist"))),
+                        List.of(new Artist(UUID.randomUUID(), "Some Artist")), "Some Artist"),
                 2000, 3, 1);
         final var expectedThird = new AlbumBirthday(
                 new Album(
                         UUID.randomUUID(), "Some Album",
-                        List.of(new Artist(UUID.randomUUID(), "Another Artist"))),
+                        List.of(new Artist(UUID.randomUUID(), "Another Artist")), "Another Artist"),
                 1999, null, null);
 
         assertTrue(comparator.compare(expectedFirst, expectedSecond) < 0);
@@ -183,31 +185,31 @@ class AlbumMonthDayArtistComparatorTest {
         final var expectedFirst = new AlbumBirthday(
                 new Album(
                         UUID.randomUUID(), "Some Album",
-                        List.of(new Artist(UUID.randomUUID(), "Another Artist"))),
+                        List.of(new Artist(UUID.randomUUID(), "Another Artist")), "Another Artist"),
                 2000, 2, 23);
         final var expectedSecond = new AlbumBirthday(
                 new Album(
                         UUID.randomUUID(), "Some Album",
                         List.of(new Artist(UUID.randomUUID(), "Another Artist"),
-                                new Artist(UUID.randomUUID(), "Some Artist"))),
+                                new Artist(UUID.randomUUID(), "Some Artist")), "Another Artist & Some Artist"),
                 2000, 2, 23);
         final var expectedEquallySecond = new AlbumBirthday(
                 new Album(
                         UUID.randomUUID(), "Some Album",
                         List.of(new Artist(UUID.randomUUID(), "Another Artist"),
-                                new Artist(UUID.randomUUID(), "Some Artist"))),
+                                new Artist(UUID.randomUUID(), "Some Artist")), "Another Artist & Some Artist"),
                 2000, 2, 23);
         final var expectedThird = new AlbumBirthday(
                 new Album(
-                        UUID.randomUUID(), "Some Album",
-                        List.of(new Artist(UUID.randomUUID(), "Another Artist"),
-                                new Artist(UUID.randomUUID(), "Some Other Artist"))),
+                        UUID.randomUUID(), "Some Other Album",
+                        List.of(new Artist(UUID.randomUUID(), "Some Artist"),
+                                new Artist(UUID.randomUUID(), "Another Artist")), "Another Artist & Some Artist Again"),
                 2000, 2, 23);
         final var expectedFourth = new AlbumBirthday(
                 new Album(
                         UUID.randomUUID(), "Some Album",
-                        List.of(new Artist(UUID.randomUUID(), "Some Artist"),
-                                new Artist(UUID.randomUUID(), "Another Artist"))),
+                        List.of(new Artist(UUID.randomUUID(), "Another Artist"),
+                                new Artist(UUID.randomUUID(), "Some Other Artist")), "Another Artist & Some Other Artist"),
                 2000, 2, 23);
 
         assertTrue(comparator.compare(expectedFirst, expectedSecond) < 0);
