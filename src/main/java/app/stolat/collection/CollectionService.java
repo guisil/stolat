@@ -98,24 +98,33 @@ public class CollectionService {
         var files = fileScanner.scan(rootDirectory);
         log.info("Found {} audio files", files.size());
 
-        var albumGroups = files.stream()
-                .map(tagReader::read)
-                .flatMap(java.util.Optional::stream)
-                .filter(m -> m.albumMusicBrainzId() != null)
-                .collect(Collectors.groupingBy(AudioFileMetadata::albumMusicBrainzId));
+        var filesByDirectory = files.stream()
+                .collect(Collectors.groupingBy(path -> path.getParent()));
+        log.info("Found {} directories", filesByDirectory.size());
 
-        log.info("Grouped into {} albums", albumGroups.size());
+        var importedAlbums = new ArrayList<Album>();
+        var scannedMusicBrainzIds = new HashSet<UUID>();
 
-        var scannedMusicBrainzIds = new HashSet<>(albumGroups.keySet());
+        for (var dirFiles : filesByDirectory.values()) {
+            var albumGroups = dirFiles.stream()
+                    .map(tagReader::read)
+                    .flatMap(java.util.Optional::stream)
+                    .filter(m -> m.albumMusicBrainzId() != null)
+                    .collect(Collectors.groupingBy(AudioFileMetadata::albumMusicBrainzId));
 
-        var albums = albumGroups.values().stream()
-                .map(metadata -> transactionTemplate.execute(status -> importFromMetadata(metadata)))
-                .toList();
+            for (var group : albumGroups.entrySet()) {
+                scannedMusicBrainzIds.add(group.getKey());
+                var album = transactionTemplate.execute(status -> importFromMetadata(group.getValue()));
+                if (album != null) {
+                    importedAlbums.add(album);
+                }
+            }
+        }
 
         transactionTemplate.executeWithoutResult(status -> reconcileDigitalFormats(scannedMusicBrainzIds));
 
-        log.info("Scan complete: {} albums processed", albums.size());
-        return albums;
+        log.info("Scan complete: {} albums processed", importedAlbums.size());
+        return importedAlbums;
     }
 
     public Album importAlbum(String artistName, UUID artistMusicBrainzId,
