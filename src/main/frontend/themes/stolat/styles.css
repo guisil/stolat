@@ -1,5 +1,11 @@
 /* StoLat theme */
 
+/* App title in navbar */
+.app-title {
+    font-size: var(--lumo-font-size-l);
+    margin: 0;
+}
+
 /* Format icons in grids */
 .format-icons {
     gap: 4px;
@@ -12,4 +18,12 @@
 /* Play button in birthday grid */
 .play-button vaadin-icon {
     --vaadin-icon-size: 24px;
+}
+
+/* Version label in drawer */
+.version-label {
+    padding: var(--lumo-space-s);
+    color: var(--lumo-tertiary-text-color);
+    font-size: var(--lumo-font-size-xs);
+    text-align: center;
 }
