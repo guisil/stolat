@@ -17,6 +17,7 @@ import app.stolat.collection.internal.FileScanner;
 import app.stolat.collection.internal.MusicBrainzSearchClient;
 import app.stolat.collection.internal.TagReader;
 import app.stolat.collection.internal.TrackRepository;
+import app.stolat.collection.internal.VolumioClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.lang.Nullable;
@@ -36,6 +37,7 @@ public class CollectionService {
     private final ApplicationEventPublisher eventPublisher;
     private final DiscogsClient discogsClient;
     private final MusicBrainzSearchClient musicBrainzSearchClient;
+    private final VolumioClient volumioClient;
 
     public CollectionService(FileScanner fileScanner,
                              TagReader tagReader,
@@ -44,7 +46,8 @@ public class CollectionService {
                              TrackRepository trackRepository,
                              ApplicationEventPublisher eventPublisher,
                              @Nullable DiscogsClient discogsClient,
-                             MusicBrainzSearchClient musicBrainzSearchClient) {
+                             MusicBrainzSearchClient musicBrainzSearchClient,
+                             @Nullable VolumioClient volumioClient) {
         this.fileScanner = fileScanner;
         this.tagReader = tagReader;
         this.artistRepository = artistRepository;
@@ -53,6 +56,7 @@ public class CollectionService {
         this.eventPublisher = eventPublisher;
         this.discogsClient = discogsClient;
         this.musicBrainzSearchClient = musicBrainzSearchClient;
+        this.volumioClient = volumioClient;
     }
 
     public List<Album> findAllAlbums() {
@@ -65,6 +69,13 @@ public class CollectionService {
 
     public List<Album> findAllActiveAlbums() {
         return albumRepository.findAllActive();
+    }
+
+    public void playAlbumOnVolumio(String albumTitle, String artistName) {
+        if (volumioClient == null) {
+            throw new IllegalStateException("Volumio is not configured");
+        }
+        volumioClient.playAlbum(albumTitle, artistName);
     }
 
     public void updateAlbumReleaseDate(UUID albumMusicBrainzId, LocalDate releaseDate) {

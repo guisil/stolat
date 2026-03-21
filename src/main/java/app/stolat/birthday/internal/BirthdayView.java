@@ -17,9 +17,13 @@ import app.stolat.birthday.BirthdayService;
 import app.stolat.collection.Album;
 import app.stolat.collection.AlbumFormat;
 import app.stolat.collection.CollectionService;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
@@ -29,6 +33,7 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
+import org.springframework.beans.factory.annotation.Value;
 
 @Route(value = "", layout = MainLayout.class)
 @PageTitle("Birthdays")
@@ -44,13 +49,16 @@ public class BirthdayView extends VerticalLayout {
     private static final String THIS_MONTH = "This month";
 
     private final BirthdayService birthdayService;
+    private final CollectionService collectionService;
     private final Map<UUID, Set<AlbumFormat>> formatsByMusicBrainzId;
     private final Grid<AlbumBirthday> grid;
     private final H2 heading;
     private final TextField searchField;
 
-    public BirthdayView(BirthdayService birthdayService, CollectionService collectionService) {
+    public BirthdayView(BirthdayService birthdayService, CollectionService collectionService,
+                        @Value("${stolat.volumio.url:}") String volumioUrl) {
         this.birthdayService = birthdayService;
+        this.collectionService = collectionService;
         this.formatsByMusicBrainzId = collectionService.findAllActiveAlbums().stream()
                 .filter(a -> a.getMusicBrainzId() != null)
                 .collect(Collectors.toMap(Album::getMusicBrainzId, Album::getFormats, (a, b) -> a));
@@ -88,6 +96,27 @@ public class BirthdayView extends VerticalLayout {
                     .reduce((a, c) -> a + ", " + c)
                     .orElse("");
         }).setHeader("Format").setSortable(true);
+
+        // Only add play column if Volumio is configured
+        if (volumioUrl != null && !volumioUrl.isEmpty()) {
+            grid.addComponentColumn(birthday -> {
+                var formats = formatsByMusicBrainzId.get(birthday.getMusicBrainzId());
+                if (formats == null || !formats.contains(AlbumFormat.DIGITAL)) {
+                    return new Span(); // empty for non-digital
+                }
+                var playButton = new Button(VaadinIcon.PLAY.create());
+                playButton.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
+                playButton.addClickListener(e -> {
+                    try {
+                        collectionService.playAlbumOnVolumio(birthday.getAlbumTitle(), birthday.getArtistName());
+                        Notification.show("Playing '" + birthday.getAlbumTitle() + "' on Volumio");
+                    } catch (Exception ex) {
+                        Notification.show("Could not play on Volumio: " + ex.getMessage());
+                    }
+                });
+                return playButton;
+            }).setHeader("").setWidth("60px").setFlexGrow(0);
+        }
 
         updateGrid(TODAY);
 

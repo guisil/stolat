@@ -9,6 +9,7 @@ import app.stolat.collection.internal.FileScanner;
 import app.stolat.collection.internal.MusicBrainzSearchClient;
 import app.stolat.collection.internal.TagReader;
 import app.stolat.collection.internal.TrackRepository;
+import app.stolat.collection.internal.VolumioClient;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -55,6 +56,9 @@ class CollectionServiceTest {
 
     @Mock
     private MusicBrainzSearchClient musicBrainzSearchClient;
+
+    @Mock
+    private VolumioClient volumioClient;
 
     @InjectMocks
     private CollectionService collectionService;
@@ -394,10 +398,29 @@ class CollectionServiceTest {
     @Test
     void shouldThrowWhenDiscogsNotConfigured() {
         var service = new CollectionService(fileScanner, tagReader, artistRepository,
-                albumRepository, trackRepository, eventPublisher, null, musicBrainzSearchClient);
+                albumRepository, trackRepository, eventPublisher, null, musicBrainzSearchClient, null);
 
         assertThatThrownBy(() -> service.scanDiscogs("testuser"))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("Discogs is not configured");
+    }
+
+    // --- Volumio tests ---
+
+    @Test
+    void shouldDelegatePlayAlbumToVolumioClient() {
+        collectionService.playAlbumOnVolumio("OK Computer", "Radiohead");
+
+        then(volumioClient).should().playAlbum("OK Computer", "Radiohead");
+    }
+
+    @Test
+    void shouldThrowWhenVolumioNotConfigured() {
+        var service = new CollectionService(fileScanner, tagReader, artistRepository,
+                albumRepository, trackRepository, eventPublisher, null, musicBrainzSearchClient, null);
+
+        assertThatThrownBy(() -> service.playAlbumOnVolumio("OK Computer", "Radiohead"))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Volumio is not configured");
     }
 }
