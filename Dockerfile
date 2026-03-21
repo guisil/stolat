@@ -1,7 +1,7 @@
 FROM eclipse-temurin:25-jre-alpine
 
 WORKDIR /app
-COPY target/stolat-*.jar app.jar
+COPY stolat-*.jar app.jar
 
 EXPOSE 8080
 

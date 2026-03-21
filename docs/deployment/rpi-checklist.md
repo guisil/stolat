@@ -86,36 +86,26 @@ Using a dedicated Gmail account for StoLat notifications.
 
 ---
 
-## Phase 4: Build the Application
+## Phase 4: First-time Deploy
 
-On your development machine (not the Pi):
+### Initial deploy (sets up everything)
 
-```bash
-# Build the production JAR (skips tests for speed)
-mvn clean package -Pproduction -DskipTests
-```
-
-- [ ] Verify the JAR exists: `ls target/stolat-*.jar`
-
----
-
-## Phase 5: Deploy to the Pi
-
-### Copy files to the Pi
+On your development machine:
 
 ```bash
-scp target/stolat-*.jar your-user@stolat.local:~/stolat/
-scp Dockerfile your-user@stolat.local:~/stolat/
-scp docker-compose.rpi.yml your-user@stolat.local:~/stolat/docker-compose.yml
-scp .env.example your-user@stolat.local:~/stolat/.env
+# Build and deploy
+./deploy.sh <version-tag>
+# e.g., ./deploy.sh v0.1.2
 ```
 
-### Configure secrets
+This builds the JAR, copies all files to the Pi, and starts the containers.
+
+### Configure secrets (first time only)
 
 SSH into the Pi and edit the `.env` file:
 
 ```bash
-ssh your-user@stolat.local
+ssh ubuntu@stolat.local
 cd ~/stolat
 nano .env
 ```
@@ -150,7 +140,7 @@ STOLAT_VOLUMIO_URL=http://volumio.local
 
 ```bash
 cd ~/stolat
-docker compose up -d --build
+~/stolat/deploy-pi.sh
 ```
 
 - [ ] Verify containers are running: `docker compose ps`
@@ -216,16 +206,10 @@ docker compose restart app
 On your development machine:
 
 ```bash
-mvn clean package -Pproduction -DskipTests
-scp target/stolat-*.jar your-user@stolat.local:~/stolat/
+./deploy.sh <version-tag>
 ```
 
-On the Pi:
-
-```bash
-cd ~/stolat
-docker compose up -d --build
-```
+This builds, copies, and restarts everything. The database is preserved.
 
 ### Backup database
 
@@ -257,7 +241,8 @@ docker compose up -d      # fresh start, will rescan on first use
 | Stop | `docker compose down` |
 | Logs | `docker compose logs -f app` |
 | Restart | `docker compose restart app` |
-| Rebuild | `docker compose up -d --build` |
+| Rebuild | `~/stolat/deploy-pi.sh` |
+| Deploy from Mac | `./deploy.sh <version-tag>` |
 | DB backup | `docker compose exec postgres pg_dump -U stolat stolat > backup.sql` |
 | Full reset | `docker compose down -v && docker compose up -d` |
 | App URL | `http://stolat.local:8080` |
