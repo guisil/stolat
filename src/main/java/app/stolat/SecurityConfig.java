@@ -23,6 +23,7 @@ public class SecurityConfig {
         return http.build();
     }
 
+    // TODO: Replace with DB-backed authentication
     @Bean
     public InMemoryUserDetailsManager userDetailsService() {
         var user = User.withUsername("user")

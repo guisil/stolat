@@ -12,7 +12,7 @@ class DiscogsConfig {
 
     @Bean
     RestClient discogsRestClient(
-            @Value("${stolat.discogs.token:}") String token,
+            @Value("${stolat.discogs.token}") String token,
             @Value("${stolat.user-agent}") String userAgent) {
         return RestClient.builder()
                 .baseUrl("https://api.discogs.com")

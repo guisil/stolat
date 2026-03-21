@@ -151,6 +151,9 @@ public class CollectionView extends VerticalLayout {
                     Thread.currentThread().interrupt();
                     return;
                 }
+                if (!ui.isAttached()) {
+                    return; // stop polling
+                }
                 ui.access(this::refreshGrid);
                 log.debug("Refreshed collection grid (polling for release dates)");
             }

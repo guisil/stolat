@@ -35,7 +35,9 @@ public class MusicBrainzSearchClient {
             if (releaseGroups == null || releaseGroups.isEmpty()) return Optional.empty();
 
             var first = releaseGroups.getFirst();
-            var score = ((Number) first.get("score")).intValue();
+            var scoreObj = first.get("score");
+            if (scoreObj == null) return Optional.empty();
+            var score = ((Number) scoreObj).intValue();
             if (score < 90) {
                 log.debug("MusicBrainz search score too low ({}) for '{}' by '{}'", score, albumTitle, artistName);
                 return Optional.empty();

@@ -55,8 +55,7 @@ public class DiscogsClient {
                 log.info("Fetched Discogs page {}/{} ({} releases)", page, totalPages, releases.size());
                 page++;
             } catch (Exception e) {
-                log.error("Failed to fetch Discogs collection page {}: {}", page, e.getMessage());
-                break;
+                throw new RuntimeException("Failed to fetch Discogs collection page " + page, e);
             }
         }
 

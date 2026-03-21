@@ -7,6 +7,7 @@ import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withServerError;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
@@ -104,13 +105,13 @@ class DiscogsClientTest {
     }
 
     @Test
-    void shouldHandleErrorGracefully() {
+    void shouldThrowOnFetchError() {
         mockServer.expect(requestTo(org.hamcrest.Matchers.containsString("/users/testuser/collection/")))
                 .andRespond(withServerError());
 
-        var releases = client.fetchCollection("testuser");
-
-        assertThat(releases).isEmpty();
+        assertThatThrownBy(() -> client.fetchCollection("testuser"))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("Failed to fetch Discogs collection page 1");
     }
 
     @Test

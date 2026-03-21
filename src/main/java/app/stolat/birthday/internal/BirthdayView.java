@@ -6,6 +6,7 @@ import java.time.MonthDay;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -50,7 +51,7 @@ public class BirthdayView extends VerticalLayout {
 
     private final BirthdayService birthdayService;
     private final CollectionService collectionService;
-    private final Map<UUID, Set<AlbumFormat>> formatsByMusicBrainzId;
+    private Map<UUID, Set<AlbumFormat>> formatsByMusicBrainzId;
     private final Grid<AlbumBirthday> grid;
     private final H2 heading;
     private final TextField searchField;
@@ -59,9 +60,7 @@ public class BirthdayView extends VerticalLayout {
                         @Value("${stolat.volumio.url:}") String volumioUrl) {
         this.birthdayService = birthdayService;
         this.collectionService = collectionService;
-        this.formatsByMusicBrainzId = collectionService.findAllActiveAlbums().stream()
-                .filter(a -> a.getMusicBrainzId() != null)
-                .collect(Collectors.toMap(Album::getMusicBrainzId, Album::getFormats, (a, b) -> a));
+        this.formatsByMusicBrainzId = new HashMap<>();
 
         heading = new H2("Album Birthdays \u2014 Today");
 
@@ -151,6 +150,9 @@ public class BirthdayView extends VerticalLayout {
 
     private void updateGrid(String range) {
         heading.setText("Album Birthdays \u2014 " + range);
+        this.formatsByMusicBrainzId = collectionService.findAllActiveAlbums().stream()
+                .filter(a -> a.getMusicBrainzId() != null)
+                .collect(Collectors.toMap(Album::getMusicBrainzId, Album::getFormats, (a, b) -> a));
         var today = LocalDate.now();
 
         var birthdays = switch (range) {

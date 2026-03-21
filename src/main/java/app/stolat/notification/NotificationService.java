@@ -6,10 +6,12 @@ import java.time.temporal.ChronoUnit;
 import app.stolat.birthday.BirthdayService;
 import app.stolat.notification.internal.EmailSender;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 @Service
+@Validated
 public class NotificationService {
 
     private final BirthdayService birthdayService;

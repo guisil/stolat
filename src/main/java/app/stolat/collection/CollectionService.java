@@ -24,10 +24,12 @@ import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.validation.annotation.Validated;
 
 @Slf4j
 @Service
 @Transactional
+@Validated
 public class CollectionService {
 
     private final FileScanner fileScanner;
@@ -112,7 +114,7 @@ public class CollectionService {
 
         transactionTemplate.executeWithoutResult(status -> reconcileDigitalFormats(scannedMusicBrainzIds));
 
-        log.info("Imported {} new albums", albums.stream().filter(a -> a.getReleaseDate() == null).count());
+        log.info("Scan complete: {} albums processed", albums.size());
         return albums;
     }
 
@@ -162,22 +164,31 @@ public class CollectionService {
         }
 
         log.info("Scanning Discogs collection for user: {}", username);
-        var releases = discogsClient.fetchCollection(username);
-        log.info("Fetched {} releases from Discogs", releases.size());
 
         var importedAlbums = new ArrayList<Album>();
         var scannedDiscogsIds = new HashSet<Long>();
+        boolean fullScanCompleted = true;
 
-        for (var release : releases) {
-            scannedDiscogsIds.add(release.discogsId());
-            var album = transactionTemplate.execute(status -> importDiscogsRelease(release));
-            if (album != null) {
-                importedAlbums.add(album);
-                log.info("Imported vinyl: '{}' by '{}'", release.albumTitle(), release.artistName());
+        try {
+            var releases = discogsClient.fetchCollection(username);
+            log.info("Fetched {} releases from Discogs", releases.size());
+
+            for (var release : releases) {
+                scannedDiscogsIds.add(release.discogsId());
+                var album = transactionTemplate.execute(status -> importDiscogsRelease(release));
+                if (album != null) {
+                    importedAlbums.add(album);
+                    log.info("Imported vinyl: '{}' by '{}'", release.albumTitle(), release.artistName());
+                }
             }
+        } catch (Exception e) {
+            log.error("Discogs scan failed: {}", e.getMessage());
+            fullScanCompleted = false;
         }
 
-        transactionTemplate.executeWithoutResult(status -> reconcileVinylFormats(scannedDiscogsIds));
+        if (fullScanCompleted) {
+            transactionTemplate.executeWithoutResult(status -> reconcileVinylFormats(scannedDiscogsIds));
+        }
 
         log.info("Discogs scan complete: {} albums processed", importedAlbums.size());
         return importedAlbums;
