@@ -54,7 +54,7 @@ class DevDataInitializer {
     private void seedAlbumWithBirthday(String artistName, String albumTitle, LocalDate releaseDate) {
         var artistMbid = UUID.randomUUID();
         var albumMbid = UUID.randomUUID();
-        collectionService.importAlbum(artistName, artistMbid, albumTitle, albumMbid);
         birthdayService.resolveReleaseDateDirect(albumTitle, artistName, albumMbid, releaseDate);
+        collectionService.importAlbum(artistName, artistMbid, albumTitle, albumMbid);
     }
 }
