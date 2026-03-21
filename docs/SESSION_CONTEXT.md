@@ -16,7 +16,7 @@ for migrations, Testcontainers + Karibu Testing for tests. Full conventions in
 `CLAUDE.md` at project root.
 
 **Branch:** `redesign`
-**Tests:** 31 passing (`mvn test -Dsurefire.useFile=false`) — verified 2026-03-21
+**Tests:** 35 passing (`mvn test -Dsurefire.useFile=false`) — verified 2026-03-21
 **TDD workflow:** Two-tier (Full Cycle / Fast Cycle) — see `CLAUDE.md`
 
 ---
@@ -26,7 +26,7 @@ for migrations, Testcontainers + Karibu Testing for tests. Full conventions in
 | Module | Status | Description |
 |--------|--------|-------------|
 | `collection` | Done (core) | Filesystem scanning, audio tag reading, album/artist/track management |
-| `birthday` | In progress | Release date lookup (MusicBrainz API), caching, date range queries |
+| `birthday` | Done (core) | Release date lookup (MusicBrainz API), caching, date range queries |
 | `notification` | Not started | Daily email digests, recipient management |
 | `discovery` | Not started (later) | Public-facing album birthday browsing, not tied to personal collection |
 
@@ -50,7 +50,7 @@ for migrations, Testcontainers + Karibu Testing for tests. Full conventions in
   - SecurityConfig with VaadinSecurityConfigurer
   - Tests: repository (3), service unit (6), module integration (2),
     FileScanner (2), TagReader (2), Karibu UI (2)
-- **Birthday module (core):**
+- **Birthday module (complete):**
   - AlbumBirthday entity (denormalized album/artist data, release date)
   - AlbumBirthdayRepository with findByReleaseDateMonthAndDay query
   - BirthdayService: findBirthdaysOn, resolveReleaseDate
@@ -59,7 +59,9 @@ for migrations, Testcontainers + Karibu Testing for tests. Full conventions in
     parses first-release-date (full, year-only, year-month)
   - MusicBrainzConfig: RestClient bean with User-Agent, configurable base URL
   - AlbumDiscoveredListener: listens for events, triggers lookup
-  - Tests: repository (2), service unit (3), listener unit (1), API unit (4)
+  - BirthdayView at /birthdays (Grid with artist, album, release date)
+  - Tests: repository (2), service unit (3), listener unit (1), API unit (4),
+    module integration (2), Karibu UI (2)
 
 ---
 
@@ -67,9 +69,7 @@ for migrations, Testcontainers + Karibu Testing for tests. Full conventions in
 
 1. ~~**Project scaffold**~~ — Done
 2. ~~**Collection module**~~ — Done (core)
-3. **Birthday module** — remaining:
-   - Module integration test (cross-module event flow)
-   - Birthday view (Karibu test)
+3. ~~**Birthday module**~~ — Done (core)
 4. **Notification module** — Email sending, scheduling, recipient management
 5. **Discovery module** — Public-facing views (later)
 
