@@ -59,6 +59,7 @@ src/main/bundles/
 # Spring Boot
 *.pid
 src/main/resources/application-local.properties
+.env
 
 # Claude Code
 .claude/settings.local.json
