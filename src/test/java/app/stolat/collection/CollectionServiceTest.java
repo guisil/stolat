@@ -10,12 +10,13 @@ import app.stolat.collection.internal.MusicBrainzSearchClient;
 import app.stolat.collection.internal.TagReader;
 import app.stolat.collection.internal.TrackRepository;
 import app.stolat.collection.internal.VolumioClient;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.nio.file.Path;
 import java.time.LocalDate;
@@ -60,8 +61,25 @@ class CollectionServiceTest {
     @Mock
     private VolumioClient volumioClient;
 
-    @InjectMocks
     private CollectionService collectionService;
+
+    @BeforeEach
+    void setUp() {
+        var transactionTemplate = new TransactionTemplate();
+        transactionTemplate.setTransactionManager(new org.springframework.transaction.support.AbstractPlatformTransactionManager() {
+            @Override
+            protected Object doGetTransaction() { return new Object(); }
+            @Override
+            protected void doBegin(Object transaction, org.springframework.transaction.TransactionDefinition definition) {}
+            @Override
+            protected void doCommit(org.springframework.transaction.support.DefaultTransactionStatus status) {}
+            @Override
+            protected void doRollback(org.springframework.transaction.support.DefaultTransactionStatus status) {}
+        });
+        collectionService = new CollectionService(fileScanner, tagReader, artistRepository,
+                albumRepository, trackRepository, eventPublisher, discogsClient,
+                musicBrainzSearchClient, volumioClient, transactionTemplate);
+    }
 
     @Test
     void shouldReturnAllAlbums() {
@@ -397,10 +415,11 @@ class CollectionServiceTest {
 
     @Test
     void shouldThrowWhenDiscogsNotConfigured() {
-        var service = new CollectionService(fileScanner, tagReader, artistRepository,
-                albumRepository, trackRepository, eventPublisher, null, musicBrainzSearchClient, null);
+        var noDiscogsService = new CollectionService(fileScanner, tagReader, artistRepository,
+                albumRepository, trackRepository, eventPublisher, null, musicBrainzSearchClient,
+                null, new TransactionTemplate());
 
-        assertThatThrownBy(() -> service.scanDiscogs("testuser"))
+        assertThatThrownBy(() -> noDiscogsService.scanDiscogs("testuser"))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("Discogs is not configured");
     }
@@ -416,10 +435,11 @@ class CollectionServiceTest {
 
     @Test
     void shouldThrowWhenVolumioNotConfigured() {
-        var service = new CollectionService(fileScanner, tagReader, artistRepository,
-                albumRepository, trackRepository, eventPublisher, null, musicBrainzSearchClient, null);
+        var noVolumioService = new CollectionService(fileScanner, tagReader, artistRepository,
+                albumRepository, trackRepository, eventPublisher, null, musicBrainzSearchClient,
+                null, new TransactionTemplate());
 
-        assertThatThrownBy(() -> service.playAlbumOnVolumio("OK Computer", "Radiohead"))
+        assertThatThrownBy(() -> noVolumioService.playAlbumOnVolumio("OK Computer", "Radiohead"))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("Volumio is not configured");
     }

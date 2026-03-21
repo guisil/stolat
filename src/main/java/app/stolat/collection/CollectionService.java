@@ -23,6 +23,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 @Slf4j
 @Service
@@ -38,6 +39,7 @@ public class CollectionService {
     private final DiscogsClient discogsClient;
     private final MusicBrainzSearchClient musicBrainzSearchClient;
     private final VolumioClient volumioClient;
+    private final TransactionTemplate transactionTemplate;
 
     public CollectionService(FileScanner fileScanner,
                              TagReader tagReader,
@@ -47,7 +49,8 @@ public class CollectionService {
                              ApplicationEventPublisher eventPublisher,
                              @Nullable DiscogsClient discogsClient,
                              MusicBrainzSearchClient musicBrainzSearchClient,
-                             @Nullable VolumioClient volumioClient) {
+                             @Nullable VolumioClient volumioClient,
+                             TransactionTemplate transactionTemplate) {
         this.fileScanner = fileScanner;
         this.tagReader = tagReader;
         this.artistRepository = artistRepository;
@@ -57,6 +60,7 @@ public class CollectionService {
         this.discogsClient = discogsClient;
         this.musicBrainzSearchClient = musicBrainzSearchClient;
         this.volumioClient = volumioClient;
+        this.transactionTemplate = transactionTemplate;
     }
 
     public List<Album> findAllAlbums() {
@@ -86,6 +90,7 @@ public class CollectionService {
                 });
     }
 
+    @Transactional(propagation = org.springframework.transaction.annotation.Propagation.NEVER)
     public List<Album> scanDirectory(Path rootDirectory) {
         log.info("Scanning directory: {}", rootDirectory);
         var files = fileScanner.scan(rootDirectory);
@@ -102,10 +107,10 @@ public class CollectionService {
         var scannedMusicBrainzIds = new HashSet<>(albumGroups.keySet());
 
         var albums = albumGroups.values().stream()
-                .map(this::importFromMetadata)
+                .map(metadata -> transactionTemplate.execute(status -> importFromMetadata(metadata)))
                 .toList();
 
-        reconcileDigitalFormats(scannedMusicBrainzIds);
+        transactionTemplate.executeWithoutResult(status -> reconcileDigitalFormats(scannedMusicBrainzIds));
 
         log.info("Imported {} new albums", albums.stream().filter(a -> a.getReleaseDate() == null).count());
         return albums;
@@ -150,6 +155,7 @@ public class CollectionService {
         return savedAlbum;
     }
 
+    @Transactional(propagation = org.springframework.transaction.annotation.Propagation.NEVER)
     public List<Album> scanDiscogs(String username) {
         if (discogsClient == null) {
             throw new IllegalStateException("Discogs is not configured");
@@ -164,13 +170,14 @@ public class CollectionService {
 
         for (var release : releases) {
             scannedDiscogsIds.add(release.discogsId());
-            var album = importDiscogsRelease(release);
+            var album = transactionTemplate.execute(status -> importDiscogsRelease(release));
             if (album != null) {
                 importedAlbums.add(album);
+                log.info("Imported vinyl: '{}' by '{}'", release.albumTitle(), release.artistName());
             }
         }
 
-        reconcileVinylFormats(scannedDiscogsIds);
+        transactionTemplate.executeWithoutResult(status -> reconcileVinylFormats(scannedDiscogsIds));
 
         log.info("Discogs scan complete: {} albums processed", importedAlbums.size());
         return importedAlbums;
