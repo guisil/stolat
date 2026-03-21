@@ -12,11 +12,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
-class TagReader {
+public class TagReader {
 
     private static final Logger log = LoggerFactory.getLogger(TagReader.class);
 
-    Optional<AudioFileMetadata> read(Path audioFile) {
+    public Optional<AudioFileMetadata> read(Path audioFile) {
         try {
             var file = AudioFileIO.read(audioFile.toFile());
             var tag = file.getTag();

@@ -2,7 +2,7 @@ package app.stolat.collection.internal;
 
 import java.util.UUID;
 
-record AudioFileMetadata(
+public record AudioFileMetadata(
         String artistName,
         UUID artistMusicBrainzId,
         String albumTitle,

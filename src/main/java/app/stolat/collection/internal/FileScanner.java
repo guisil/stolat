@@ -10,13 +10,13 @@ import java.util.Set;
 import org.springframework.stereotype.Component;
 
 @Component
-class FileScanner {
+public class FileScanner {
 
     private static final Set<String> AUDIO_EXTENSIONS = Set.of(
             ".flac", ".mp3", ".ogg", ".m4a", ".wma", ".wav", ".aiff", ".ape"
     );
 
-    List<Path> scan(Path rootDirectory) {
+    public List<Path> scan(Path rootDirectory) {
         if (!Files.exists(rootDirectory)) {
             return List.of();
         }
