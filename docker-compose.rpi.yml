@@ -1,0 +1,32 @@
+services:
+  postgres:
+    image: postgres:18-alpine
+    container_name: stolat-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: stolat
+      POSTGRES_USER: stolat
+      POSTGRES_PASSWORD: stolat
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  app:
+    build: .
+    container_name: stolat-app
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    environment:
+      SPRING_PROFILES_ACTIVE: rpi
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/stolat
+      SPRING_DATASOURCE_USERNAME: stolat
+      SPRING_DATASOURCE_PASSWORD: stolat
+    volumes:
+      - ${STOLAT_MUSIC_DIR:-/mnt/music}:/music:ro
+
+volumes:
+  postgres-data:

@@ -1,0 +1,15 @@
+/* StoLat theme */
+
+/* Format icons in grids */
+.format-icons {
+    gap: 4px;
+}
+
+.format-icon {
+    --vaadin-icon-size: 20px;
+}
+
+/* Play button in birthday grid */
+.play-button vaadin-icon {
+    --vaadin-icon-size: 24px;
+}

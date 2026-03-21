@@ -1,5 +1,7 @@
 # StoLat
 
-Set of applications intended to build on top of an existing [MusicBrainz database](https://musicbrainz.org/doc/MusicBrainz_Database) and provide features around album birthdays.
+Web application for tracking and celebrating album birthdays — the anniversaries of album release dates from a personal music collection.
 
-The idea is to have one or more applications that can fetch albums from a certain collection with their birthday within a certain period (e.g. today, this week, etc) and eventually provide ways of triggering their playback in the local collection or in some streaming service.
+Scans local audio files, looks up release dates via the [MusicBrainz API](https://musicbrainz.org/doc/MusicBrainz_API), and provides a UI for browsing birthdays by date range, with optional daily email notifications.
+
+Built with Java 25, Spring Boot 4, Vaadin 25, Spring Modulith, and PostgreSQL.
