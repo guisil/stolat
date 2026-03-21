@@ -1,0 +1,9 @@
+# Local overrides (copy to application-local.properties and fill in your values).
+# This file is gitignored.
+
+# Discogs — get a token at https://www.discogs.com/settings/developers
+stolat.discogs.username=
+stolat.discogs.token=
+
+# Volumio — your Volumio instance URL (e.g., http://volumio.local or http://192.168.1.x)
+stolat.volumio.url=
