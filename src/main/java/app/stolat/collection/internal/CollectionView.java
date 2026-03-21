@@ -116,14 +116,13 @@ public class CollectionView extends VerticalLayout {
     private void startScan() {
         var ui = UI.getCurrent();
         Notification.show("Scanning collection...");
+        startGridPolling(ui);
 
         CompletableFuture.runAsync(() -> {
             var albums = collectionService.scanDirectory(Path.of(musicDirectory));
             ui.access(() -> {
                 refreshGrid();
-                Notification.show("Scan complete: " + albums.size() + " albums imported. " +
-                        "Release dates are being fetched in the background.");
-                startReleaseDatePolling(ui);
+                Notification.show("Scan complete: " + albums.size() + " albums imported.");
             });
         });
     }
@@ -131,31 +130,30 @@ public class CollectionView extends VerticalLayout {
     private void startDiscogsScan() {
         var ui = UI.getCurrent();
         Notification.show("Scanning Discogs collection...");
+        startGridPolling(ui);
 
         CompletableFuture.runAsync(() -> {
             var albums = collectionService.scanDiscogs(discogsUsername);
             ui.access(() -> {
                 refreshGrid();
                 Notification.show("Discogs scan complete: " + albums.size() + " albums processed.");
-                startReleaseDatePolling(ui);
             });
         });
     }
 
-    private void startReleaseDatePolling(UI ui) {
+    private void startGridPolling(UI ui) {
         var thread = new Thread(() -> {
-            for (int i = 0; i < 30; i++) {
+            for (int i = 0; i < 60; i++) {
                 try {
-                    Thread.sleep(5000);
+                    Thread.sleep(3000);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     return;
                 }
                 if (!ui.isAttached()) {
-                    return; // stop polling
+                    return;
                 }
                 ui.access(this::refreshGrid);
-                log.debug("Refreshed collection grid (polling for release dates)");
             }
         });
         thread.setDaemon(true);
