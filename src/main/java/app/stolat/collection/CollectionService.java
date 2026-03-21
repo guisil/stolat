@@ -50,6 +50,7 @@ public class CollectionService {
         var albumGroups = files.stream()
                 .map(tagReader::read)
                 .flatMap(java.util.Optional::stream)
+                .filter(m -> m.albumMusicBrainzId() != null)
                 .collect(Collectors.groupingBy(AudioFileMetadata::albumMusicBrainzId));
 
         return albumGroups.values().stream()
