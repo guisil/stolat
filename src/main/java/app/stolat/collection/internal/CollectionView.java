@@ -8,9 +8,13 @@ import app.stolat.collection.CollectionService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.provider.ListDataProvider;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
@@ -27,20 +31,38 @@ public class CollectionView extends VerticalLayout {
 
         var heading = new H2("Collection");
 
+        var searchField = new TextField();
+        searchField.setPlaceholder("Search...");
+        searchField.setPrefixComponent(VaadinIcon.SEARCH.create());
+        searchField.setValueChangeMode(ValueChangeMode.EAGER);
+
         var grid = new Grid<>(Album.class, false);
-        grid.addColumn(album -> album.getArtist().getName()).setHeader("Artist");
-        grid.addColumn(Album::getTitle).setHeader("Album");
-        grid.addColumn(Album::getReleaseDate).setHeader("Release Date");
-        grid.setItems(collectionService.findAllAlbums());
+        grid.addColumn(album -> album.getArtist().getName()).setHeader("Artist").setSortable(true);
+        grid.addColumn(Album::getTitle).setHeader("Album").setSortable(true);
+        grid.addColumn(Album::getReleaseDate).setHeader("Release Date").setSortable(true);
+
+        var dataProvider = new ListDataProvider<>(collectionService.findAllAlbums());
+        grid.setItems(dataProvider);
         grid.setSizeFull();
+
+        searchField.addValueChangeListener(event -> {
+            dataProvider.clearFilters();
+            var filterText = event.getValue().trim().toLowerCase();
+            if (!filterText.isEmpty()) {
+                dataProvider.addFilter(album ->
+                        album.getArtist().getName().toLowerCase().contains(filterText) ||
+                        album.getTitle().toLowerCase().contains(filterText));
+            }
+        });
 
         var scanButton = new Button("Scan Collection", event -> {
             var albums = collectionService.scanDirectory(Path.of(musicDirectory));
-            grid.setItems(collectionService.findAllAlbums());
+            var newProvider = new ListDataProvider<>(collectionService.findAllAlbums());
+            grid.setItems(newProvider);
             Notification.show("Scan complete: " + albums.size() + " albums imported");
         });
 
-        var toolbar = new HorizontalLayout(scanButton);
+        var toolbar = new HorizontalLayout(scanButton, searchField);
 
         add(heading, toolbar, grid);
     }

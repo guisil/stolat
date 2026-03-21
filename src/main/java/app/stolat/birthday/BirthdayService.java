@@ -1,6 +1,7 @@
 package app.stolat.birthday;
 
 import java.time.LocalDate;
+import java.time.MonthDay;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -32,6 +33,22 @@ public class BirthdayService {
     public List<AlbumBirthday> findBirthdaysOn(LocalDate date) {
         return albumBirthdayRepository.findByReleaseDateMonthAndDay(
                 date.getMonthValue(), date.getDayOfMonth());
+    }
+
+    public List<AlbumBirthday> findBirthdaysBetween(LocalDate from, LocalDate to) {
+        return albumBirthdayRepository.findAll().stream()
+                .filter(b -> {
+                    var md = MonthDay.from(b.getReleaseDate());
+                    var fromMd = MonthDay.from(from);
+                    var toMd = MonthDay.from(to);
+                    if (fromMd.compareTo(toMd) <= 0) {
+                        return md.compareTo(fromMd) >= 0 && md.compareTo(toMd) <= 0;
+                    } else {
+                        // wraps around year boundary (e.g., Dec 15 to Jan 15)
+                        return md.compareTo(fromMd) >= 0 || md.compareTo(toMd) <= 0;
+                    }
+                })
+                .toList();
     }
 
     public Optional<AlbumBirthday> resolveReleaseDate(String albumTitle, String artistName,

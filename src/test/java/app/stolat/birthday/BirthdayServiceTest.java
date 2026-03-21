@@ -31,6 +31,55 @@ class BirthdayServiceTest {
     private BirthdayService birthdayService;
 
     @Test
+    void shouldReturnBirthdaysBetweenDatesWhenRangeWithinSameYear() {
+        var birthday1 = new AlbumBirthday("OK Computer", "Radiohead",
+                UUID.randomUUID(), LocalDate.of(1997, 6, 16));
+        var birthday2 = new AlbumBirthday("Kid A", "Radiohead",
+                UUID.randomUUID(), LocalDate.of(2000, 10, 2));
+        var birthday3 = new AlbumBirthday("The Bends", "Radiohead",
+                UUID.randomUUID(), LocalDate.of(1995, 3, 13));
+        given(albumBirthdayRepository.findAll())
+                .willReturn(List.of(birthday1, birthday2, birthday3));
+
+        var results = birthdayService.findBirthdaysBetween(
+                LocalDate.of(2024, 6, 1), LocalDate.of(2024, 6, 30));
+
+        assertThat(results).hasSize(1);
+        assertThat(results.getFirst().getAlbumTitle()).isEqualTo("OK Computer");
+    }
+
+    @Test
+    void shouldReturnBirthdaysBetweenDatesWhenRangeWrapsAroundYearBoundary() {
+        var birthday1 = new AlbumBirthday("OK Computer", "Radiohead",
+                UUID.randomUUID(), LocalDate.of(1997, 6, 16));
+        var birthday2 = new AlbumBirthday("Spirit of Eden", "Talk Talk",
+                UUID.randomUUID(), LocalDate.of(1988, 1, 5));
+        var birthday3 = new AlbumBirthday("Vitalogy", "Pearl Jam",
+                UUID.randomUUID(), LocalDate.of(1994, 12, 22));
+        given(albumBirthdayRepository.findAll())
+                .willReturn(List.of(birthday1, birthday2, birthday3));
+
+        var results = birthdayService.findBirthdaysBetween(
+                LocalDate.of(2024, 12, 15), LocalDate.of(2025, 1, 15));
+
+        assertThat(results).hasSize(2);
+        assertThat(results).extracting(AlbumBirthday::getAlbumTitle)
+                .containsExactlyInAnyOrder("Spirit of Eden", "Vitalogy");
+    }
+
+    @Test
+    void shouldReturnEmptyWhenNoBirthdaysInRange() {
+        var birthday1 = new AlbumBirthday("OK Computer", "Radiohead",
+                UUID.randomUUID(), LocalDate.of(1997, 6, 16));
+        given(albumBirthdayRepository.findAll()).willReturn(List.of(birthday1));
+
+        var results = birthdayService.findBirthdaysBetween(
+                LocalDate.of(2024, 1, 1), LocalDate.of(2024, 1, 31));
+
+        assertThat(results).isEmpty();
+    }
+
+    @Test
     void shouldReturnTodaysBirthdays() {
         var today = LocalDate.of(1997, 6, 16);
         var birthday = new AlbumBirthday("OK Computer", "Radiohead", UUID.randomUUID(), today);
