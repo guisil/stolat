@@ -11,10 +11,12 @@ import org.springframework.web.client.RestClient;
 class DiscogsConfig {
 
     @Bean
-    RestClient discogsRestClient(@Value("${stolat.discogs.token:}") String token) {
+    RestClient discogsRestClient(
+            @Value("${stolat.discogs.token:}") String token,
+            @Value("${stolat.user-agent}") String userAgent) {
         return RestClient.builder()
                 .baseUrl("https://api.discogs.com")
-                .defaultHeader("User-Agent", "StoLat/0.1.0 (https://github.com/guisil/stolat)")
+                .defaultHeader("User-Agent", userAgent)
                 .defaultHeader("Authorization", "Discogs token=" + token)
                 .build();
     }

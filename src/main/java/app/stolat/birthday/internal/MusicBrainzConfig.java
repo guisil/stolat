@@ -13,10 +13,11 @@ class MusicBrainzConfig {
     @Bean
     RestClient musicBrainzRestClient(
             @Value("${stolat.musicbrainz.base-url:https://musicbrainz.org/ws/2}") String baseUrl,
+            @Value("${stolat.user-agent}") String userAgent,
             @Qualifier("musicBrainzRateLimitInterceptor") ClientHttpRequestInterceptor rateLimiter) {
         return RestClient.builder()
                 .baseUrl(baseUrl)
-                .defaultHeader("User-Agent", "StoLat/0.1.0 (https://github.com/guisil/stolat)")
+                .defaultHeader("User-Agent", userAgent)
                 .defaultHeader("Accept", "application/json")
                 .requestInterceptor(rateLimiter)
                 .build();
