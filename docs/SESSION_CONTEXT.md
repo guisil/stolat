@@ -16,7 +16,7 @@ for migrations, Testcontainers + Karibu Testing for tests. Full conventions in
 `CLAUDE.md` at project root.
 
 **Branch:** `redesign`
-**Tests:** 35 passing (`mvn test -Dsurefire.useFile=false`) — verified 2026-03-21
+**Tests:** 38 passing (`mvn test -Dsurefire.useFile=false`) — verified 2026-03-21
 **TDD workflow:** Two-tier (Full Cycle / Fast Cycle) — see `CLAUDE.md`
 
 ---
@@ -27,7 +27,7 @@ for migrations, Testcontainers + Karibu Testing for tests. Full conventions in
 |--------|--------|-------------|
 | `collection` | Done (core) | Filesystem scanning, audio tag reading, album/artist/track management |
 | `birthday` | Done (core) | Release date lookup (MusicBrainz API), caching, date range queries |
-| `notification` | Not started | Daily email digests, recipient management |
+| `notification` | Done (core) | Daily email digests, recipient management |
 | `discovery` | Not started (later) | Public-facing album birthday browsing, not tied to personal collection |
 
 ---
@@ -62,6 +62,14 @@ for migrations, Testcontainers + Karibu Testing for tests. Full conventions in
   - BirthdayView at /birthdays (Grid with artist, album, release date)
   - Tests: repository (2), service unit (3), listener unit (1), API unit (4),
     module integration (2), Karibu UI (2)
+- **Notification module (complete):**
+  - NotificationService: sendDailyDigest (queries birthdays, formats email)
+  - EmailSender (wraps JavaMailSender, configurable recipient/from)
+  - NotificationScheduler (daily cron at 8am, configurable)
+  - @EnableScheduling on StoLatApplication
+  - Config: stolat.notification.recipient, stolat.notification.cron,
+    stolat.notification.from
+  - Tests: service unit (2), scheduler unit (1)
 
 ---
 
@@ -70,8 +78,14 @@ for migrations, Testcontainers + Karibu Testing for tests. Full conventions in
 1. ~~**Project scaffold**~~ — Done
 2. ~~**Collection module**~~ — Done (core)
 3. ~~**Birthday module**~~ — Done (core)
-4. **Notification module** — Email sending, scheduling, recipient management
+4. ~~**Notification module**~~ — Done (core)
 5. **Discovery module** — Public-facing views (later)
+
+### Remaining work across modules
+- Configuration for music directory path (collection)
+- Thymeleaf email templates (notification)
+- Recipient management UI (notification)
+- Discovery module (public-facing views, later)
 
 ---
 
