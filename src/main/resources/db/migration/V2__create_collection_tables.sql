@@ -25,3 +25,13 @@ CREATE TABLE tracks (
     created_at      TIMESTAMP WITH TIME ZONE NOT NULL,
     updated_at      TIMESTAMP WITH TIME ZONE NOT NULL
 );
+
+CREATE TABLE album_birthdays (
+    id              UUID PRIMARY KEY,
+    album_title     VARCHAR(500) NOT NULL,
+    artist_name     VARCHAR(500) NOT NULL,
+    musicbrainz_id  UUID NOT NULL UNIQUE,
+    release_date    DATE NOT NULL,
+    created_at      TIMESTAMP WITH TIME ZONE NOT NULL,
+    updated_at      TIMESTAMP WITH TIME ZONE NOT NULL
+);
