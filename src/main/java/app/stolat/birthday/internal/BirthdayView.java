@@ -87,15 +87,26 @@ public class BirthdayView extends VerticalLayout {
                 .setHeader("Year")
                 .setSortable(true)
                 .setComparator((a, b) -> Integer.compare(a.getReleaseDate().getYear(), b.getReleaseDate().getYear()));
-        grid.addColumn(b -> {
+        grid.addComponentColumn(b -> {
             var formats = formatsByMusicBrainzId.get(b.getMusicBrainzId());
-            if (formats == null || formats.isEmpty()) return "";
-            return formats.stream()
-                    .map(f -> f == AlbumFormat.DIGITAL ? "Digital" : "Vinyl")
-                    .sorted()
-                    .reduce((a, c) -> a + ", " + c)
-                    .orElse("");
-        }).setHeader("Format").setSortable(true);
+            if (formats == null || formats.isEmpty()) return new Span();
+            var layout = new HorizontalLayout();
+            layout.setSpacing(false);
+            layout.addClassName("format-icons");
+            if (formats.contains(AlbumFormat.DIGITAL)) {
+                var icon = VaadinIcon.FILE_SOUND.create();
+                icon.addClassName("format-icon");
+                icon.setTooltipText("Digital");
+                layout.add(icon);
+            }
+            if (formats.contains(AlbumFormat.VINYL)) {
+                var icon = VaadinIcon.DISC.create();
+                icon.addClassName("format-icon");
+                icon.setTooltipText("Vinyl");
+                layout.add(icon);
+            }
+            return layout;
+        }).setHeader("Format").setWidth("80px").setFlexGrow(0);
 
         // Only add play column if Volumio is configured
         if (volumioUrl != null && !volumioUrl.isEmpty()) {
@@ -104,8 +115,11 @@ public class BirthdayView extends VerticalLayout {
                 if (formats == null || !formats.contains(AlbumFormat.DIGITAL)) {
                     return new Span(); // empty for non-digital
                 }
-                var playButton = new Button(VaadinIcon.PLAY.create());
-                playButton.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
+                var playIcon = VaadinIcon.PLAY.create();
+                var playButton = new Button(playIcon);
+                playButton.addClassName("play-button");
+                playButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+                playButton.setTooltipText("Play in Volumio");
                 playButton.addClickListener(e -> {
                     try {
                         collectionService.playAlbumOnVolumio(birthday.getAlbumTitle(), birthday.getArtistName());
@@ -117,6 +131,8 @@ public class BirthdayView extends VerticalLayout {
                 return playButton;
             }).setHeader("").setWidth("60px").setFlexGrow(0);
         }
+
+        grid.getColumns().forEach(c -> c.setResizable(true));
 
         updateGrid(TODAY);
 

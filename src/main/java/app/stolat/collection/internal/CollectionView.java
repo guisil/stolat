@@ -11,6 +11,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -66,16 +67,28 @@ public class CollectionView extends VerticalLayout {
         grid.addColumn(album -> album.getArtist().getName()).setHeader("Artist").setSortable(true);
         grid.addColumn(Album::getTitle).setHeader("Album").setSortable(true);
         grid.addColumn(Album::getReleaseDate).setHeader("Release Date").setSortable(true);
-        grid.addColumn(album -> {
+        grid.addComponentColumn(album -> {
             var formats = album.getFormats();
-            if (formats.isEmpty()) return "";
-            return formats.stream()
-                    .map(f -> f == AlbumFormat.DIGITAL ? "Digital" : "Vinyl")
-                    .sorted()
-                    .reduce((a, b) -> a + ", " + b)
-                    .orElse("");
-        }).setHeader("Format").setSortable(true);
+            if (formats.isEmpty()) return new Span();
+            var layout = new HorizontalLayout();
+            layout.setSpacing(false);
+            layout.addClassName("format-icons");
+            if (formats.contains(AlbumFormat.DIGITAL)) {
+                var icon = VaadinIcon.FILE_SOUND.create();
+                icon.addClassName("format-icon");
+                icon.setTooltipText("Digital");
+                layout.add(icon);
+            }
+            if (formats.contains(AlbumFormat.VINYL)) {
+                var icon = VaadinIcon.DISC.create();
+                icon.addClassName("format-icon");
+                icon.setTooltipText("Vinyl");
+                layout.add(icon);
+            }
+            return layout;
+        }).setHeader("Format").setWidth("80px").setFlexGrow(0);
         grid.setSizeFull();
+        grid.getColumns().forEach(c -> c.setResizable(true));
 
         refreshGrid();
 
