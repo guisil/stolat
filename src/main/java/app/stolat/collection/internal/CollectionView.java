@@ -69,6 +69,7 @@ public class CollectionView extends VerticalLayout {
         var scanButton = new Button("Scan Collection", event -> startScan());
 
         var toolbar = new HorizontalLayout(scanButton, searchField);
+        toolbar.setDefaultVerticalComponentAlignment(Alignment.BASELINE);
         add(heading, toolbar, grid);
     }
 

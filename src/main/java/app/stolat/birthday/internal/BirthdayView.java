@@ -54,7 +54,6 @@ public class BirthdayView extends VerticalLayout {
         var rangeSelect = new Select<String>();
         rangeSelect.setItems(TODAY, LAST_7_DAYS, NEXT_7_DAYS, THIS_WEEK, LAST_30_DAYS, NEXT_30_DAYS, THIS_MONTH);
         rangeSelect.setValue(TODAY);
-        rangeSelect.setLabel("Date range");
 
         var monthDayFormatter = DateTimeFormatter.ofPattern("MMM dd");
 
@@ -80,6 +79,7 @@ public class BirthdayView extends VerticalLayout {
         });
 
         var toolbar = new HorizontalLayout(rangeSelect, searchField);
+        toolbar.setDefaultVerticalComponentAlignment(Alignment.BASELINE);
 
         add(heading, toolbar, grid);
     }
