@@ -1,7 +1,6 @@
 # Manual Walkthrough / Test
 
 Manual test plan for StoLat. Covers user-facing behavior across all modules.
-Organized by workflow area with checkboxes for progress tracking.
 
 **Date:** 2026-03-21
 
@@ -17,7 +16,7 @@ docker compose up -d       # Start PostgreSQL + Mailpit
 
 Verify services are running:
 - PostgreSQL: `localhost:5432`
-- Mailpit Web UI: `http://localhost:8025 (Mailpit)`
+- Mailpit Web UI: `http://localhost:8025`
 
 ### Start the application (dev profile)
 
@@ -28,7 +27,7 @@ mvn spring-boot:run -Dspring-boot.run.profiles=dev
 ### Access the application
 
 - **App:** `http://localhost:8080`
-- **Mailpit:** `http://localhost:8025 (Mailpit)` (captured emails)
+- **Mailpit:** `http://localhost:8025`
 
 ---
 
@@ -45,13 +44,17 @@ mvn spring-boot:run -Dspring-boot.run.profiles=dev
 
 ---
 
-## 3. Birthday View (`/birthdays`)
+## 3. Birthday View (`/`)
 
-- [ ] Click "Birthdays" in side navigation
-- [ ] Page shows "Album Birthdays — {today's date}" heading
-- [ ] Grid displays with columns: Artist, Album, Release Date
+- [ ] Page shows "Album Birthdays — Today" heading
+- [ ] Grid displays with columns: Artist, Album, Birthday, Year, Format
 - [ ] "Today's Birthday Album" by "Test Artist" appears in the grid
-  (seeded by DevDataInitializer with today's month/day)
+- [ ] Format column shows "Digital" badges for digital albums
+- [ ] "Homogenic" by Bjork shows "Digital, Vinyl"
+- [ ] Date range selector works: Today, Last 7 days, Next 7 days, This week,
+  Last 30 days, Next 30 days, This month
+- [ ] Search field filters by artist or album name
+- [ ] All columns are sortable
 
 ---
 
@@ -59,21 +62,43 @@ mvn spring-boot:run -Dspring-boot.run.profiles=dev
 
 - [ ] Click "Collection" in side navigation
 - [ ] Page shows "Collection" heading
-- [ ] Grid displays with columns: Artist, Album
-- [ ] All 9 seeded albums are visible (Radiohead, Portishead, Massive Attack,
-  Bjork, Boards of Canada, Aphex Twin, Test Artist)
+- [ ] Grid displays with columns: Artist, Album, Release Date, Format
+- [ ] Format filter dropdown: All / Digital / Vinyl
+- [ ] All seeded albums visible when "All" selected
+- [ ] "Digital" filter shows only digital albums
+- [ ] "Vinyl" filter shows only vinyl albums (Pink Floyd, Bjork)
+- [ ] Search field filters by artist or album name
+- [ ] All columns are sortable
 - [ ] "Scan Collection" button is visible
 
 ### Scan a local music folder
 
 > **Setup:** Place a few MusicBrainz-tagged FLAC files in `~/Music/stolat-test/`
 > (or adjust `stolat.collection.music-directory` in `application-dev.properties`).
-> Files should be organized in `Artist/Album/Track.flac` structure.
 
 - [ ] Click "Scan Collection" button
-- [ ] Notification toast appears: "Scan complete: N albums imported"
-- [ ] Newly scanned albums appear in the grid
-- [ ] Clicking "Scan Collection" again does not duplicate albums
+- [ ] Notification toast: "Scanning collection..."
+- [ ] Albums appear in the grid progressively
+- [ ] Release dates fill in as MusicBrainz lookups complete (background)
+- [ ] Console shows log entries for each release date lookup
+- [ ] Re-scanning does not duplicate albums
+- [ ] All scanned albums show "Digital" in Format column
+
+### Scan Discogs collection (optional)
+
+> **Setup:** Add your Discogs credentials to `application-dev.properties`:
+> ```properties
+> stolat.discogs.username=your-username
+> stolat.discogs.token=your-token
+> ```
+
+- [ ] "Scan Discogs" button appears when username is configured
+- [ ] Click "Scan Discogs" button
+- [ ] Notification toast: "Scanning Discogs collection..."
+- [ ] Vinyl albums appear in the grid
+- [ ] Albums that exist in both collections show "Digital, Vinyl"
+- [ ] New vinyl-only albums show "Vinyl"
+- [ ] Console shows MusicBrainz search matches for unmatched albums
 
 ---
 
@@ -81,37 +106,27 @@ mvn spring-boot:run -Dspring-boot.run.profiles=dev
 
 ### Startup notification
 
-- [ ] Open Mailpit at `http://localhost:8025 (Mailpit)`
+- [ ] Open Mailpit at `http://localhost:8025`
 - [ ] An email with subject "Album Birthdays — {today's date}" is present
 - [ ] Email body is HTML with a table listing today's birthday(s)
 - [ ] "Today's Birthday Album" by "Test Artist" appears with anniversary years
 
-### Verify no email when no birthdays
-
-> To test this, temporarily change the release date of the "Today's Birthday Album"
-> in `DevDataInitializer` to a different month, rebuild, and restart.
-
-- [ ] No email is sent when there are no birthdays for today
-
 ---
 
-## 6. MusicBrainz Integration
+## 6. Format Tracking & Reconciliation
 
-> This test requires actual MusicBrainz-tagged audio files (tagged with Picard).
-
-- [ ] Scan a folder with properly tagged FLAC files
-- [ ] Albums appear in the collection grid
-- [ ] After a short delay (rate-limited: 1 request per 1.1 seconds per album),
-  birthdays for the scanned albums appear in the birthday view
-- [ ] Release dates match the expected first-release-date from MusicBrainz
+- [ ] Remove a FLAC folder and re-scan — album loses "Digital" format
+- [ ] Remove a release from Discogs and re-scan — album loses "Vinyl" format
+- [ ] Albums with no remaining formats disappear from "All" view
+- [ ] Birthday data is preserved (still shows in Birthday view)
 
 ---
 
 ## 7. Duplicate Handling
 
-- [ ] Click "Scan Collection" twice — no duplicate albums in the grid
-- [ ] Check the birthday view — no duplicate birthday entries
-- [ ] Import the same album via scan after a restart — data is not duplicated
+- [ ] Click "Scan Collection" twice — no duplicate albums
+- [ ] Click "Scan Discogs" twice — no duplicate albums
+- [ ] Albums that match by artist+title across sources get both format badges
 
 ---
 
