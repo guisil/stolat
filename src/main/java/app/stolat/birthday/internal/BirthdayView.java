@@ -1,6 +1,8 @@
-package app.stolat;
+package app.stolat.birthday.internal;
 
 import java.time.LocalDate;
+
+import app.stolat.MainLayout;
 import app.stolat.birthday.AlbumBirthday;
 import app.stolat.birthday.BirthdayService;
 import com.vaadin.flow.component.grid.Grid;

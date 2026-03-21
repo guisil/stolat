@@ -1,6 +1,7 @@
 package app.stolat.collection;
 
 import java.nio.file.Path;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -42,6 +43,14 @@ public class CollectionService {
 
     public List<Album> findAllAlbums() {
         return albumRepository.findAll();
+    }
+
+    public void updateAlbumReleaseDate(UUID albumMusicBrainzId, LocalDate releaseDate) {
+        albumRepository.findByMusicBrainzId(albumMusicBrainzId)
+                .ifPresent(album -> {
+                    album.updateReleaseDate(releaseDate);
+                    albumRepository.save(album);
+                });
     }
 
     public List<Album> scanDirectory(Path rootDirectory) {

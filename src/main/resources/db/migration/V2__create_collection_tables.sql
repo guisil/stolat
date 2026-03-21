@@ -11,6 +11,7 @@ CREATE TABLE albums (
     title           VARCHAR(500) NOT NULL,
     musicbrainz_id  UUID,
     artist_id       UUID NOT NULL REFERENCES artists(id),
+    release_date    DATE,
     created_at      TIMESTAMP WITH TIME ZONE NOT NULL,
     updated_at      TIMESTAMP WITH TIME ZONE NOT NULL
 );

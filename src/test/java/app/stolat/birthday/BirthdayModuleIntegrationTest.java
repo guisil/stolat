@@ -3,6 +3,7 @@ package app.stolat.birthday;
 import app.stolat.TestcontainersConfiguration;
 import app.stolat.birthday.internal.AlbumBirthdayRepository;
 import app.stolat.collection.AlbumDiscoveredEvent;
+import app.stolat.collection.CollectionService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -30,6 +31,9 @@ class BirthdayModuleIntegrationTest {
 
     @MockitoBean
     private ReleaseDateLookup releaseDateLookup;
+
+    @MockitoBean
+    private CollectionService collectionService;
 
     @Test
     void shouldCreateBirthdayWhenAlbumDiscoveredEventReceived() {

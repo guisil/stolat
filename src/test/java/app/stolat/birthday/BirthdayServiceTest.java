@@ -85,4 +85,33 @@ class BirthdayServiceTest {
         assertThat(result.get()).isEqualTo(existing);
         then(releaseDateLookup).shouldHaveNoInteractions();
     }
+
+    @Test
+    void shouldSaveDirectReleaseDateAndReturn() {
+        var musicBrainzId = UUID.randomUUID();
+        var releaseDate = LocalDate.of(1997, 6, 16);
+        given(albumBirthdayRepository.findByMusicBrainzId(musicBrainzId)).willReturn(Optional.empty());
+        given(albumBirthdayRepository.save(any(AlbumBirthday.class)))
+                .willAnswer(invocation -> invocation.getArgument(0));
+
+        var result = birthdayService.resolveReleaseDateDirect("OK Computer", "Radiohead", musicBrainzId, releaseDate);
+
+        assertThat(result.getReleaseDate()).isEqualTo(releaseDate);
+        then(albumBirthdayRepository).should().save(any(AlbumBirthday.class));
+    }
+
+    @Test
+    void shouldReturnExistingWhenResolvingDirectAndAlreadyExists() {
+        var musicBrainzId = UUID.randomUUID();
+        var existing = new AlbumBirthday("OK Computer", "Radiohead",
+                musicBrainzId, LocalDate.of(1997, 6, 16));
+        given(albumBirthdayRepository.findByMusicBrainzId(musicBrainzId))
+                .willReturn(Optional.of(existing));
+
+        var result = birthdayService.resolveReleaseDateDirect("OK Computer", "Radiohead",
+                musicBrainzId, LocalDate.of(1997, 6, 16));
+
+        assertThat(result).isEqualTo(existing);
+        then(albumBirthdayRepository).should(never()).save(any());
+    }
 }

@@ -1,12 +1,8 @@
-package app.stolat;
+package app.stolat.collection.internal;
 
 import java.nio.file.Path;
-import java.time.LocalDate;
-import java.util.Map;
-import java.util.UUID;
 
 import app.stolat.MainLayout;
-import app.stolat.birthday.BirthdayService;
 import app.stolat.collection.Album;
 import app.stolat.collection.CollectionService;
 import com.vaadin.flow.component.button.Button;
@@ -25,27 +21,21 @@ import org.springframework.beans.factory.annotation.Value;
 @AnonymousAllowed
 public class CollectionView extends VerticalLayout {
 
-    private Map<UUID, LocalDate> releaseDates;
-
     public CollectionView(CollectionService collectionService,
-                          BirthdayService birthdayService,
                           @Value("${stolat.collection.music-directory}") String musicDirectory) {
         setSizeFull();
 
         var heading = new H2("Collection");
 
-        releaseDates = birthdayService.findReleaseDatesByMusicBrainzId();
-
         var grid = new Grid<>(Album.class, false);
         grid.addColumn(album -> album.getArtist().getName()).setHeader("Artist");
         grid.addColumn(Album::getTitle).setHeader("Album");
-        grid.addColumn(album -> releaseDates.get(album.getMusicBrainzId())).setHeader("Release Date");
+        grid.addColumn(Album::getReleaseDate).setHeader("Release Date");
         grid.setItems(collectionService.findAllAlbums());
         grid.setSizeFull();
 
         var scanButton = new Button("Scan Collection", event -> {
             var albums = collectionService.scanDirectory(Path.of(musicDirectory));
-            releaseDates = birthdayService.findReleaseDatesByMusicBrainzId();
             grid.setItems(collectionService.findAllAlbums());
             Notification.show("Scan complete: " + albums.size() + " albums imported");
         });

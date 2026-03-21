@@ -1,6 +1,7 @@
 package app.stolat.collection;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.UUID;
 
 import jakarta.persistence.Column;
@@ -33,6 +34,9 @@ public class Album {
     @JoinColumn(name = "artist_id", nullable = false)
     private Artist artist;
 
+    @Column(name = "release_date")
+    private LocalDate releaseDate;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -44,6 +48,10 @@ public class Album {
         this.title = title;
         this.musicBrainzId = musicBrainzId;
         this.artist = artist;
+    }
+
+    public void updateReleaseDate(LocalDate releaseDate) {
+        this.releaseDate = releaseDate;
     }
 
     @PrePersist

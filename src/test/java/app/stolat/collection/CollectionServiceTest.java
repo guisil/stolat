@@ -14,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 
 import java.nio.file.Path;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -22,6 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.never;
 
 @ExtendWith(MockitoExtension.class)
 class CollectionServiceTest {
@@ -160,6 +162,32 @@ class CollectionServiceTest {
         var albums = collectionService.scanDirectory(rootDir);
 
         assertThat(albums).hasSize(1);
+    }
+
+    @Test
+    void shouldUpdateAlbumReleaseDateWhenAlbumExists() {
+        var albumMbid = UUID.randomUUID();
+        var artist = new Artist("Radiohead", UUID.randomUUID());
+        var album = new Album("OK Computer", albumMbid, artist);
+        var releaseDate = LocalDate.of(1997, 6, 16);
+        given(albumRepository.findByMusicBrainzId(albumMbid)).willReturn(Optional.of(album));
+        given(albumRepository.save(album)).willReturn(album);
+
+        collectionService.updateAlbumReleaseDate(albumMbid, releaseDate);
+
+        assertThat(album.getReleaseDate()).isEqualTo(releaseDate);
+        then(albumRepository).should().save(album);
+    }
+
+    @Test
+    void shouldDoNothingWhenUpdatingReleaseDateForNonExistentAlbum() {
+        var albumMbid = UUID.randomUUID();
+        var releaseDate = LocalDate.of(1997, 6, 16);
+        given(albumRepository.findByMusicBrainzId(albumMbid)).willReturn(Optional.empty());
+
+        collectionService.updateAlbumReleaseDate(albumMbid, releaseDate);
+
+        then(albumRepository).should(never()).save(any());
     }
 
     @Test
