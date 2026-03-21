@@ -110,6 +110,13 @@
 			<artifactId>spring-modulith-starter-jpa</artifactId>
 		</dependency>
 
+		<!-- Audio -->
+		<dependency>
+			<groupId>net.jthink</groupId>
+			<artifactId>jaudiotagger</artifactId>
+			<version>3.0.1</version>
+		</dependency>
+
 		<!-- Compile-time only -->
 		<dependency>
 			<groupId>org.projectlombok</groupId>
