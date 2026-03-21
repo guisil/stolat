@@ -16,7 +16,7 @@ for migrations, Testcontainers + Karibu Testing for tests. Full conventions in
 `CLAUDE.md` at project root.
 
 **Branch:** `redesign`
-**Tests:** 0 (project scaffold not yet created)
+**Tests:** 3 passing (`mvn test -Dsurefire.useFile=false`) — verified 2026-03-21
 **TDD workflow:** Two-tier (Full Cycle / Fast Cycle) — see `CLAUDE.md`
 
 ---
@@ -38,13 +38,22 @@ for migrations, Testcontainers + Karibu Testing for tests. Full conventions in
 - Old multi-module code removed (preserved in git history on `main`)
 - Branch structure cleaned up (`main` as default, `redesign` for new work)
 - `CLAUDE.md` written with full architecture, conventions, and TDD workflow
+- **Project scaffold created:**
+  - POM with Spring Boot 4.0.2, Vaadin 25.0.5, Spring Modulith 2.0.2, Testcontainers 2.0.3
+  - `StoLatApplication` entry point with `@Theme("stolat")`
+  - `MainLayout` (AppLayout with drawer navigation)
+  - `TestcontainersConfiguration` (PostgreSQL 18 Alpine)
+  - `ModulithStructureTest` (verify + PlantUML docs)
+  - `StoLatApplicationTest` (context loads)
+  - V1 Flyway migration (Spring Modulith event publication table)
+  - `docker-compose.yml` for local PostgreSQL
+  - Maven wrapper (3.9.12)
 
 ---
 
 ## What's Next
 
-1. **Project scaffold** — POM, Spring Boot 4, Vaadin 25, Spring Modulith deps,
-   Testcontainers config, `StoLatApplication`, `MainLayout`, Modulith structure test
+1. ~~**Project scaffold**~~ — Done
 2. **Collection module** — Album/Artist/Track entities, repositories, CollectionService,
    filesystem scanning, tag reading
 3. **Birthday module** — AlbumBirthday entity, `ReleaseDateLookup` interface,
