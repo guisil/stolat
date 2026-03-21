@@ -7,6 +7,7 @@ import com.github.mvysny.kaributesting.v10.MockVaadin;
 import com.github.mvysny.kaributesting.v10.Routes;
 import com.github.mvysny.kaributesting.v10.spring.MockSpringServlet;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H2;
 import org.junit.jupiter.api.AfterEach;
@@ -22,6 +23,7 @@ import java.util.UUID;
 
 import static com.github.mvysny.kaributesting.v10.LocatorJ._find;
 import static com.github.mvysny.kaributesting.v10.LocatorJ._get;
+import static com.github.mvysny.kaributesting.v10.LocatorJ._click;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -53,6 +55,7 @@ class CollectionViewTest {
 
         assertThat(_find(H2.class)).isNotEmpty();
         assertThat(_find(Grid.class)).isNotEmpty();
+        assertThat(_find(Button.class)).isNotEmpty();
     }
 
     @Test
@@ -67,5 +70,14 @@ class CollectionViewTest {
         Grid<Album> grid = _get(Grid.class);
         var items = grid.getGenericDataView().getItems().toList();
         assertThat(items).hasSize(2);
+    }
+
+    @Test
+    @WithMockUser
+    void shouldHaveScanButton() {
+        UI.getCurrent().navigate(CollectionView.class);
+
+        var scanButton = _get(Button.class, spec -> spec.withText("Scan Collection"));
+        assertThat(scanButton).isNotNull();
     }
 }
