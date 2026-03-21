@@ -77,7 +77,8 @@ public class CollectionService {
             trackRepository.saveAll(trackEntities);
         }
 
-        eventPublisher.publishEvent(new AlbumDiscoveredEvent(album.getId(), album.getMusicBrainzId()));
+        eventPublisher.publishEvent(new AlbumDiscoveredEvent(
+                album.getId(), album.getTitle(), artist.getName(), album.getMusicBrainzId()));
 
         return album;
     }
