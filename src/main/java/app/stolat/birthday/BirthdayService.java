@@ -2,8 +2,10 @@ package app.stolat.birthday;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import app.stolat.birthday.internal.AlbumBirthdayRepository;
 import org.springframework.stereotype.Service;
@@ -20,6 +22,11 @@ public class BirthdayService {
                            ReleaseDateLookup releaseDateLookup) {
         this.albumBirthdayRepository = albumBirthdayRepository;
         this.releaseDateLookup = releaseDateLookup;
+    }
+
+    public Map<UUID, LocalDate> findReleaseDatesByMusicBrainzId() {
+        return albumBirthdayRepository.findAll().stream()
+                .collect(Collectors.toMap(AlbumBirthday::getMusicBrainzId, AlbumBirthday::getReleaseDate));
     }
 
     public List<AlbumBirthday> findBirthdaysOn(LocalDate date) {
