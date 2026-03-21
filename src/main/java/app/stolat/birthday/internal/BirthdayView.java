@@ -1,7 +1,11 @@
 package app.stolat.birthday.internal;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.MonthDay;
 import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
 
 import app.stolat.MainLayout;
 import app.stolat.birthday.AlbumBirthday;
@@ -27,6 +31,7 @@ public class BirthdayView extends VerticalLayout {
     private static final String TODAY = "Today";
     private static final String LAST_7_DAYS = "Last 7 days";
     private static final String NEXT_7_DAYS = "Next 7 days";
+    private static final String THIS_WEEK = "This week";
     private static final String LAST_30_DAYS = "Last 30 days";
     private static final String NEXT_30_DAYS = "Next 30 days";
     private static final String THIS_MONTH = "This month";
@@ -47,14 +52,23 @@ public class BirthdayView extends VerticalLayout {
         searchField.setValueChangeMode(ValueChangeMode.EAGER);
 
         var rangeSelect = new Select<String>();
-        rangeSelect.setItems(TODAY, LAST_7_DAYS, NEXT_7_DAYS, LAST_30_DAYS, NEXT_30_DAYS, THIS_MONTH);
+        rangeSelect.setItems(TODAY, LAST_7_DAYS, NEXT_7_DAYS, THIS_WEEK, LAST_30_DAYS, NEXT_30_DAYS, THIS_MONTH);
         rangeSelect.setValue(TODAY);
         rangeSelect.setLabel("Date range");
+
+        var monthDayFormatter = DateTimeFormatter.ofPattern("MMM dd");
 
         grid = new Grid<>(AlbumBirthday.class, false);
         grid.addColumn(AlbumBirthday::getArtistName).setHeader("Artist").setSortable(true);
         grid.addColumn(AlbumBirthday::getAlbumTitle).setHeader("Album").setSortable(true);
-        grid.addColumn(AlbumBirthday::getReleaseDate).setHeader("Release Date").setSortable(true);
+        grid.addColumn(b -> MonthDay.from(b.getReleaseDate()).format(monthDayFormatter))
+                .setHeader("Birthday")
+                .setSortable(true)
+                .setComparator((a, b) -> MonthDay.from(a.getReleaseDate()).compareTo(MonthDay.from(b.getReleaseDate())));
+        grid.addColumn(b -> b.getReleaseDate().getYear())
+                .setHeader("Year")
+                .setSortable(true)
+                .setComparator((a, b) -> Integer.compare(a.getReleaseDate().getYear(), b.getReleaseDate().getYear()));
 
         updateGrid(TODAY);
 
@@ -77,6 +91,9 @@ public class BirthdayView extends VerticalLayout {
         var birthdays = switch (range) {
             case LAST_7_DAYS -> birthdayService.findBirthdaysBetween(today.minusDays(7), today);
             case NEXT_7_DAYS -> birthdayService.findBirthdaysBetween(today, today.plusDays(7));
+            case THIS_WEEK -> birthdayService.findBirthdaysBetween(
+                    today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)),
+                    today.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY)));
             case LAST_30_DAYS -> birthdayService.findBirthdaysBetween(today.minusDays(30), today);
             case NEXT_30_DAYS -> birthdayService.findBirthdaysBetween(today, today.plusDays(30));
             case THIS_MONTH -> {
