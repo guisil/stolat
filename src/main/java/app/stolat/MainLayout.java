@@ -25,6 +25,7 @@ public class MainLayout extends AppLayout {
         addToNavbar(navbar);
 
         var nav = new SideNav();
+        nav.addItem(new SideNavItem("Birthdays", "birthdays"));
         nav.addItem(new SideNavItem("Collection", "collection"));
         addToDrawer(new Scroller(nav));
 
