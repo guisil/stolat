@@ -161,4 +161,20 @@ class CollectionServiceTest {
 
         assertThat(albums).hasSize(1);
     }
+
+    @Test
+    void shouldSkipAlreadyImportedAlbum() {
+        var artistMbid = UUID.randomUUID();
+        var albumMbid = UUID.randomUUID();
+        var existingArtist = new Artist("Radiohead", artistMbid);
+        var existingAlbum = new Album("OK Computer", albumMbid, existingArtist);
+        given(albumRepository.findByMusicBrainzId(albumMbid)).willReturn(Optional.of(existingAlbum));
+
+        var album = collectionService.importAlbum("Radiohead", artistMbid, "OK Computer", albumMbid);
+
+        assertThat(album).isEqualTo(existingAlbum);
+        then(albumRepository).should().findByMusicBrainzId(albumMbid);
+        then(albumRepository).shouldHaveNoMoreInteractions();
+        then(eventPublisher).shouldHaveNoInteractions();
+    }
 }

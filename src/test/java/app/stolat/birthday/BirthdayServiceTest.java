@@ -16,6 +16,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.never;
 
 @ExtendWith(MockitoExtension.class)
 class BirthdayServiceTest {
@@ -46,6 +47,7 @@ class BirthdayServiceTest {
     void shouldLookUpReleaseDateAndSave() {
         var musicBrainzId = UUID.randomUUID();
         var releaseDate = LocalDate.of(1997, 6, 16);
+        given(albumBirthdayRepository.findByMusicBrainzId(musicBrainzId)).willReturn(Optional.empty());
         given(releaseDateLookup.lookUp(musicBrainzId)).willReturn(Optional.of(releaseDate));
         given(albumBirthdayRepository.save(any(AlbumBirthday.class)))
                 .willAnswer(invocation -> invocation.getArgument(0));
@@ -60,11 +62,27 @@ class BirthdayServiceTest {
     @Test
     void shouldReturnEmptyWhenReleaseDateNotFound() {
         var musicBrainzId = UUID.randomUUID();
+        given(albumBirthdayRepository.findByMusicBrainzId(musicBrainzId)).willReturn(Optional.empty());
         given(releaseDateLookup.lookUp(musicBrainzId)).willReturn(Optional.empty());
 
         var result = birthdayService.resolveReleaseDate("Unknown Album", "Unknown Artist", musicBrainzId);
 
         assertThat(result).isEmpty();
-        then(albumBirthdayRepository).shouldHaveNoInteractions();
+        then(albumBirthdayRepository).should(never()).save(any());
+    }
+
+    @Test
+    void shouldSkipLookupWhenBirthdayAlreadyExists() {
+        var musicBrainzId = UUID.randomUUID();
+        var existing = new AlbumBirthday("OK Computer", "Radiohead",
+                musicBrainzId, LocalDate.of(1997, 6, 16));
+        given(albumBirthdayRepository.findByMusicBrainzId(musicBrainzId))
+                .willReturn(Optional.of(existing));
+
+        var result = birthdayService.resolveReleaseDate("OK Computer", "Radiohead", musicBrainzId);
+
+        assertThat(result).isPresent();
+        assertThat(result.get()).isEqualTo(existing);
+        then(releaseDateLookup).shouldHaveNoInteractions();
     }
 }

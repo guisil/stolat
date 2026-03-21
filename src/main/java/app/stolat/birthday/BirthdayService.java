@@ -29,6 +29,11 @@ public class BirthdayService {
 
     public Optional<AlbumBirthday> resolveReleaseDate(String albumTitle, String artistName,
                                                        UUID musicBrainzId) {
+        var existing = albumBirthdayRepository.findByMusicBrainzId(musicBrainzId);
+        if (existing.isPresent()) {
+            return existing;
+        }
+
         return releaseDateLookup.lookUp(musicBrainzId)
                 .map(releaseDate -> albumBirthdayRepository.save(
                         new AlbumBirthday(albumTitle, artistName, musicBrainzId, releaseDate)));

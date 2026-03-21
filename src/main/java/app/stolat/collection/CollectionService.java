@@ -65,6 +65,11 @@ public class CollectionService {
     public Album importAlbum(String artistName, UUID artistMusicBrainzId,
                              String albumTitle, UUID albumMusicBrainzId,
                              List<TrackData> tracks) {
+        var existing = albumRepository.findByMusicBrainzId(albumMusicBrainzId);
+        if (existing.isPresent()) {
+            return existing.get();
+        }
+
         var artist = artistRepository.findByMusicBrainzId(artistMusicBrainzId)
                 .orElseGet(() -> artistRepository.save(new Artist(artistName, artistMusicBrainzId)));
 
