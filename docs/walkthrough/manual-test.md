@@ -17,7 +17,7 @@ docker compose up -d       # Start PostgreSQL + Mailpit
 
 Verify services are running:
 - PostgreSQL: `localhost:5432`
-- Mailpit Web UI: `http://localhost:8025`
+- Mailpit Web UI: `http://localhost:8025 (Mailpit)`
 
 ### Start the application (dev profile)
 
@@ -28,13 +28,16 @@ mvn spring-boot:run -Dspring-boot.run.profiles=dev
 ### Access the application
 
 - **App:** `http://localhost:8080`
-- **Mailpit:** `http://localhost:8025` (captured emails)
+- **Mailpit:** `http://localhost:8025 (Mailpit)` (captured emails)
 
 ---
 
-## 2. Application Startup
+## 2. Login & Application Startup
 
 - [ ] Application starts without errors
+- [ ] Navigating to `http://localhost:8080` redirects to login page
+- [ ] Log in with `user` / `stolat`
+- [ ] Redirected to Birthdays view (default route)
 - [ ] Main layout renders with "StoLat" title in navbar
 - [ ] Side navigation has "Birthdays" and "Collection" links
 - [ ] Console shows "Seeding dev data..." log message
@@ -78,7 +81,7 @@ mvn spring-boot:run -Dspring-boot.run.profiles=dev
 
 ### Startup notification
 
-- [ ] Open Mailpit at `http://localhost:8025`
+- [ ] Open Mailpit at `http://localhost:8025 (Mailpit)`
 - [ ] An email with subject "Album Birthdays — {today's date}" is present
 - [ ] Email body is HTML with a table listing today's birthday(s)
 - [ ] "Today's Birthday Album" by "Test Artist" appears with anniversary years

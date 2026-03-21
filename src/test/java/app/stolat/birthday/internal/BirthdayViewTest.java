@@ -10,7 +10,6 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H2;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -41,8 +40,7 @@ class BirthdayViewTest {
     @Autowired
     private TransactionTemplate transactionTemplate;
 
-    @BeforeEach
-    void setUp() {
+    private void setupMockVaadin() {
         MockVaadin.setup(UI::new, new MockSpringServlet(routes, ctx, UI::new));
     }
 
@@ -55,7 +53,7 @@ class BirthdayViewTest {
     @Test
     @WithMockUser
     void shouldDisplayBirthdayView() {
-        UI.getCurrent().navigate(BirthdayView.class);
+        setupMockVaadin();
 
         assertThat(_find(H2.class)).isNotEmpty();
         assertThat(_find(Grid.class)).isNotEmpty();
@@ -69,7 +67,9 @@ class BirthdayViewTest {
                 albumBirthdayRepository.save(
                         new AlbumBirthday("OK Computer", "Radiohead", UUID.randomUUID(), today)));
 
-        UI.getCurrent().navigate(BirthdayView.class);
+        // Setup MockVaadin AFTER saving data, since "/" (BirthdayView) is
+        // created during setup and reads today's birthdays in its constructor
+        setupMockVaadin();
 
         @SuppressWarnings("unchecked")
         Grid<AlbumBirthday> grid = _get(Grid.class);
