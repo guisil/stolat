@@ -46,7 +46,7 @@ public class Album {
     @ElementCollection(fetch = jakarta.persistence.FetchType.EAGER)
     @CollectionTable(name = "album_formats", joinColumns = @JoinColumn(name = "album_id"))
     @Enumerated(EnumType.STRING)
-    @Column(name = "format")
+    @Column(name = "format", nullable = false)
     private Set<AlbumFormat> formats = new HashSet<>();
 
     @Column(name = "discogs_id")
