@@ -1,10 +1,12 @@
 package app.stolat.notification.internal;
 
+import jakarta.mail.MessagingException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -25,16 +27,17 @@ public class EmailSender {
     }
 
     public void send(String subject, String body) {
-        var message = new SimpleMailMessage();
-        message.setFrom(fromEmail);
-        message.setTo(recipientEmail);
-        message.setSubject(subject);
-        message.setText(body);
-
         try {
-            mailSender.send(message);
+            var mimeMessage = mailSender.createMimeMessage();
+            var helper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
+            helper.setFrom(fromEmail);
+            helper.setTo(recipientEmail);
+            helper.setSubject(subject);
+            helper.setText(body, true);
+
+            mailSender.send(mimeMessage);
             log.info("Sent notification email to {}", recipientEmail);
-        } catch (Exception e) {
+        } catch (MessagingException e) {
             log.error("Failed to send notification email: {}", e.getMessage());
         }
     }
