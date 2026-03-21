@@ -24,6 +24,9 @@ public class Artist {
     @Column(nullable = false)
     private String name;
 
+    @Column(name = "musicbrainz_id")
+    private UUID musicBrainzId;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -33,6 +36,11 @@ public class Artist {
     public Artist(String name) {
         this.id = UUID.randomUUID();
         this.name = name;
+    }
+
+    public Artist(String name, UUID musicBrainzId) {
+        this(name);
+        this.musicBrainzId = musicBrainzId;
     }
 
     @PrePersist
