@@ -58,15 +58,16 @@ echo 'nas-ip:/path/to/music /mnt/music nfs defaults,nofail 0 0' | sudo tee -a /e
 
 ---
 
-## Phase 2: Email Setup (Resend)
+## Phase 2: Email Setup (Gmail)
 
-Using the same Resend account as meads.
+Using a dedicated Gmail account for StoLat notifications.
 
-- [ ] Log into https://resend.com/api-keys
-- [ ] Create a new API key (or reuse the existing one)
-- [ ] Note the API key (starts with `re_`)
-- [ ] Decide on `from` address (e.g., `stolat@meads.app` or add a new domain)
-- [ ] Note the `from` address and your recipient email
+- [ ] Log into the Gmail account
+- [ ] Enable 2-Step Verification at https://myaccount.google.com/security
+- [ ] Create an app password at https://myaccount.google.com/apppasswords
+  - Select "Mail" as the app
+  - Copy the 16-character password (e.g., `xxxx xxxx xxxx xxxx`)
+- [ ] Note the Gmail address and app password
 
 ---
 
@@ -125,15 +126,15 @@ Fill in all values:
 # Music directory on the Pi
 STOLAT_MUSIC_DIR=/mnt/music
 
-# Mail (Resend)
-SPRING_MAIL_HOST=smtp.resend.com
+# Mail (Gmail with app password)
+SPRING_MAIL_HOST=smtp.gmail.com
 SPRING_MAIL_PORT=587
-SPRING_MAIL_USERNAME=resend
-SPRING_MAIL_PASSWORD=re_your_api_key
+SPRING_MAIL_USERNAME=your-stolat-gmail@gmail.com
+SPRING_MAIL_PASSWORD=xxxx-xxxx-xxxx-xxxx
 SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH=true
 SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE=true
-STOLAT_NOTIFICATION_FROM=StoLat <stolat@meads.app>
-STOLAT_NOTIFICATION_RECIPIENT=your-email@example.com
+STOLAT_NOTIFICATION_FROM=StoLat <your-stolat-gmail@gmail.com>
+STOLAT_NOTIFICATION_RECIPIENT=your-personal-email@example.com
 
 # Discogs (optional)
 STOLAT_DISCOGS_USERNAME=your-username
