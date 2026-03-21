@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <h2>Album Birthdays — <span th:text="${date}">2026-06-16</span></h2>
+    <table>
+        <tr th:each="birthday : ${birthdays}">
+            <td th:text="${birthday.artistName}">Radiohead</td>
+            <td> — </td>
+            <td th:text="${birthday.albumTitle}">OK Computer</td>
+            <td> (</td>
+            <td th:text="${birthday.years}">29</td>
+            <td> years)</td>
+        </tr>
+    </table>
+</body>
+</html>

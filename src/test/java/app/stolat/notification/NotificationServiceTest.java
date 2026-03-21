@@ -5,17 +5,18 @@ import app.stolat.birthday.BirthdayService;
 import app.stolat.notification.internal.EmailSender;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.spring6.SpringTemplateEngine;
+import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.contains;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 
@@ -28,21 +29,27 @@ class NotificationServiceTest {
     @Mock
     private EmailSender emailSender;
 
-    @InjectMocks
-    private NotificationService notificationService;
+    private NotificationService notificationService() {
+        var resolver = new ClassLoaderTemplateResolver();
+        resolver.setPrefix("templates/");
+        resolver.setSuffix(".html");
+        resolver.setTemplateMode("HTML");
+        var engine = new SpringTemplateEngine();
+        engine.setTemplateResolver(resolver);
+        return new NotificationService(birthdayService, emailSender, engine);
+    }
 
     @Test
-    void shouldSendEmailWhenBirthdaysExist() {
+    void shouldSendHtmlEmailWhenBirthdaysExist() {
         var today = LocalDate.of(2026, 6, 16);
         var birthday = new AlbumBirthday("OK Computer", "Radiohead",
                 UUID.randomUUID(), LocalDate.of(1997, 6, 16));
         given(birthdayService.findBirthdaysOn(today)).willReturn(List.of(birthday));
 
-        notificationService.sendDailyDigest(today);
+        notificationService().sendDailyDigest(today);
 
-        then(emailSender).should().send(
-                contains("Album Birthdays"),
-                contains("OK Computer"));
+        then(emailSender).should().send(contains("Album Birthdays"), argThat(body ->
+                body.contains("OK Computer") && body.contains("Radiohead")));
     }
 
     @Test
@@ -50,7 +57,7 @@ class NotificationServiceTest {
         var today = LocalDate.of(2026, 1, 1);
         given(birthdayService.findBirthdaysOn(today)).willReturn(List.of());
 
-        notificationService.sendDailyDigest(today);
+        notificationService().sendDailyDigest(today);
 
         then(emailSender).shouldHaveNoInteractions();
     }
