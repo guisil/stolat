@@ -2,6 +2,7 @@ package app.stolat.collection;
 
 import app.stolat.collection.internal.AlbumRepository;
 import app.stolat.collection.internal.ArtistRepository;
+import app.stolat.collection.internal.TrackRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -26,6 +27,9 @@ class CollectionServiceTest {
 
     @Mock
     private AlbumRepository albumRepository;
+
+    @Mock
+    private TrackRepository trackRepository;
 
     @Mock
     private ApplicationEventPublisher eventPublisher;
@@ -77,6 +81,25 @@ class CollectionServiceTest {
         assertThat(album.getArtist()).isEqualTo(existingArtist);
         then(artistRepository).should().findByMusicBrainzId(artistMbid);
         then(artistRepository).shouldHaveNoMoreInteractions();
+        then(eventPublisher).should().publishEvent(any(AlbumDiscoveredEvent.class));
+    }
+
+    @Test
+    void shouldImportAlbumWithTracks() {
+        var artistMbid = UUID.randomUUID();
+        var albumMbid = UUID.randomUUID();
+        var tracks = List.of(
+                new TrackData("Airbag", 1, 1, UUID.randomUUID()),
+                new TrackData("Paranoid Android", 2, 1, UUID.randomUUID()),
+                new TrackData("Subterranean Homesick Alien", 3, 1, UUID.randomUUID())
+        );
+        given(artistRepository.findByMusicBrainzId(artistMbid)).willReturn(Optional.empty());
+        given(artistRepository.save(any(Artist.class))).willAnswer(invocation -> invocation.getArgument(0));
+        given(albumRepository.save(any(Album.class))).willAnswer(invocation -> invocation.getArgument(0));
+        var album = collectionService.importAlbum("Radiohead", artistMbid, "OK Computer", albumMbid, tracks);
+
+        assertThat(album.getTitle()).isEqualTo("OK Computer");
+        then(trackRepository).should().saveAll(any());
         then(eventPublisher).should().publishEvent(any(AlbumDiscoveredEvent.class));
     }
 }
