@@ -16,7 +16,7 @@ for migrations, Testcontainers + Karibu Testing for tests. Full conventions in
 `CLAUDE.md` at project root.
 
 **Branch:** `redesign`
-**Tests:** 3 passing (`mvn test -Dsurefire.useFile=false`) — verified 2026-03-21
+**Tests:** 19 passing (`mvn test -Dsurefire.useFile=false`) — verified 2026-03-21
 **TDD workflow:** Two-tier (Full Cycle / Fast Cycle) — see `CLAUDE.md`
 
 ---
@@ -25,7 +25,7 @@ for migrations, Testcontainers + Karibu Testing for tests. Full conventions in
 
 | Module | Status | Description |
 |--------|--------|-------------|
-| `collection` | Not started | Filesystem scanning, audio tag reading, album/artist/track management |
+| `collection` | In progress | Filesystem scanning, audio tag reading, album/artist/track management |
 | `birthday` | Not started | Release date lookup (MusicBrainz API), caching, date range queries |
 | `notification` | Not started | Daily email digests, recipient management |
 | `discovery` | Not started (later) | Public-facing album birthday browsing, not tied to personal collection |
@@ -48,14 +48,31 @@ for migrations, Testcontainers + Karibu Testing for tests. Full conventions in
   - V1 Flyway migration (Spring Modulith event publication table)
   - `docker-compose.yml` for local PostgreSQL
   - Maven wrapper (3.9.12)
+- **Collection module — domain + scanning layer:**
+  - `Artist` entity (name, musicBrainzId, timestamps)
+  - `Album` entity / aggregate root (title, musicBrainzId, ManyToOne Artist, timestamps)
+  - `Track` entity (title, trackNumber, discNumber, musicBrainzId, ManyToOne Album, timestamps)
+  - `ArtistRepository`, `AlbumRepository`, `TrackRepository` (internal, Java-public)
+  - V2 Flyway migration (`artists`, `albums`, `tracks` tables)
+  - `CollectionService` (public API): `findAllAlbums()`, `importAlbum(...)`, `scanDirectory(...)`
+  - `AlbumDiscoveredEvent` (record, published on album import)
+  - `TrackData` record (for passing track metadata to importAlbum)
+  - `FileScanner` (internal): recursive audio file discovery (flac, mp3, ogg, m4a, etc.)
+  - `TagReader` (internal): reads MusicBrainz tags via JAudioTagger (RouHim fork 2.0.19)
+  - `AudioFileMetadata` (internal record): parsed tag data
+  - `SecurityConfig` with `VaadinSecurityConfigurer`
+  - `.mcp.json` with Vaadin MCP server
+  - **Tests:** 3 repository tests, 6 service unit tests, 2 module integration tests,
+    2 FileScanner tests, 2 TagReader tests, 2 scaffold tests (ModulithStructure + AppContext)
 
 ---
 
 ## What's Next
 
 1. ~~**Project scaffold**~~ — Done
-2. **Collection module** — Album/Artist/Track entities, repositories, CollectionService,
-   filesystem scanning, tag reading
+2. **Collection module** — remaining:
+   - UI view (Karibu test) for browsing/triggering scan
+   - Configuration for music directory path
 3. **Birthday module** — AlbumBirthday entity, `ReleaseDateLookup` interface,
    MusicBrainz API implementation, event listener
 4. **Notification module** — Email sending, scheduling, recipient management
@@ -72,3 +89,7 @@ for migrations, Testcontainers + Karibu Testing for tests. Full conventions in
 - `ReleaseDateLookup` interface allows adding Spotify/Discogs as future sources
 - Stack matches the meads sibling project: Java 25, Spring Boot 4, Vaadin 25,
   Spring Modulith 2.0.x
+- JAudioTagger: using RouHim/jaudiotagger fork (2.0.19) from JitPack — actively maintained,
+  Java 25 compatible. Original net.jthink:jaudiotagger 3.0.1 was last updated Oct 2021.
+- Internal classes (repositories, FileScanner, TagReader, AudioFileMetadata) are Java-public
+  but in `internal/` package — Spring Modulith enforces module boundaries.
