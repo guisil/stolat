@@ -105,6 +105,7 @@ birthday   ──(birthday data)─────────► notification
 | `collection` | Planned | Filesystem scanning, audio tag reading, album/artist/track management |
 | `birthday` | Planned | Release date lookup (MusicBrainz API), caching, date range queries |
 | `notification` | Planned | Daily email digests, recipient management |
+| `discovery` | Planned (later) | Public-facing album birthday browsing, not tied to personal collection |
 
 ---
 
@@ -283,6 +284,34 @@ mvn spring-boot:run                                       # start app (needs Pos
 - **No making `internal/` classes public for test access.** Test through the module's public API.
 - **No React/Hilla views.** This project uses Vaadin Java Flow exclusively.
 - **No local MusicBrainz database.** Use the MusicBrainz API.
+
+---
+
+## Resuming Work (New Session)
+
+1. **Read `docs/SESSION_CONTEXT.md` first** — this is the primary bootstrap file. It contains
+   the current state of all modules, what's done, what's next, in-progress work details,
+   and key technical notes. Everything needed to continue is here.
+2. **`CLAUDE.md`** (this file) is auto-loaded and provides conventions, architecture, and
+   workflow rules.
+
+---
+
+## Commit Hygiene — Documentation Freshness & Session Portability
+
+Doc updates are part of Step 3 (REFACTOR) and Fast Cycle step 5 — not a post-commit task.
+**Do NOT suggest a commit message until all affected docs are updated.** The goal is
+**session portability**: after every commit-and-push, anyone must be able to resume work
+with no loss of context by reading `docs/SESSION_CONTEXT.md` and `CLAUDE.md`.
+
+Checklist — update each if affected:
+
+1. **`docs/SESSION_CONTEXT.md`** — Test count, module status, what's next, in-progress work
+2. **`CLAUDE.md`** — If conventions, module map, package layout, or migrations changed
+3. **`docs/walkthrough/manual-test.md`** — If any UI or API changed
+
+**Self-check before committing:** _"If I clear my context right now and start fresh,
+can I resume this work by reading `docs/SESSION_CONTEXT.md`?"_ If no, update it.
 
 ---
 
