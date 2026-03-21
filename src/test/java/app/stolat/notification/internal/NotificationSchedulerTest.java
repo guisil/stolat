@@ -3,7 +3,6 @@ package app.stolat.notification.internal;
 import app.stolat.notification.NotificationService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -17,13 +16,27 @@ class NotificationSchedulerTest {
     @Mock
     private NotificationService notificationService;
 
-    @InjectMocks
-    private NotificationScheduler notificationScheduler;
-
     @Test
     void shouldSendDailyDigestForToday() {
-        notificationScheduler.sendDailyNotification();
+        var scheduler = new NotificationScheduler(notificationService, false);
+        scheduler.sendDailyNotification();
 
         then(notificationService).should().sendDailyDigest(LocalDate.now());
+    }
+
+    @Test
+    void shouldSendOnStartupWhenEnabled() {
+        var scheduler = new NotificationScheduler(notificationService, true);
+        scheduler.sendOnStartup();
+
+        then(notificationService).should().sendDailyDigest(LocalDate.now());
+    }
+
+    @Test
+    void shouldNotSendOnStartupWhenDisabled() {
+        var scheduler = new NotificationScheduler(notificationService, false);
+        scheduler.sendOnStartup();
+
+        then(notificationService).shouldHaveNoInteractions();
     }
 }

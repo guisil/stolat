@@ -38,4 +38,11 @@ public class BirthdayService {
                 .map(releaseDate -> albumBirthdayRepository.save(
                         new AlbumBirthday(albumTitle, artistName, musicBrainzId, releaseDate)));
     }
+
+    public AlbumBirthday resolveReleaseDateDirect(String albumTitle, String artistName,
+                                                   UUID musicBrainzId, LocalDate releaseDate) {
+        return albumBirthdayRepository.findByMusicBrainzId(musicBrainzId)
+                .orElseGet(() -> albumBirthdayRepository.save(
+                        new AlbumBirthday(albumTitle, artistName, musicBrainzId, releaseDate)));
+    }
 }
