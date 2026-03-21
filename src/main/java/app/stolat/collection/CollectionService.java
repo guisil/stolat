@@ -12,10 +12,12 @@ import app.stolat.collection.internal.AudioFileMetadata;
 import app.stolat.collection.internal.FileScanner;
 import app.stolat.collection.internal.TagReader;
 import app.stolat.collection.internal.TrackRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @Transactional
 public class CollectionService {
@@ -54,7 +56,9 @@ public class CollectionService {
     }
 
     public List<Album> scanDirectory(Path rootDirectory) {
+        log.info("Scanning directory: {}", rootDirectory);
         var files = fileScanner.scan(rootDirectory);
+        log.info("Found {} audio files", files.size());
 
         var albumGroups = files.stream()
                 .map(tagReader::read)
@@ -62,9 +66,14 @@ public class CollectionService {
                 .filter(m -> m.albumMusicBrainzId() != null)
                 .collect(Collectors.groupingBy(AudioFileMetadata::albumMusicBrainzId));
 
-        return albumGroups.values().stream()
+        log.info("Grouped into {} albums", albumGroups.size());
+
+        var albums = albumGroups.values().stream()
                 .map(this::importFromMetadata)
                 .toList();
+
+        log.info("Imported {} new albums", albums.stream().filter(a -> a.getReleaseDate() == null).count());
+        return albums;
     }
 
     public Album importAlbum(String artistName, UUID artistMusicBrainzId,

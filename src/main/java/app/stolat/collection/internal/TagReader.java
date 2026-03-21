@@ -7,14 +7,12 @@ import java.util.UUID;
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.tag.FieldKey;
 import org.jaudiotagger.tag.Tag;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 public class TagReader {
-
-    private static final Logger log = LoggerFactory.getLogger(TagReader.class);
 
     public Optional<AudioFileMetadata> read(Path audioFile) {
         try {

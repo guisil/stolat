@@ -11,11 +11,13 @@ import org.springframework.context.annotation.Import;
 import org.springframework.modulith.test.ApplicationModuleTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
@@ -44,11 +46,13 @@ class BirthdayModuleIntegrationTest {
         eventPublisher.publishEvent(
                 new AlbumDiscoveredEvent(UUID.randomUUID(), "OK Computer", "Radiohead", albumMbid));
 
-        var birthdays = albumBirthdayRepository.findAll();
-        assertThat(birthdays).hasSize(1);
-        assertThat(birthdays.getFirst().getAlbumTitle()).isEqualTo("OK Computer");
-        assertThat(birthdays.getFirst().getArtistName()).isEqualTo("Radiohead");
-        assertThat(birthdays.getFirst().getReleaseDate()).isEqualTo(releaseDate);
+        await().atMost(Duration.ofSeconds(5)).untilAsserted(() -> {
+            var birthdays = albumBirthdayRepository.findAll();
+            assertThat(birthdays).hasSize(1);
+            assertThat(birthdays.getFirst().getAlbumTitle()).isEqualTo("OK Computer");
+            assertThat(birthdays.getFirst().getArtistName()).isEqualTo("Radiohead");
+            assertThat(birthdays.getFirst().getReleaseDate()).isEqualTo(releaseDate);
+        });
     }
 
     @Test
@@ -58,6 +62,7 @@ class BirthdayModuleIntegrationTest {
         eventPublisher.publishEvent(
                 new AlbumDiscoveredEvent(UUID.randomUUID(), "Unknown", "Unknown", UUID.randomUUID()));
 
-        assertThat(albumBirthdayRepository.findAll()).isEmpty();
+        await().during(Duration.ofSeconds(1)).untilAsserted(() ->
+                assertThat(albumBirthdayRepository.findAll()).isEmpty());
     }
 }

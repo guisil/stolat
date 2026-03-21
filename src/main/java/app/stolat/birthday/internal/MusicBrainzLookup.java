@@ -6,15 +6,13 @@ import java.util.Optional;
 import java.util.UUID;
 
 import app.stolat.birthday.ReleaseDateLookup;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
+@Slf4j
 @Component
 class MusicBrainzLookup implements ReleaseDateLookup {
-
-    private static final Logger log = LoggerFactory.getLogger(MusicBrainzLookup.class);
 
     private final RestClient restClient;
 
@@ -25,7 +23,6 @@ class MusicBrainzLookup implements ReleaseDateLookup {
     @Override
     public Optional<LocalDate> lookUp(UUID musicBrainzReleaseGroupId) {
         try {
-            @SuppressWarnings("unchecked")
             var response = restClient.get()
                     .uri("/release-group/{mbid}?fmt=json", musicBrainzReleaseGroupId)
                     .retrieve()

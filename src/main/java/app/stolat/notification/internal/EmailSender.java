@@ -2,17 +2,15 @@ package app.stolat.notification.internal;
 
 import jakarta.mail.MessagingException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 public class EmailSender {
-
-    private static final Logger log = LoggerFactory.getLogger(EmailSender.class);
 
     private final JavaMailSender mailSender;
     private final String recipientEmail;
