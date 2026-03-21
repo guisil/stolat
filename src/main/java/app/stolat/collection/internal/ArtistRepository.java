@@ -10,4 +10,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface ArtistRepository extends JpaRepository<Artist, UUID> {
 
     Optional<Artist> findByMusicBrainzId(UUID musicBrainzId);
+
+    Optional<Artist> findByNameIgnoreCase(String name);
 }

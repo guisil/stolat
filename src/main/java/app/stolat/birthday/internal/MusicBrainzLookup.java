@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import app.stolat.birthday.ReleaseDateLookup;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
@@ -16,7 +17,7 @@ class MusicBrainzLookup implements ReleaseDateLookup {
 
     private final RestClient restClient;
 
-    MusicBrainzLookup(RestClient restClient) {
+    MusicBrainzLookup(@Qualifier("musicBrainzRestClient") RestClient restClient) {
         this.restClient = restClient;
     }
 

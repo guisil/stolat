@@ -2,10 +2,16 @@ package app.stolat.collection;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -37,6 +43,15 @@ public class Album {
     @Column(name = "release_date")
     private LocalDate releaseDate;
 
+    @ElementCollection(fetch = jakarta.persistence.FetchType.EAGER)
+    @CollectionTable(name = "album_formats", joinColumns = @JoinColumn(name = "album_id"))
+    @Enumerated(EnumType.STRING)
+    @Column(name = "format")
+    private Set<AlbumFormat> formats = new HashSet<>();
+
+    @Column(name = "discogs_id")
+    private Long discogsId;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -49,6 +64,20 @@ public class Album {
         this.musicBrainzId = musicBrainzId;
         this.artist = artist;
     }
+
+    public Album(String title, Artist artist, Long discogsId) {
+        this.id = UUID.randomUUID();
+        this.title = title;
+        this.artist = artist;
+        this.discogsId = discogsId;
+    }
+
+    public void addFormat(AlbumFormat format) { this.formats.add(format); }
+    public void removeFormat(AlbumFormat format) { this.formats.remove(format); }
+    public boolean hasFormat(AlbumFormat format) { return this.formats.contains(format); }
+    public boolean hasAnyFormat() { return !this.formats.isEmpty(); }
+    public void assignMusicBrainzId(UUID musicBrainzId) { this.musicBrainzId = musicBrainzId; }
+    public void assignDiscogsId(Long discogsId) { this.discogsId = discogsId; }
 
     public void updateReleaseDate(LocalDate releaseDate) {
         this.releaseDate = releaseDate;

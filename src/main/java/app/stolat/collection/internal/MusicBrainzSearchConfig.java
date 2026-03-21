@@ -1,4 +1,4 @@
-package app.stolat.birthday.internal;
+package app.stolat.collection.internal;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -8,10 +8,10 @@ import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.web.client.RestClient;
 
 @Configuration
-class MusicBrainzConfig {
+class MusicBrainzSearchConfig {
 
     @Bean
-    RestClient musicBrainzRestClient(
+    RestClient musicBrainzSearchRestClient(
             @Value("${stolat.musicbrainz.base-url:https://musicbrainz.org/ws/2}") String baseUrl,
             @Qualifier("musicBrainzRateLimitInterceptor") ClientHttpRequestInterceptor rateLimiter) {
         return RestClient.builder()

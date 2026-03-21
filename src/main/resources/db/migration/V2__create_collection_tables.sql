@@ -12,6 +12,7 @@ CREATE TABLE albums (
     musicbrainz_id  UUID,
     artist_id       UUID NOT NULL REFERENCES artists(id),
     release_date    DATE,
+    discogs_id      BIGINT,
     created_at      TIMESTAMP WITH TIME ZONE NOT NULL,
     updated_at      TIMESTAMP WITH TIME ZONE NOT NULL
 );
@@ -25,6 +26,12 @@ CREATE TABLE tracks (
     album_id        UUID NOT NULL REFERENCES albums(id),
     created_at      TIMESTAMP WITH TIME ZONE NOT NULL,
     updated_at      TIMESTAMP WITH TIME ZONE NOT NULL
+);
+
+CREATE TABLE album_formats (
+    album_id    UUID NOT NULL REFERENCES albums(id) ON DELETE CASCADE,
+    format      VARCHAR(20) NOT NULL,
+    PRIMARY KEY (album_id, format)
 );
 
 CREATE TABLE album_birthdays (

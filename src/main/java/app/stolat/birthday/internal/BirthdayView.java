@@ -6,10 +6,17 @@ import java.time.MonthDay;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 import app.stolat.MainLayout;
 import app.stolat.birthday.AlbumBirthday;
 import app.stolat.birthday.BirthdayService;
+import app.stolat.collection.Album;
+import app.stolat.collection.AlbumFormat;
+import app.stolat.collection.CollectionService;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -37,12 +44,16 @@ public class BirthdayView extends VerticalLayout {
     private static final String THIS_MONTH = "This month";
 
     private final BirthdayService birthdayService;
+    private final Map<UUID, Set<AlbumFormat>> formatsByMusicBrainzId;
     private final Grid<AlbumBirthday> grid;
     private final H2 heading;
     private final TextField searchField;
 
-    public BirthdayView(BirthdayService birthdayService) {
+    public BirthdayView(BirthdayService birthdayService, CollectionService collectionService) {
         this.birthdayService = birthdayService;
+        this.formatsByMusicBrainzId = collectionService.findAllActiveAlbums().stream()
+                .filter(a -> a.getMusicBrainzId() != null)
+                .collect(Collectors.toMap(Album::getMusicBrainzId, Album::getFormats, (a, b) -> a));
 
         heading = new H2("Album Birthdays \u2014 Today");
 
@@ -68,6 +79,15 @@ public class BirthdayView extends VerticalLayout {
                 .setHeader("Year")
                 .setSortable(true)
                 .setComparator((a, b) -> Integer.compare(a.getReleaseDate().getYear(), b.getReleaseDate().getYear()));
+        grid.addColumn(b -> {
+            var formats = formatsByMusicBrainzId.get(b.getMusicBrainzId());
+            if (formats == null || formats.isEmpty()) return "";
+            return formats.stream()
+                    .map(f -> f == AlbumFormat.DIGITAL ? "Digital" : "Vinyl")
+                    .sorted()
+                    .reduce((a, c) -> a + ", " + c)
+                    .orElse("");
+        }).setHeader("Format").setSortable(true);
 
         updateGrid(TODAY);
 
