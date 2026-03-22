@@ -50,6 +50,8 @@ bin/
 
 # Vaadin
 node_modules/
+package.json
+package-lock.json
 **/frontend/generated/
 **/frontend/index.html
 vite.generated.ts
