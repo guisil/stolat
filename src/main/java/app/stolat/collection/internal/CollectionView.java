@@ -10,6 +10,7 @@ import app.stolat.collection.CollectionService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -22,6 +23,7 @@ import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -51,6 +53,10 @@ public class CollectionView extends VerticalLayout {
         this.discogsUsername = discogsUsername;
         setSizeFull();
 
+        var session = VaadinSession.getCurrent();
+        var savedFormat = (String) session.getAttribute("collection.format");
+        var savedSearch = (String) session.getAttribute("collection.search");
+
         var heading = new H2("Collection");
 
         searchField = new TextField();
@@ -60,13 +66,14 @@ public class CollectionView extends VerticalLayout {
 
         formatFilter = new Select<>();
         formatFilter.setItems(ALL, DIGITAL, VINYL);
-        formatFilter.setValue(ALL);
+        formatFilter.setValue(savedFormat != null ? savedFormat : ALL);
         formatFilter.setLabel("Format");
 
         grid = new Grid<>(Album.class, false);
-        grid.addColumn(album -> album.getArtist().getName()).setHeader("Artist").setSortable(true);
+        grid.setMultiSort(true);
+        var artistColumn = grid.addColumn(album -> album.getArtist().getName()).setHeader("Artist").setSortable(true);
         grid.addColumn(Album::getTitle).setHeader("Album").setSortable(true);
-        grid.addColumn(Album::getReleaseDate).setHeader("Release Date").setSortable(true);
+        var releaseDateColumn = grid.addColumn(Album::getReleaseDate).setHeader("Release Date").setSortable(true);
         grid.addComponentColumn(album -> {
             var formats = album.getFormats();
             if (formats.isEmpty()) return new Span();
@@ -89,13 +96,24 @@ public class CollectionView extends VerticalLayout {
         }).setHeader("Format").setWidth("80px").setFlexGrow(0);
         grid.setSizeFull();
         grid.getColumns().forEach(c -> c.setResizable(true));
+        grid.sort(GridSortOrder.asc(artistColumn)
+                .thenAsc(releaseDateColumn).build());
 
         refreshGrid();
 
-        searchField.addValueChangeListener(event -> applySearchFilter());
+        if (savedSearch != null && !savedSearch.isEmpty()) {
+            searchField.setValue(savedSearch);
+            applySearchFilter();
+        }
+
+        searchField.addValueChangeListener(event -> {
+            session.setAttribute("collection.search", event.getValue());
+            applySearchFilter();
+        });
 
         formatFilter.addValueChangeListener(event -> {
             searchField.clear();
+            session.setAttribute("collection.format", event.getValue());
             refreshGrid();
         });
 

@@ -21,6 +21,7 @@ import app.stolat.collection.CollectionService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -33,6 +34,7 @@ import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -69,22 +71,29 @@ public class BirthdayView extends VerticalLayout {
         searchField.setPrefixComponent(VaadinIcon.SEARCH.create());
         searchField.setValueChangeMode(ValueChangeMode.EAGER);
 
+        var session = VaadinSession.getCurrent();
+        var savedRange = (String) session.getAttribute("birthday.range");
+        var savedSearch = (String) session.getAttribute("birthday.search");
+
         var rangeSelect = new Select<String>();
         rangeSelect.setItems(TODAY, LAST_7_DAYS, NEXT_7_DAYS, THIS_WEEK, LAST_30_DAYS, NEXT_30_DAYS, THIS_MONTH);
-        rangeSelect.setValue(TODAY);
+        rangeSelect.setValue(savedRange != null ? savedRange : TODAY);
 
         var monthDayFormatter = DateTimeFormatter.ofPattern("MMM dd");
 
         grid = new Grid<>(AlbumBirthday.class, false);
+        grid.setMultiSort(true);
         grid.addColumn(AlbumBirthday::getArtistName).setHeader("Artist").setSortable(true);
         grid.addColumn(AlbumBirthday::getAlbumTitle).setHeader("Album").setSortable(true);
-        grid.addColumn(b -> MonthDay.from(b.getReleaseDate()).format(monthDayFormatter))
+        var birthdayColumn = grid.addColumn(b -> MonthDay.from(b.getReleaseDate()).format(monthDayFormatter))
                 .setHeader("Birthday")
                 .setSortable(true)
+                .setWidth("120px").setFlexGrow(0)
                 .setComparator((a, b) -> MonthDay.from(a.getReleaseDate()).compareTo(MonthDay.from(b.getReleaseDate())));
-        grid.addColumn(b -> b.getReleaseDate().getYear())
+        var yearColumn = grid.addColumn(b -> b.getReleaseDate().getYear())
                 .setHeader("Year")
                 .setSortable(true)
+                .setWidth("90px").setFlexGrow(0)
                 .setComparator((a, b) -> Integer.compare(a.getReleaseDate().getYear(), b.getReleaseDate().getYear()));
         grid.addComponentColumn(b -> {
             var formats = formatsByMusicBrainzId.get(b.getMusicBrainzId());
@@ -132,20 +141,35 @@ public class BirthdayView extends VerticalLayout {
         }
 
         grid.getColumns().forEach(c -> c.setResizable(true));
+        grid.sort(GridSortOrder.asc(birthdayColumn)
+                .thenAsc(yearColumn).build());
 
-        updateGrid(TODAY);
+        updateGrid(rangeSelect.getValue());
 
-        searchField.addValueChangeListener(event -> applySearchFilter());
+        if (savedSearch != null && !savedSearch.isEmpty()) {
+            searchField.setValue(savedSearch);
+            applySearchFilter();
+        }
+
+        searchField.addValueChangeListener(event -> {
+            session.setAttribute("birthday.search", event.getValue());
+            applySearchFilter();
+        });
 
         rangeSelect.addValueChangeListener(event -> {
             searchField.clear();
+            session.setAttribute("birthday.range", event.getValue());
             updateGrid(event.getValue());
         });
 
         var toolbar = new HorizontalLayout(rangeSelect, searchField);
         toolbar.setDefaultVerticalComponentAlignment(Alignment.BASELINE);
 
+        setSizeFull();
+        grid.setSizeFull();
+
         add(heading, toolbar, grid);
+        setFlexGrow(1, grid);
     }
 
     private void updateGrid(String range) {
