@@ -54,6 +54,7 @@ public class BirthdayView extends VerticalLayout {
     private final BirthdayService birthdayService;
     private final CollectionService collectionService;
     private Map<UUID, Set<AlbumFormat>> formatsByMusicBrainzId;
+    private Map<UUID, Set<AlbumFormat>> formatsByAlbumId;
     private final Grid<AlbumBirthday> grid;
     private final H2 heading;
     private final TextField searchField;
@@ -96,7 +97,9 @@ public class BirthdayView extends VerticalLayout {
                 .setWidth("90px").setFlexGrow(0)
                 .setComparator((a, b) -> Integer.compare(a.getReleaseDate().getYear(), b.getReleaseDate().getYear()));
         grid.addComponentColumn(b -> {
-            var formats = formatsByMusicBrainzId.get(b.getMusicBrainzId());
+            var formats = b.getMusicBrainzId() != null
+                    ? formatsByMusicBrainzId.get(b.getMusicBrainzId())
+                    : formatsByAlbumId.get(b.getAlbumId());
             if (formats == null || formats.isEmpty()) return new Span();
             var layout = new HorizontalLayout();
             layout.setSpacing(false);
@@ -119,7 +122,9 @@ public class BirthdayView extends VerticalLayout {
         // Only add play column if Volumio is configured
         if (volumioUrl != null && !volumioUrl.isEmpty()) {
             grid.addComponentColumn(birthday -> {
-                var formats = formatsByMusicBrainzId.get(birthday.getMusicBrainzId());
+                var formats = birthday.getMusicBrainzId() != null
+                        ? formatsByMusicBrainzId.get(birthday.getMusicBrainzId())
+                        : formatsByAlbumId.get(birthday.getAlbumId());
                 if (formats == null || !formats.contains(AlbumFormat.DIGITAL)) {
                     return new Span(); // empty for non-digital
                 }
@@ -174,9 +179,12 @@ public class BirthdayView extends VerticalLayout {
 
     private void updateGrid(String range) {
         heading.setText("Album Birthdays \u2014 " + range);
-        this.formatsByMusicBrainzId = collectionService.findAllActiveAlbums().stream()
+        var activeAlbums = collectionService.findAllActiveAlbums();
+        this.formatsByMusicBrainzId = activeAlbums.stream()
                 .filter(a -> a.getMusicBrainzId() != null)
                 .collect(Collectors.toMap(Album::getMusicBrainzId, Album::getFormats, (a, b) -> a));
+        this.formatsByAlbumId = activeAlbums.stream()
+                .collect(Collectors.toMap(Album::getId, Album::getFormats, (a, b) -> a));
         var today = LocalDate.now();
 
         var birthdays = switch (range) {

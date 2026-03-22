@@ -46,10 +46,15 @@ public class DiscogsClient {
                     var title = (String) basicInfo.get("title");
                     var artists = (List<Map<String, Object>>) basicInfo.get("artists");
                     var artistName = artists.isEmpty() ? "Unknown" : (String) artists.getFirst().get("name");
-                    // Discogs sometimes appends " (N)" for disambiguation
-                    artistName = artistName.replaceAll("\\s*\\(\\d+\\)$", "");
+                    // Discogs appends disambiguation suffixes like "(2)", "(UK)", etc.
+                    artistName = artistName.replaceAll("\\s*\\([^)]+\\)$", "");
                     var discogsId = ((Number) basicInfo.get("id")).longValue();
-                    allReleases.add(new DiscogsRelease(discogsId, artistName, title));
+                    var yearObj = basicInfo.get("year");
+                    Integer year = null;
+                    if (yearObj instanceof Number n && n.intValue() > 0) {
+                        year = n.intValue();
+                    }
+                    allReleases.add(new DiscogsRelease(discogsId, artistName, title, year));
                 }
 
                 log.info("Fetched Discogs page {}/{} ({} releases)", page, totalPages, releases.size());

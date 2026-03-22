@@ -333,7 +333,7 @@ class CollectionServiceTest {
 
     @Test
     void shouldImportVinylAlbumsFromDiscogs() {
-        var releases = List.of(new DiscogsRelease(12345L, "Radiohead", "OK Computer"));
+        var releases = List.of(new DiscogsRelease(12345L, "Radiohead", "OK Computer", null));
         given(discogsClient.fetchCollection("testuser")).willReturn(releases);
         given(albumRepository.findByDiscogsId(12345L)).willReturn(Optional.empty());
         given(albumRepository.findByTitleAndArtistNameIgnoreCase("OK Computer", "Radiohead"))
@@ -358,7 +358,7 @@ class CollectionServiceTest {
         var existingAlbum = new Album("OK Computer", UUID.randomUUID(), artist);
         existingAlbum.addFormat(AlbumFormat.DIGITAL);
 
-        var releases = List.of(new DiscogsRelease(12345L, "Radiohead", "OK Computer"));
+        var releases = List.of(new DiscogsRelease(12345L, "Radiohead", "OK Computer", null));
         given(discogsClient.fetchCollection("testuser")).willReturn(releases);
         given(albumRepository.findByDiscogsId(12345L)).willReturn(Optional.empty());
         given(albumRepository.findByTitleAndArtistNameIgnoreCase("OK Computer", "Radiohead"))
@@ -376,7 +376,7 @@ class CollectionServiceTest {
     @Test
     void shouldSearchMusicBrainzForUnmatchedDiscogsRelease() {
         var mbid = UUID.randomUUID();
-        var releases = List.of(new DiscogsRelease(12345L, "Radiohead", "OK Computer"));
+        var releases = List.of(new DiscogsRelease(12345L, "Radiohead", "OK Computer", null));
         given(discogsClient.fetchCollection("testuser")).willReturn(releases);
         given(albumRepository.findByDiscogsId(12345L)).willReturn(Optional.empty());
         given(albumRepository.findByTitleAndArtistNameIgnoreCase("OK Computer", "Radiohead"))
@@ -395,6 +395,48 @@ class CollectionServiceTest {
         assertThat(albums.getFirst().getMusicBrainzId()).isEqualTo(mbid);
         assertThat(albums.getFirst().getFormats()).containsExactly(AlbumFormat.VINYL);
         then(eventPublisher).should().publishEvent(any(AlbumDiscoveredEvent.class));
+    }
+
+    @Test
+    void shouldPublishReleaseDateEventWhenDiscogsYearAvailableAndNoMbid() {
+        var releases = List.of(new DiscogsRelease(12345L, "Radiohead", "OK Computer", 1997));
+        given(discogsClient.fetchCollection("testuser")).willReturn(releases);
+        given(albumRepository.findByDiscogsId(12345L)).willReturn(Optional.empty());
+        given(albumRepository.findByTitleAndArtistNameIgnoreCase("OK Computer", "Radiohead"))
+                .willReturn(Optional.empty());
+        given(musicBrainzSearchClient.searchReleaseGroup("Radiohead", "OK Computer"))
+                .willReturn(Optional.empty());
+        given(artistRepository.findByNameIgnoreCase("Radiohead")).willReturn(Optional.empty());
+        given(artistRepository.save(any(Artist.class))).willAnswer(invocation -> invocation.getArgument(0));
+        given(albumRepository.save(any(Album.class))).willAnswer(invocation -> invocation.getArgument(0));
+        given(albumRepository.findByFormat(AlbumFormat.VINYL)).willReturn(List.of());
+
+        var albums = collectionService.scanDiscogs("testuser");
+
+        assertThat(albums).hasSize(1);
+        assertThat(albums.getFirst().getReleaseDate()).isEqualTo(LocalDate.of(1997, 1, 1));
+        then(eventPublisher).should().publishEvent(any(AlbumReleaseDateResolvedEvent.class));
+    }
+
+    @Test
+    void shouldNotPublishEventWhenNoYearAndNoMbid() {
+        var releases = List.of(new DiscogsRelease(12345L, "Radiohead", "OK Computer", null));
+        given(discogsClient.fetchCollection("testuser")).willReturn(releases);
+        given(albumRepository.findByDiscogsId(12345L)).willReturn(Optional.empty());
+        given(albumRepository.findByTitleAndArtistNameIgnoreCase("OK Computer", "Radiohead"))
+                .willReturn(Optional.empty());
+        given(musicBrainzSearchClient.searchReleaseGroup("Radiohead", "OK Computer"))
+                .willReturn(Optional.empty());
+        given(artistRepository.findByNameIgnoreCase("Radiohead")).willReturn(Optional.empty());
+        given(artistRepository.save(any(Artist.class))).willAnswer(invocation -> invocation.getArgument(0));
+        given(albumRepository.save(any(Album.class))).willAnswer(invocation -> invocation.getArgument(0));
+        given(albumRepository.findByFormat(AlbumFormat.VINYL)).willReturn(List.of());
+
+        var albums = collectionService.scanDiscogs("testuser");
+
+        assertThat(albums).hasSize(1);
+        assertThat(albums.getFirst().getReleaseDate()).isNull();
+        then(eventPublisher).should(never()).publishEvent(any(AlbumReleaseDateResolvedEvent.class));
     }
 
     @Test

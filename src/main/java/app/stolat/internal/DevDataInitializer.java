@@ -4,9 +4,10 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+import app.stolat.birthday.BirthdayService;
+import app.stolat.birthday.ReleaseDateSource;
 import app.stolat.collection.AlbumFormat;
 import app.stolat.collection.CollectionService;
-import app.stolat.birthday.BirthdayService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Profile;
@@ -73,7 +74,8 @@ class DevDataInitializer {
                                        AlbumFormat format) {
         var artistMbid = UUID.randomUUID();
         var albumMbid = UUID.randomUUID();
-        birthdayService.resolveReleaseDateDirect(albumTitle, artistName, albumMbid, releaseDate);
+        birthdayService.resolveReleaseDateDirect(null, albumTitle, artistName, albumMbid,
+                releaseDate, ReleaseDateSource.MUSICBRAINZ);
         collectionService.importAlbum(artistName, artistMbid, albumTitle, albumMbid, format, List.of());
     }
 }

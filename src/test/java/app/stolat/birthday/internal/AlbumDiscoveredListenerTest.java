@@ -36,12 +36,12 @@ class AlbumDiscoveredListenerTest {
         var releaseDate = LocalDate.of(1997, 6, 16);
         var event = new AlbumDiscoveredEvent(albumId, "OK Computer", "Radiohead", musicBrainzId);
         var birthday = new AlbumBirthday("OK Computer", "Radiohead", musicBrainzId, releaseDate);
-        given(birthdayService.resolveReleaseDate("OK Computer", "Radiohead", musicBrainzId))
+        given(birthdayService.resolveReleaseDate(albumId, "OK Computer", "Radiohead", musicBrainzId))
                 .willReturn(Optional.of(birthday));
 
         listener.onAlbumDiscovered(event);
 
-        then(birthdayService).should().resolveReleaseDate("OK Computer", "Radiohead", musicBrainzId);
+        then(birthdayService).should().resolveReleaseDate(albumId, "OK Computer", "Radiohead", musicBrainzId);
         then(collectionService).should().updateAlbumReleaseDate(musicBrainzId, releaseDate);
     }
 
@@ -50,12 +50,12 @@ class AlbumDiscoveredListenerTest {
         var albumId = UUID.randomUUID();
         var musicBrainzId = UUID.randomUUID();
         var event = new AlbumDiscoveredEvent(albumId, "Unknown Album", "Unknown Artist", musicBrainzId);
-        given(birthdayService.resolveReleaseDate("Unknown Album", "Unknown Artist", musicBrainzId))
+        given(birthdayService.resolveReleaseDate(albumId, "Unknown Album", "Unknown Artist", musicBrainzId))
                 .willReturn(Optional.empty());
 
         listener.onAlbumDiscovered(event);
 
-        then(birthdayService).should().resolveReleaseDate("Unknown Album", "Unknown Artist", musicBrainzId);
+        then(birthdayService).should().resolveReleaseDate(albumId, "Unknown Album", "Unknown Artist", musicBrainzId);
         then(collectionService).shouldHaveNoInteractions();
     }
 }

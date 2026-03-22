@@ -6,6 +6,8 @@ import java.util.UUID;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
@@ -28,11 +30,18 @@ public class AlbumBirthday {
     @Column(name = "artist_name", nullable = false)
     private String artistName;
 
-    @Column(name = "musicbrainz_id", nullable = false, unique = true)
+    @Column(name = "album_id")
+    private UUID albumId;
+
+    @Column(name = "musicbrainz_id")
     private UUID musicBrainzId;
 
     @Column(name = "release_date", nullable = false)
     private LocalDate releaseDate;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "release_date_source", nullable = false)
+    private ReleaseDateSource releaseDateSource;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
@@ -41,11 +50,18 @@ public class AlbumBirthday {
     private Instant updatedAt;
 
     public AlbumBirthday(String albumTitle, String artistName, UUID musicBrainzId, LocalDate releaseDate) {
+        this(albumTitle, artistName, null, musicBrainzId, releaseDate, ReleaseDateSource.MUSICBRAINZ);
+    }
+
+    public AlbumBirthday(String albumTitle, String artistName, UUID albumId, UUID musicBrainzId,
+                         LocalDate releaseDate, ReleaseDateSource releaseDateSource) {
         this.id = UUID.randomUUID();
         this.albumTitle = albumTitle;
         this.artistName = artistName;
+        this.albumId = albumId;
         this.musicBrainzId = musicBrainzId;
         this.releaseDate = releaseDate;
+        this.releaseDateSource = releaseDateSource;
     }
 
     @PrePersist

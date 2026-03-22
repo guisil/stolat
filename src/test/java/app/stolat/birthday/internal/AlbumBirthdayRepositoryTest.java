@@ -2,6 +2,7 @@ package app.stolat.birthday.internal;
 
 import app.stolat.TestcontainersConfiguration;
 import app.stolat.birthday.AlbumBirthday;
+import app.stolat.birthday.ReleaseDateSource;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -36,6 +37,52 @@ class AlbumBirthdayRepositoryTest {
         assertThat(found.get().getMusicBrainzId()).isEqualTo(musicBrainzId);
         assertThat(found.get().getReleaseDate()).isEqualTo(releaseDate);
         assertThat(found.get().getCreatedAt()).isNotNull();
+    }
+
+    @Test
+    void shouldPersistBirthdayWithReleaseDateSource() {
+        var musicBrainzId = UUID.randomUUID();
+        var albumId = UUID.randomUUID();
+        var releaseDate = LocalDate.of(1997, 6, 16);
+        var birthday = new AlbumBirthday("OK Computer", "Radiohead",
+                albumId, musicBrainzId, releaseDate, ReleaseDateSource.MUSICBRAINZ);
+
+        var saved = albumBirthdayRepository.save(birthday);
+        var found = albumBirthdayRepository.findById(saved.getId());
+
+        assertThat(found).isPresent();
+        assertThat(found.get().getAlbumId()).isEqualTo(albumId);
+        assertThat(found.get().getMusicBrainzId()).isEqualTo(musicBrainzId);
+        assertThat(found.get().getReleaseDateSource()).isEqualTo(ReleaseDateSource.MUSICBRAINZ);
+    }
+
+    @Test
+    void shouldPersistBirthdayWithAlbumIdAndNullMusicBrainzId() {
+        var albumId = UUID.randomUUID();
+        var releaseDate = LocalDate.of(2020, 3, 15);
+        var birthday = new AlbumBirthday("Some Album", "Some Artist",
+                albumId, null, releaseDate, ReleaseDateSource.DISCOGS);
+
+        var saved = albumBirthdayRepository.save(birthday);
+        var found = albumBirthdayRepository.findById(saved.getId());
+
+        assertThat(found).isPresent();
+        assertThat(found.get().getAlbumId()).isEqualTo(albumId);
+        assertThat(found.get().getMusicBrainzId()).isNull();
+        assertThat(found.get().getReleaseDateSource()).isEqualTo(ReleaseDateSource.DISCOGS);
+    }
+
+    @Test
+    void shouldFindBirthdayByAlbumId() {
+        var albumId = UUID.randomUUID();
+        var releaseDate = LocalDate.of(2020, 3, 15);
+        albumBirthdayRepository.save(new AlbumBirthday("Some Album", "Some Artist",
+                albumId, null, releaseDate, ReleaseDateSource.DISCOGS));
+
+        var found = albumBirthdayRepository.findByAlbumId(albumId);
+
+        assertThat(found).isPresent();
+        assertThat(found.get().getAlbumTitle()).isEqualTo("Some Album");
     }
 
     @Test

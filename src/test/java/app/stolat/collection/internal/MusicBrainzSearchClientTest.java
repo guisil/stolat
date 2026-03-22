@@ -22,7 +22,7 @@ class MusicBrainzSearchClientTest {
     void setUp() {
         var builder = RestClient.builder().baseUrl("https://musicbrainz.org/ws/2");
         mockServer = MockRestServiceServer.bindTo(builder).build();
-        client = new MusicBrainzSearchClient(builder.build());
+        client = new MusicBrainzSearchClient(builder.build(), 90);
     }
 
     @Test
@@ -69,6 +69,32 @@ class MusicBrainzSearchClientTest {
 
         assertThat(result).isEmpty();
         mockServer.verify();
+    }
+
+    @Test
+    void shouldUseConfigurableScoreThreshold() {
+        var builder2 = RestClient.builder().baseUrl("https://musicbrainz.org/ws/2");
+        var mockServer2 = MockRestServiceServer.bindTo(builder2).build();
+        var clientWith75 = new MusicBrainzSearchClient(builder2.build(), 75);
+
+        var responseJson = """
+                {
+                    "release-groups": [
+                        {
+                            "id": "b1392450-e666-3926-a536-22c65f834433",
+                            "title": "OK Computer",
+                            "score": 80
+                        }
+                    ]
+                }
+                """;
+        mockServer2.expect(requestTo(org.hamcrest.Matchers.containsString("/release-group/")))
+                .andRespond(withSuccess(responseJson, MediaType.APPLICATION_JSON));
+
+        var result = clientWith75.searchReleaseGroup("Radiohead", "OK Computer");
+
+        assertThat(result).isPresent();
+        mockServer2.verify();
     }
 
     @Test

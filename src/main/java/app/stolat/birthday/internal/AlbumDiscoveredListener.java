@@ -24,7 +24,8 @@ class AlbumDiscoveredListener {
     @EventListener
     void onAlbumDiscovered(AlbumDiscoveredEvent event) {
         log.info("Looking up release date for '{}' by '{}'", event.albumTitle(), event.artistName());
-        birthdayService.resolveReleaseDate(event.albumTitle(), event.artistName(), event.musicBrainzId())
+        birthdayService.resolveReleaseDate(event.albumId(), event.albumTitle(),
+                        event.artistName(), event.musicBrainzId())
                 .ifPresent(birthday -> {
                     log.info("Found release date {} for '{}' by '{}'",
                             birthday.getReleaseDate(), event.albumTitle(), event.artistName());

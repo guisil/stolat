@@ -29,6 +29,7 @@ public class BirthdayService {
 
     public Map<UUID, LocalDate> findReleaseDatesByMusicBrainzId() {
         return albumBirthdayRepository.findAll().stream()
+                .filter(b -> b.getMusicBrainzId() != null)
                 .collect(Collectors.toMap(AlbumBirthday::getMusicBrainzId, AlbumBirthday::getReleaseDate));
     }
 
@@ -53,8 +54,8 @@ public class BirthdayService {
                 .toList();
     }
 
-    public Optional<AlbumBirthday> resolveReleaseDate(String albumTitle, String artistName,
-                                                       UUID musicBrainzId) {
+    public Optional<AlbumBirthday> resolveReleaseDate(UUID albumId, String albumTitle,
+                                                       String artistName, UUID musicBrainzId) {
         var existing = albumBirthdayRepository.findByMusicBrainzId(musicBrainzId);
         if (existing.isPresent()) {
             return existing;
@@ -62,13 +63,25 @@ public class BirthdayService {
 
         return releaseDateLookup.lookUp(musicBrainzId)
                 .map(releaseDate -> albumBirthdayRepository.save(
-                        new AlbumBirthday(albumTitle, artistName, musicBrainzId, releaseDate)));
+                        new AlbumBirthday(albumTitle, artistName, albumId, musicBrainzId,
+                                releaseDate, ReleaseDateSource.MUSICBRAINZ)));
     }
 
-    public AlbumBirthday resolveReleaseDateDirect(String albumTitle, String artistName,
-                                                   UUID musicBrainzId, LocalDate releaseDate) {
+    public AlbumBirthday resolveReleaseDateDirect(UUID albumId, String albumTitle,
+                                                   String artistName, UUID musicBrainzId,
+                                                   LocalDate releaseDate, ReleaseDateSource source) {
         return albumBirthdayRepository.findByMusicBrainzId(musicBrainzId)
                 .orElseGet(() -> albumBirthdayRepository.save(
-                        new AlbumBirthday(albumTitle, artistName, musicBrainzId, releaseDate)));
+                        new AlbumBirthday(albumTitle, artistName, albumId, musicBrainzId,
+                                releaseDate, source)));
+    }
+
+    public AlbumBirthday resolveReleaseDateForAlbum(UUID albumId, String albumTitle,
+                                                     String artistName, LocalDate releaseDate,
+                                                     ReleaseDateSource source) {
+        return albumBirthdayRepository.findByAlbumId(albumId)
+                .orElseGet(() -> albumBirthdayRepository.save(
+                        new AlbumBirthday(albumTitle, artistName, albumId, null,
+                                releaseDate, source)));
     }
 }

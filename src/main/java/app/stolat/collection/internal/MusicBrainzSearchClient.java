@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
@@ -15,9 +16,12 @@ import org.springframework.web.client.RestClient;
 public class MusicBrainzSearchClient {
 
     private final RestClient restClient;
+    private final int scoreThreshold;
 
-    MusicBrainzSearchClient(@Qualifier("musicBrainzSearchRestClient") RestClient restClient) {
+    MusicBrainzSearchClient(@Qualifier("musicBrainzSearchRestClient") RestClient restClient,
+                            @Value("${stolat.musicbrainz.search-score-threshold:90}") int scoreThreshold) {
         this.restClient = restClient;
+        this.scoreThreshold = scoreThreshold;
     }
 
     @SuppressWarnings("unchecked")
@@ -38,7 +42,7 @@ public class MusicBrainzSearchClient {
             var scoreObj = first.get("score");
             if (scoreObj == null) return Optional.empty();
             var score = ((Number) scoreObj).intValue();
-            if (score < 90) {
+            if (score < scoreThreshold) {
                 log.debug("MusicBrainz search score too low ({}) for '{}' by '{}'", score, albumTitle, artistName);
                 return Optional.empty();
             }

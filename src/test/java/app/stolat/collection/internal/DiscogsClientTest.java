@@ -115,6 +115,86 @@ class DiscogsClientTest {
     }
 
     @Test
+    void shouldExtractReleaseYearFromDiscogsResponse() {
+        var responseJson = """
+                {
+                    "pagination": { "pages": 1, "page": 1 },
+                    "releases": [
+                        {
+                            "basic_information": {
+                                "id": 12345,
+                                "title": "OK Computer",
+                                "artists": [{ "name": "Radiohead" }],
+                                "year": 1997
+                            }
+                        }
+                    ]
+                }
+                """;
+        mockServer.expect(requestTo(org.hamcrest.Matchers.containsString("/users/testuser/collection/")))
+                .andRespond(withSuccess(responseJson, MediaType.APPLICATION_JSON));
+
+        var releases = client.fetchCollection("testuser");
+
+        assertThat(releases).hasSize(1);
+        assertThat(releases.getFirst().year()).isEqualTo(1997);
+        mockServer.verify();
+    }
+
+    @Test
+    void shouldTreatZeroYearAsNull() {
+        var responseJson = """
+                {
+                    "pagination": { "pages": 1, "page": 1 },
+                    "releases": [
+                        {
+                            "basic_information": {
+                                "id": 12345,
+                                "title": "Unknown Release",
+                                "artists": [{ "name": "Some Artist" }],
+                                "year": 0
+                            }
+                        }
+                    ]
+                }
+                """;
+        mockServer.expect(requestTo(org.hamcrest.Matchers.containsString("/users/testuser/collection/")))
+                .andRespond(withSuccess(responseJson, MediaType.APPLICATION_JSON));
+
+        var releases = client.fetchCollection("testuser");
+
+        assertThat(releases).hasSize(1);
+        assertThat(releases.getFirst().year()).isNull();
+        mockServer.verify();
+    }
+
+    @Test
+    void shouldStripNonNumericDiscogsArtistDisambiguation() {
+        var responseJson = """
+                {
+                    "pagination": { "pages": 1, "page": 1 },
+                    "releases": [
+                        {
+                            "basic_information": {
+                                "id": 11111,
+                                "title": "Some Album",
+                                "artists": [{ "name": "The Band (UK)" }]
+                            }
+                        }
+                    ]
+                }
+                """;
+        mockServer.expect(requestTo(org.hamcrest.Matchers.containsString("/users/testuser/collection/")))
+                .andRespond(withSuccess(responseJson, MediaType.APPLICATION_JSON));
+
+        var releases = client.fetchCollection("testuser");
+
+        assertThat(releases).hasSize(1);
+        assertThat(releases.getFirst().artistName()).isEqualTo("The Band");
+        mockServer.verify();
+    }
+
+    @Test
     void shouldStripDiscogsArtistDisambiguation() {
         var responseJson = """
                 {

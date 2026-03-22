@@ -1,3 +1,3 @@
 package app.stolat.collection.internal;
 
-public record DiscogsRelease(long discogsId, String artistName, String albumTitle) {}
+public record DiscogsRelease(long discogsId, String artistName, String albumTitle, Integer year) {}

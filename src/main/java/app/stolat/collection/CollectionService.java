@@ -254,7 +254,16 @@ public class CollectionService {
         } else {
             album = new Album(release.albumTitle(), artist, release.discogsId());
             album.addFormat(AlbumFormat.VINYL);
+            if (release.year() != null) {
+                album.updateReleaseDate(LocalDate.of(release.year(), 1, 1));
+            }
             album = albumRepository.save(album);
+
+            if (release.year() != null) {
+                eventPublisher.publishEvent(new AlbumReleaseDateResolvedEvent(
+                        album.getId(), album.getTitle(), artist.getName(),
+                        LocalDate.of(release.year(), 1, 1)));
+            }
         }
 
         return album;

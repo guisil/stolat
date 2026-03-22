@@ -14,4 +14,6 @@ public interface AlbumBirthdayRepository extends JpaRepository<AlbumBirthday, UU
     List<AlbumBirthday> findByReleaseDateMonthAndDay(int month, int day);
 
     Optional<AlbumBirthday> findByMusicBrainzId(UUID musicBrainzId);
+
+    Optional<AlbumBirthday> findByAlbumId(UUID albumId);
 }
