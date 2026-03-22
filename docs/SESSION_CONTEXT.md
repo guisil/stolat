@@ -106,9 +106,10 @@ for migrations, Testcontainers + Karibu Testing for tests.
 
 ## What's Next
 
-- DB-backed authentication (replace in-memory user)
-- Notification view (settings, history, manual send)
-- Album detail view with tracks
-- Discovery module (public-facing)
 - Additional release date sources (Spotify, Discogs API release dates)
 - Improve Bandcamp lookup UX (batch lookups, URL suggestions)
+- Investigate Last.fm API integration (explore what it could add to the experience)
+- Notification view (settings, history, manual send, multiple recipient emails)
+- Album detail view with tracks
+- DB-backed authentication (replace in-memory user)
+- Discovery module (public-facing)
