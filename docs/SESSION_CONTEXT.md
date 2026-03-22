@@ -18,7 +18,7 @@ for migrations, Testcontainers + Karibu Testing for tests.
 **Branch:** `main`
 **Current release:** v0.1.2
 **Dev version:** 0.1.3-SNAPSHOT
-**Tests:** 90 passing (`mvn test -Dsurefire.useFile=false`)
+**Tests:** 102 passing (`mvn test -Dsurefire.useFile=false`)
 **Deployed:** Raspberry Pi (Docker, Ubuntu Server 24.04)
 
 ---
@@ -27,8 +27,8 @@ for migrations, Testcontainers + Karibu Testing for tests.
 
 | Module | Status | Description |
 |--------|--------|-------------|
-| `collection` | Done | Digital + vinyl collection, filesystem scanning, Discogs import (with year capture), format tracking, Volumio playback |
-| `birthday` | Done | Release date lookup (MusicBrainz API), caching, date range queries, release date source tracking |
+| `collection` | Done | Digital + vinyl collection, filesystem scanning (incl. non-MBID albums), Discogs import (with year capture), format tracking, Volumio playback |
+| `birthday` | Done | Release date lookup (MusicBrainz API + Bandcamp), caching, date range queries, release date source tracking, missing birthdays view |
 | `notification` | Done | Daily email digests via Thymeleaf templates (Gmail SMTP) |
 | `discovery` | Not started (later) | Public-facing album birthday browsing |
 
@@ -48,7 +48,8 @@ for migrations, Testcontainers + Karibu Testing for tests.
 ## Architecture Highlights
 
 - **Scan pipeline:** filesystem walk → group by directory → read tags per directory →
-  import album → commit (progressive, directory-by-directory)
+  import album → commit (progressive, directory-by-directory). Albums without MusicBrainz
+  tags are imported too (grouped by artist+title, year extracted from date tag).
 - **Discogs import:** paginated fetch → match by discogsId/artist+title/MusicBrainz search →
   import with VINYL format. Captures release year as fallback date. Partial fetch skips
   reconciliation. Artist disambiguation stripping handles any parenthesized suffix.
@@ -57,14 +58,17 @@ for migrations, Testcontainers + Karibu Testing for tests.
   configurable via `stolat.musicbrainz.search-score-threshold` (default 90).
 - **Release date sources:** `ReleaseDateSource` enum (MUSICBRAINZ, DISCOGS, BANDCAMP, MANUAL)
   tracked on each AlbumBirthday. Albums without MusicBrainz IDs can now have birthdays
-  via albumId-based lookup (e.g., Discogs year fallback).
+  via albumId-based lookup (e.g., Discogs year fallback, Bandcamp user-initiated lookup).
+- **Bandcamp lookup:** `BandcampLookup` component fetches album page HTML and extracts
+  `datePublished` from JSON-LD. User-initiated only (no automated crawling).
 - **Format tracking:** `@ElementCollection` with `Set<AlbumFormat>` (DIGITAL/VINYL).
   Soft delete via format reconciliation — empty formats = removed.
 - **Vaadin Push:** @Push for progressive UI updates during scans (3s polling).
 - **Views:** BirthdayView at `/` (date ranges, format icons, Volumio play button,
   multi-sort, full-height grid), CollectionView at `/collection` (format filter,
-  scan buttons, search, multi-sort). Filter state persists across navigation via
-  VaadinSession.
+  scan buttons, search, multi-sort, split Birthday/Year columns),
+  MissingBirthdaysView at `/missing-birthdays` (status filter, Bandcamp URL dialog,
+  year column). Filter state persists across navigation via VaadinSession.
 
 ---
 
@@ -102,12 +106,9 @@ for migrations, Testcontainers + Karibu Testing for tests.
 
 ## What's Next
 
-- **Bandcamp fallback** — user-initiated release date lookup from Bandcamp URLs
-  (parse JSON-LD datePublished). BandcampLookup component + BirthdayService integration.
-- **Missing Birthdays view** — new route showing albums without birthday entries,
-  with Bandcamp URL input for manual resolution. Should distinguish "has MBID but
-  no date" from "no MBID at all" and show release date source.
 - DB-backed authentication (replace in-memory user)
-- Notification view
+- Notification view (settings, history, manual send)
 - Album detail view with tracks
 - Discovery module (public-facing)
+- Additional release date sources (Spotify, Discogs API release dates)
+- Improve Bandcamp lookup UX (batch lookups, URL suggestions)

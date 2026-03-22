@@ -56,10 +56,13 @@ app.stolat.birthday                   ← Birthday module: release date lookup, 
 ├── ReleaseDateSource.java            ← Enum: MUSICBRAINZ, DISCOGS, BANDCAMP, MANUAL
 └── internal/
     ├── MusicBrainzLookup.java        ← Primary: MusicBrainz API (first-release-date)
+    ├── BandcampLookup.java           ← User-initiated: JSON-LD datePublished from Bandcamp pages
     ├── AlbumDiscoveredListener.java  ← Listens for new albums, triggers MusicBrainz lookup
     ├── AlbumReleaseDateResolvedListener.java ← Listens for resolved dates (e.g., Discogs year)
+    ├── BirthdayView.java             ← Birthday grid at `/`
+    ├── MissingBirthdaysView.java     ← Missing birthdays at `/missing-birthdays` (Bandcamp dialog)
     ├── repositories...
-    └── views...
+    └── ...
 
 app.stolat.notification               ← Notification module: email digests
 ├── NotificationService.java          ← Application service (public API)

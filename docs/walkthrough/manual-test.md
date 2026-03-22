@@ -38,7 +38,7 @@ mvn spring-boot:run -Dspring-boot.run.profiles=dev
 - [ ] Log in with `user` / `stolat`
 - [ ] Redirected to Birthdays view (default route)
 - [ ] Main layout renders with "StoLat" title in navbar
-- [ ] Side navigation has "Birthdays" and "Collection" links
+- [ ] Side navigation has "Birthdays", "Collection", and "Missing" links
 - [ ] Console shows "Seeding dev data..." log message
 - [ ] Console shows "Sending birthday notification on startup" log message
 
@@ -62,7 +62,8 @@ mvn spring-boot:run -Dspring-boot.run.profiles=dev
 
 - [ ] Click "Collection" in side navigation
 - [ ] Page shows "Collection" heading
-- [ ] Grid displays with columns: Artist, Album, Release Date, Format
+- [ ] Grid displays with columns: Artist, Album, Birthday, Year, Format
+- [ ] Birthday column is empty for year-only dates, shows "MMM dd" for full dates
 - [ ] Format filter dropdown: All / Digital / Vinyl
 - [ ] All seeded albums visible when "All" selected
 - [ ] "Digital" filter shows only digital albums
@@ -79,7 +80,8 @@ mvn spring-boot:run -Dspring-boot.run.profiles=dev
 - [ ] Click "Scan Collection" button
 - [ ] Notification toast: "Scanning collection..."
 - [ ] Albums appear in the grid progressively
-- [ ] Release dates fill in as MusicBrainz lookups complete (background)
+- [ ] Albums with MusicBrainz tags: release dates fill in as lookups complete (background)
+- [ ] Albums without MusicBrainz tags: imported with year from date tag, show in collection
 - [ ] Console shows log entries for each release date lookup
 - [ ] Re-scanning does not duplicate albums
 - [ ] All scanned albums show "Digital" in Format column
@@ -102,7 +104,35 @@ mvn spring-boot:run -Dspring-boot.run.profiles=dev
 
 ---
 
-## 5. Email Notification (Mailpit)
+## 5. Missing Birthdays View (`/missing-birthdays`)
+
+- [ ] Click "Missing" in side navigation
+- [ ] Page shows "Missing Birthdays" heading
+- [ ] Count label shows "N albums without birthdays"
+- [ ] Grid displays with columns: Artist, Album, Year, Format, Status, Action
+- [ ] Albums without MusicBrainz tags show status "No MusicBrainz ID"
+- [ ] Albums with MusicBrainz tags but no release date show "Lookup failed"
+- [ ] Status filter dropdown: All / No MusicBrainz ID / Lookup failed
+- [ ] Search field filters by artist or album name
+- [ ] Default sort is artist → year
+
+### Bandcamp lookup
+
+> **Setup:** Find a Bandcamp URL for one of the albums in the grid
+> (e.g., `https://artist.bandcamp.com/album/album-name`).
+
+- [ ] Click the search icon button on an album row
+- [ ] Dialog opens with "Look up on Bandcamp" title
+- [ ] Paste a Bandcamp album URL in the text field
+- [ ] Click "Look up"
+- [ ] Notification toast: "Found release date: YYYY-MM-DD"
+- [ ] Dialog closes, album disappears from the missing birthdays grid
+- [ ] Album now appears in the Birthday view with the correct date
+- [ ] Navigating back to Missing view preserves search/filter state
+
+---
+
+## 6. Email Notification (Mailpit)
 
 ### Startup notification
 
@@ -113,7 +143,7 @@ mvn spring-boot:run -Dspring-boot.run.profiles=dev
 
 ---
 
-## 6. Format Tracking & Reconciliation
+## 7. Format Tracking & Reconciliation
 
 - [ ] Remove a FLAC folder and re-scan — album loses "Digital" format
 - [ ] Remove a release from Discogs and re-scan — album loses "Vinyl" format
@@ -122,7 +152,7 @@ mvn spring-boot:run -Dspring-boot.run.profiles=dev
 
 ---
 
-## 7. Duplicate Handling
+## 8. Duplicate Handling
 
 - [ ] Click "Scan Collection" twice — no duplicate albums
 - [ ] Click "Scan Discogs" twice — no duplicate albums
@@ -130,7 +160,7 @@ mvn spring-boot:run -Dspring-boot.run.profiles=dev
 
 ---
 
-## 8. Cleanup
+## 9. Cleanup
 
 ```bash
 docker compose down          # Stop PostgreSQL + Mailpit
