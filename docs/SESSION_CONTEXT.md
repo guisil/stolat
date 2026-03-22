@@ -17,7 +17,8 @@ for migrations, Testcontainers + Karibu Testing for tests.
 
 **Branch:** `main`
 **Current release:** v0.1.2
-**Tests:** 79 passing (`mvn test -Dsurefire.useFile=false`)
+**Dev version:** 0.1.3-SNAPSHOT
+**Tests:** 90 passing (`mvn test -Dsurefire.useFile=false`)
 **Deployed:** Raspberry Pi (Docker, Ubuntu Server 24.04)
 
 ---
@@ -26,8 +27,8 @@ for migrations, Testcontainers + Karibu Testing for tests.
 
 | Module | Status | Description |
 |--------|--------|-------------|
-| `collection` | Done | Digital + vinyl collection, filesystem scanning, Discogs import, format tracking, Volumio playback |
-| `birthday` | Done | Release date lookup (MusicBrainz API), caching, date range queries |
+| `collection` | Done | Digital + vinyl collection, filesystem scanning, Discogs import (with year capture), format tracking, Volumio playback |
+| `birthday` | Done | Release date lookup (MusicBrainz API), caching, date range queries, release date source tracking |
 | `notification` | Done | Daily email digests via Thymeleaf templates (Gmail SMTP) |
 | `discovery` | Not started (later) | Public-facing album birthday browsing |
 
@@ -49,14 +50,21 @@ for migrations, Testcontainers + Karibu Testing for tests.
 - **Scan pipeline:** filesystem walk → group by directory → read tags per directory →
   import album → commit (progressive, directory-by-directory)
 - **Discogs import:** paginated fetch → match by discogsId/artist+title/MusicBrainz search →
-  import with VINYL format. Partial fetch skips reconciliation.
+  import with VINYL format. Captures release year as fallback date. Partial fetch skips
+  reconciliation. Artist disambiguation stripping handles any parenthesized suffix.
 - **MusicBrainz:** shared rate limiter bean (1.1s interval) across birthday lookup and
-  collection search clients. Lookups are @Async (non-blocking).
+  collection search clients. Lookups are @Async (non-blocking). Search score threshold
+  configurable via `stolat.musicbrainz.search-score-threshold` (default 90).
+- **Release date sources:** `ReleaseDateSource` enum (MUSICBRAINZ, DISCOGS, BANDCAMP, MANUAL)
+  tracked on each AlbumBirthday. Albums without MusicBrainz IDs can now have birthdays
+  via albumId-based lookup (e.g., Discogs year fallback).
 - **Format tracking:** `@ElementCollection` with `Set<AlbumFormat>` (DIGITAL/VINYL).
   Soft delete via format reconciliation — empty formats = removed.
 - **Vaadin Push:** @Push for progressive UI updates during scans (3s polling).
-- **Views:** BirthdayView at `/` (date ranges, format icons, Volumio play button),
-  CollectionView at `/collection` (format filter, scan buttons, search).
+- **Views:** BirthdayView at `/` (date ranges, format icons, Volumio play button,
+  multi-sort, full-height grid), CollectionView at `/collection` (format filter,
+  scan buttons, search, multi-sort). Filter state persists across navigation via
+  VaadinSession.
 
 ---
 
@@ -70,12 +78,13 @@ for migrations, Testcontainers + Karibu Testing for tests.
 | `stolat.discogs.token` | (none) | Discogs personal access token |
 | `stolat.discogs.scan-cron` | `0 0 4 * * *` | Discogs sync (4am) |
 | `stolat.musicbrainz.base-url` | `https://musicbrainz.org/ws/2` | MusicBrainz API |
+| `stolat.musicbrainz.search-score-threshold` | `90` | Min score for MusicBrainz search match |
 | `stolat.notification.recipient` | (required) | Email recipient |
 | `stolat.notification.from` | `StoLat <stolat@noreply.com>` | Email sender |
 | `stolat.notification.cron` | `0 0 8 * * *` | Daily digest (8am) |
 | `stolat.notification.send-on-startup` | `false` | Send digest on startup |
 | `stolat.volumio.url` | (none, opt-in) | Volumio instance URL |
-| `stolat.user-agent` | `StoLat/0.1.2 (...)` | User-Agent for APIs |
+| `stolat.user-agent` | `StoLat/0.1.3-SNAPSHOT (...)` | User-Agent for APIs |
 
 ---
 
@@ -83,6 +92,8 @@ for migrations, Testcontainers + Karibu Testing for tests.
 
 - V2 migration: all tables (artists, albums, tracks, album_birthdays, album_formats)
 - V3 migration: indexes on musicbrainz_id, discogs_id columns
+- V4 migration: album_birthdays evolution — nullable musicbrainz_id, album_id column,
+  release_date_source column (backfilled as MUSICBRAINZ), partial unique indexes
 - JAudioTagger: RouHim fork 2.0.19 via JitPack, logging set to WARN
 - Discogs/Volumio features conditional on config (@ConditionalOnProperty)
 - Views are @AnonymousAllowed (auth deferred — TODO: DB-backed auth)
@@ -91,8 +102,12 @@ for migrations, Testcontainers + Karibu Testing for tests.
 
 ## What's Next
 
+- **Bandcamp fallback** — user-initiated release date lookup from Bandcamp URLs
+  (parse JSON-LD datePublished). BandcampLookup component + BirthdayService integration.
+- **Missing Birthdays view** — new route showing albums without birthday entries,
+  with Bandcamp URL input for manual resolution. Should distinguish "has MBID but
+  no date" from "no MBID at all" and show release date source.
 - DB-backed authentication (replace in-memory user)
 - Notification view
 - Album detail view with tracks
 - Discovery module (public-facing)
-- Improve Discogs-MusicBrainz matching accuracy

@@ -41,7 +41,8 @@ app.stolat.collection                 ← Collection module: filesystem scanning
 ├── Artist.java                       ← Entity
 ├── Track.java                        ← Entity
 ├── CollectionService.java            ← Application service (public API)
-├── AlbumDiscoveredEvent.java         ← Spring application event
+├── AlbumDiscoveredEvent.java         ← Spring application event (triggers MusicBrainz lookup)
+├── AlbumReleaseDateResolvedEvent.java ← Event for non-MusicBrainz release dates (e.g., Discogs year)
 └── internal/
     ├── FileScanner.java              ← Filesystem crawler
     ├── TagReader.java                ← Audio file tag reading (JAudioTagger)
@@ -49,12 +50,14 @@ app.stolat.collection                 ← Collection module: filesystem scanning
     └── views...
 
 app.stolat.birthday                   ← Birthday module: release date lookup, caching, queries
-├── AlbumBirthday.java                ← Entity
+├── AlbumBirthday.java                ← Entity (supports nullable musicBrainzId, tracks source)
 ├── BirthdayService.java              ← Application service (public API)
 ├── ReleaseDateLookup.java            ← Interface for release date sources
+├── ReleaseDateSource.java            ← Enum: MUSICBRAINZ, DISCOGS, BANDCAMP, MANUAL
 └── internal/
     ├── MusicBrainzLookup.java        ← Primary: MusicBrainz API (first-release-date)
-    ├── AlbumDiscoveredListener.java  ← Listens for new albums, triggers lookup
+    ├── AlbumDiscoveredListener.java  ← Listens for new albums, triggers MusicBrainz lookup
+    ├── AlbumReleaseDateResolvedListener.java ← Listens for resolved dates (e.g., Discogs year)
     ├── repositories...
     └── views...
 
@@ -77,8 +80,9 @@ app.stolat.notification               ← Notification module: email digests
 ### Module Dependencies
 
 ```
-collection ──(AlbumDiscoveredEvent)──► birthday
-birthday   ──(birthday data)─────────► notification
+collection ──(AlbumDiscoveredEvent)──────────► birthday
+collection ──(AlbumReleaseDateResolvedEvent)─► birthday
+birthday   ──(birthday data)─────────────────► notification
 ```
 
 ### Data Flow
