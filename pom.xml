@@ -12,7 +12,7 @@
 
 	<groupId>app.stolat</groupId>
 	<artifactId>stolat</artifactId>
-	<version>0.1.3-SNAPSHOT</version>
+	<version>0.1.3</version>
 	<name>stolat</name>
 	<description>StoLat — Album Birthdays</description>
 
