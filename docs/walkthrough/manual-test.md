@@ -121,6 +121,18 @@ mvn spring-boot:run -Dspring-boot.run.profiles=dev
 > **Setup:** Find a Bandcamp URL for one of the albums in the grid
 > (e.g., `https://artist.bandcamp.com/album/album-name`).
 
+### MusicBrainz retry (albums with "Lookup failed" status)
+
+- [ ] Albums with "Lookup failed" status show a refresh icon button
+- [ ] Click the refresh icon on an album row
+- [ ] If MusicBrainz now has data: notification "Found release date: YYYY-MM-DD", album disappears
+- [ ] If still no data: notification "MusicBrainz still has no release date for this album"
+- [ ] "Retry All Lookups" button retries all failed MusicBrainz lookups
+- [ ] Notification shows "Retried N lookups, resolved M"
+
+### Bandcamp lookup
+
+- [ ] All albums show a search icon button for Bandcamp lookup
 - [ ] Click the search icon button on an album row
 - [ ] Dialog opens with "Look up on Bandcamp" title
 - [ ] Paste a Bandcamp album URL in the text field

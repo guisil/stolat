@@ -103,12 +103,25 @@ public class MissingBirthdaysView extends VerticalLayout {
         grid.addColumn(album -> album.getMusicBrainzId() != null ? LOOKUP_FAILED : NO_MBID)
                 .setHeader("Status").setSortable(true).setWidth("200px").setFlexGrow(0);
         grid.addComponentColumn(album -> {
-            var lookupButton = new Button(VaadinIcon.SEARCH.create());
-            lookupButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-            lookupButton.setTooltipText("Look up on Bandcamp");
-            lookupButton.addClickListener(e -> openBandcampDialog(album));
-            return lookupButton;
-        }).setHeader("").setWidth("60px").setFlexGrow(0);
+            var actions = new HorizontalLayout();
+            actions.setSpacing(false);
+
+            if (album.getMusicBrainzId() != null) {
+                var retryButton = new Button(VaadinIcon.REFRESH.create());
+                retryButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+                retryButton.setTooltipText("Retry MusicBrainz lookup");
+                retryButton.addClickListener(e -> retryMusicBrainzLookup(album));
+                actions.add(retryButton);
+            }
+
+            var bandcampButton = new Button(VaadinIcon.SEARCH.create());
+            bandcampButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+            bandcampButton.setTooltipText("Look up on Bandcamp");
+            bandcampButton.addClickListener(e -> openBandcampDialog(album));
+            actions.add(bandcampButton);
+
+            return actions;
+        }).setHeader("").setWidth("100px").setFlexGrow(0);
         grid.getColumns().forEach(c -> c.setResizable(true));
         grid.sort(GridSortOrder.asc(artistColumn)
                 .thenAsc(yearColumn).build());
@@ -132,7 +145,9 @@ public class MissingBirthdaysView extends VerticalLayout {
             refreshGrid();
         });
 
-        var toolbar = new HorizontalLayout(statusFilter, searchField);
+        var retryAllButton = new Button("Retry All Lookups", VaadinIcon.REFRESH.create(), event -> retryAllMusicBrainzLookups());
+
+        var toolbar = new HorizontalLayout(retryAllButton, statusFilter, searchField);
         toolbar.setDefaultVerticalComponentAlignment(Alignment.BASELINE);
 
         add(heading, countLabel, toolbar, grid);
@@ -192,6 +207,54 @@ public class MissingBirthdaysView extends VerticalLayout {
         dialog.add(content);
         dialog.getFooter().add(new Button("Cancel", e -> dialog.close()), lookupButton);
         dialog.open();
+    }
+
+    private void retryAllMusicBrainzLookups() {
+        if (collectionService.isScanInProgress()) {
+            Notification.show("A scan is in progress — please wait until it finishes");
+            return;
+        }
+        var albumIdsWithBirthdays = birthdayService.findAlbumIdsWithBirthdays();
+        var releaseDatesByMbid = birthdayService.findReleaseDatesByMusicBrainzId();
+
+        var failedAlbums = collectionService.findAllActiveAlbums().stream()
+                .filter(album -> album.getMusicBrainzId() != null)
+                .filter(album -> !albumIdsWithBirthdays.contains(album.getId()))
+                .filter(album -> !releaseDatesByMbid.containsKey(album.getMusicBrainzId()))
+                .toList();
+
+        int resolved = 0;
+        for (var album : failedAlbums) {
+            var result = birthdayService.resolveReleaseDate(album.getId(), album.getTitle(),
+                    album.getArtist().getName(), album.getMusicBrainzId());
+            if (result.isPresent()) {
+                collectionService.updateAlbumReleaseDate(album.getMusicBrainzId(), result.get().getReleaseDate());
+                resolved++;
+            }
+        }
+
+        Notification.show("Retried " + failedAlbums.size() + " lookups, resolved " + resolved);
+        searchField.clear();
+        refreshGrid();
+    }
+
+    private void retryMusicBrainzLookup(Album album) {
+        if (collectionService.isScanInProgress()) {
+            Notification.show("A scan is in progress — please wait until it finishes");
+            return;
+        }
+        var result = birthdayService.resolveReleaseDate(album.getId(), album.getTitle(),
+                album.getArtist().getName(), album.getMusicBrainzId());
+
+        if (result.isPresent()) {
+            var birthday = result.get();
+            collectionService.updateAlbumReleaseDate(album.getMusicBrainzId(), birthday.getReleaseDate());
+            Notification.show("Found release date: " + birthday.getReleaseDate());
+            searchField.clear();
+            refreshGrid();
+        } else {
+            Notification.show("MusicBrainz still has no release date for this album");
+        }
     }
 
     @SuppressWarnings("unchecked")

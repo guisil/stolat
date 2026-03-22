@@ -16,8 +16,7 @@ Modulith for modular architecture, MusicBrainz API for release date lookups, Fly
 for migrations, Testcontainers + Karibu Testing for tests.
 
 **Branch:** `main`
-**Current release:** v0.1.3
-**Dev version:** 0.1.4-SNAPSHOT
+**Current release:** v0.1.4
 **Tests:** 102 passing (`mvn test -Dsurefire.useFile=false`)
 **Deployed:** Raspberry Pi (Docker, Ubuntu Server 24.04)
 
@@ -88,7 +87,7 @@ for migrations, Testcontainers + Karibu Testing for tests.
 | `stolat.notification.cron` | `0 0 8 * * *` | Daily digest (8am) |
 | `stolat.notification.send-on-startup` | `false` | Send digest on startup |
 | `stolat.volumio.url` | (none, opt-in) | Volumio instance URL |
-| `stolat.user-agent` | `StoLat/0.1.4-SNAPSHOT (...)` | User-Agent for APIs |
+| `stolat.user-agent` | `StoLat/0.1.4 (...)` | User-Agent for APIs |
 
 ---
 

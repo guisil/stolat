@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import app.stolat.collection.internal.AlbumRepository;
@@ -42,6 +43,7 @@ public class CollectionService {
     private final MusicBrainzSearchClient musicBrainzSearchClient;
     private final VolumioClient volumioClient;
     private final TransactionTemplate transactionTemplate;
+    private final AtomicInteger activeScans = new AtomicInteger(0);
 
     public CollectionService(FileScanner fileScanner,
                              TagReader tagReader,
@@ -77,6 +79,10 @@ public class CollectionService {
         return albumRepository.findAllActive();
     }
 
+    public boolean isScanInProgress() {
+        return activeScans.get() > 0;
+    }
+
     public void playAlbumOnVolumio(String albumTitle, String artistName) {
         if (volumioClient == null) {
             throw new IllegalStateException("Volumio is not configured");
@@ -102,6 +108,15 @@ public class CollectionService {
 
     @Transactional(propagation = org.springframework.transaction.annotation.Propagation.NEVER)
     public List<Album> scanDirectory(Path rootDirectory) {
+        activeScans.incrementAndGet();
+        try {
+            return doScanDirectory(rootDirectory);
+        } finally {
+            activeScans.decrementAndGet();
+        }
+    }
+
+    private List<Album> doScanDirectory(Path rootDirectory) {
         log.info("Scanning directory: {}", rootDirectory);
         var files = fileScanner.scan(rootDirectory);
         log.info("Found {} audio files", files.size());
@@ -218,6 +233,15 @@ public class CollectionService {
         if (discogsClient == null) {
             throw new IllegalStateException("Discogs is not configured");
         }
+        activeScans.incrementAndGet();
+        try {
+            return doScanDiscogs(username);
+        } finally {
+            activeScans.decrementAndGet();
+        }
+    }
+
+    private List<Album> doScanDiscogs(String username) {
 
         log.info("Scanning Discogs collection for user: {}", username);
 
