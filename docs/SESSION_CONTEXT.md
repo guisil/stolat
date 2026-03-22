@@ -17,6 +17,7 @@ for migrations, Testcontainers + Karibu Testing for tests.
 
 **Branch:** `main`
 **Current release:** v0.1.5
+**Dev version:** 0.1.6-SNAPSHOT
 **Tests:** 102 passing (`mvn test -Dsurefire.useFile=false`)
 **Deployed:** Raspberry Pi (Docker, Ubuntu Server 24.04)
 
