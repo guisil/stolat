@@ -162,10 +162,10 @@ class CollectionServiceTest {
         given(fileScanner.scan(rootDir)).willReturn(List.of(track1Path, track2Path));
         given(tagReader.read(track1Path)).willReturn(Optional.of(
                 new AudioFileMetadata("Radiohead", artistMbid, "OK Computer", albumMbid,
-                        "Airbag", 1, 1, UUID.randomUUID())));
+                        "Airbag", 1, 1, UUID.randomUUID(), null)));
         given(tagReader.read(track2Path)).willReturn(Optional.of(
                 new AudioFileMetadata("Radiohead", artistMbid, "OK Computer", albumMbid,
-                        "Paranoid Android", 2, 1, UUID.randomUUID())));
+                        "Paranoid Android", 2, 1, UUID.randomUUID(), null)));
         given(artistRepository.findByMusicBrainzId(artistMbid)).willReturn(Optional.empty());
         given(artistRepository.save(any(Artist.class))).willAnswer(invocation -> invocation.getArgument(0));
         given(albumRepository.save(any(Album.class))).willAnswer(invocation -> invocation.getArgument(0));
@@ -181,6 +181,32 @@ class CollectionServiceTest {
     }
 
     @Test
+    void shouldScanAndImportAlbumsWithoutMusicBrainzId() {
+        var rootDir = Path.of("/music");
+        var trackPath = Path.of("/music/SomeArtist/SomeAlbum/01 - Track.flac");
+
+        given(fileScanner.scan(rootDir)).willReturn(List.of(trackPath));
+        given(tagReader.read(trackPath)).willReturn(Optional.of(
+                new AudioFileMetadata("Some Artist", null, "Some Album", null,
+                        "Track", 1, 1, null, 2020)));
+        given(artistRepository.findByNameIgnoreCase("Some Artist")).willReturn(Optional.empty());
+        given(artistRepository.save(any(Artist.class))).willAnswer(invocation -> invocation.getArgument(0));
+        given(albumRepository.findByTitleAndArtistNameIgnoreCase("Some Album", "Some Artist"))
+                .willReturn(Optional.empty());
+        given(albumRepository.save(any(Album.class))).willAnswer(invocation -> invocation.getArgument(0));
+        given(albumRepository.findByFormat(AlbumFormat.DIGITAL)).willReturn(List.of());
+
+        var albums = collectionService.scanDirectory(rootDir);
+
+        assertThat(albums).hasSize(1);
+        assertThat(albums.getFirst().getTitle()).isEqualTo("Some Album");
+        assertThat(albums.getFirst().getMusicBrainzId()).isNull();
+        assertThat(albums.getFirst().getReleaseDate()).isEqualTo(LocalDate.of(2020, 1, 1));
+        then(eventPublisher).should(never()).publishEvent(any(AlbumDiscoveredEvent.class));
+        then(eventPublisher).should(never()).publishEvent(any(AlbumReleaseDateResolvedEvent.class));
+    }
+
+    @Test
     void shouldSkipFilesWithUnreadableTags() {
         var rootDir = Path.of("/music");
         var artistMbid = UUID.randomUUID();
@@ -191,7 +217,7 @@ class CollectionServiceTest {
         given(fileScanner.scan(rootDir)).willReturn(List.of(goodFile, badFile));
         given(tagReader.read(goodFile)).willReturn(Optional.of(
                 new AudioFileMetadata("Radiohead", artistMbid, "OK Computer", albumMbid,
-                        "Airbag", 1, 1, UUID.randomUUID())));
+                        "Airbag", 1, 1, UUID.randomUUID(), null)));
         given(tagReader.read(badFile)).willReturn(Optional.empty());
         given(artistRepository.findByMusicBrainzId(artistMbid)).willReturn(Optional.empty());
         given(artistRepository.save(any(Artist.class))).willAnswer(invocation -> invocation.getArgument(0));
@@ -213,6 +239,21 @@ class CollectionServiceTest {
         given(albumRepository.save(album)).willReturn(album);
 
         collectionService.updateAlbumReleaseDate(albumMbid, releaseDate);
+
+        assertThat(album.getReleaseDate()).isEqualTo(releaseDate);
+        then(albumRepository).should().save(album);
+    }
+
+    @Test
+    void shouldUpdateAlbumReleaseDateById() {
+        var albumId = UUID.randomUUID();
+        var releaseDate = LocalDate.of(2015, 1, 19);
+        var artist = new Artist("Anushka", UUID.randomUUID());
+        var album = new Album("Kisses", artist, 12345L);
+        given(albumRepository.findById(albumId)).willReturn(Optional.of(album));
+        given(albumRepository.save(album)).willReturn(album);
+
+        collectionService.updateAlbumReleaseDateById(albumId, releaseDate);
 
         assertThat(album.getReleaseDate()).isEqualTo(releaseDate);
         then(albumRepository).should().save(album);
@@ -287,7 +328,7 @@ class CollectionServiceTest {
         given(fileScanner.scan(rootDir)).willReturn(List.of(track1Path));
         given(tagReader.read(track1Path)).willReturn(Optional.of(
                 new AudioFileMetadata("Radiohead", artistMbid, "OK Computer", albumMbid,
-                        "Airbag", 1, 1, UUID.randomUUID())));
+                        "Airbag", 1, 1, UUID.randomUUID(), null)));
         given(artistRepository.findByMusicBrainzId(artistMbid)).willReturn(Optional.empty());
         given(artistRepository.save(any(Artist.class))).willAnswer(invocation -> invocation.getArgument(0));
         given(albumRepository.save(any(Album.class))).willAnswer(invocation -> invocation.getArgument(0));

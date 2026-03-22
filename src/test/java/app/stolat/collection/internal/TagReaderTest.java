@@ -45,6 +45,7 @@ class TagReaderTest {
         given(tag.getFirst(FieldKey.TRACK)).willReturn("2");
         given(tag.getFirst(FieldKey.DISC_NO)).willReturn("1");
         given(tag.getFirst(FieldKey.MUSICBRAINZ_TRACK_ID)).willReturn(trackMbid);
+        given(tag.getFirst(FieldKey.YEAR)).willReturn("1997");
 
         try (MockedStatic<AudioFileIO> audioFileIO = mockStatic(AudioFileIO.class)) {
             audioFileIO.when(() -> AudioFileIO.read(path.toFile())).thenReturn(audioFile);
@@ -60,6 +61,7 @@ class TagReaderTest {
             assertThat(metadata.get().trackNumber()).isEqualTo(2);
             assertThat(metadata.get().discNumber()).isEqualTo(1);
             assertThat(metadata.get().trackMusicBrainzId()).hasToString(trackMbid);
+            assertThat(metadata.get().year()).isEqualTo(1997);
         }
     }
 

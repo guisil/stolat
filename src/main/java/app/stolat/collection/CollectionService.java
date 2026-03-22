@@ -92,6 +92,14 @@ public class CollectionService {
                 });
     }
 
+    public void updateAlbumReleaseDateById(UUID albumId, LocalDate releaseDate) {
+        albumRepository.findById(albumId)
+                .ifPresent(album -> {
+                    album.updateReleaseDate(releaseDate);
+                    albumRepository.save(album);
+                });
+    }
+
     @Transactional(propagation = org.springframework.transaction.annotation.Propagation.NEVER)
     public List<Album> scanDirectory(Path rootDirectory) {
         log.info("Scanning directory: {}", rootDirectory);
@@ -106,15 +114,32 @@ public class CollectionService {
         var scannedMusicBrainzIds = new HashSet<UUID>();
 
         for (var dirFiles : filesByDirectory.values()) {
-            var albumGroups = dirFiles.stream()
+            var allMetadata = dirFiles.stream()
                     .map(tagReader::read)
                     .flatMap(java.util.Optional::stream)
+                    .toList();
+
+            // Albums with MusicBrainz IDs — group by MBID
+            var mbidGroups = allMetadata.stream()
                     .filter(m -> m.albumMusicBrainzId() != null)
                     .collect(Collectors.groupingBy(AudioFileMetadata::albumMusicBrainzId));
 
-            for (var group : albumGroups.entrySet()) {
+            for (var group : mbidGroups.entrySet()) {
                 scannedMusicBrainzIds.add(group.getKey());
                 var album = transactionTemplate.execute(status -> importFromMetadata(group.getValue()));
+                if (album != null) {
+                    importedAlbums.add(album);
+                }
+            }
+
+            // Albums without MusicBrainz IDs — group by artist+title
+            var noMbidGroups = allMetadata.stream()
+                    .filter(m -> m.albumMusicBrainzId() == null)
+                    .filter(m -> m.albumTitle() != null && !m.albumTitle().isBlank())
+                    .collect(Collectors.groupingBy(m -> m.artistName() + "\0" + m.albumTitle()));
+
+            for (var group : noMbidGroups.values()) {
+                var album = transactionTemplate.execute(status -> importFromMetadataWithoutMbid(group));
                 if (album != null) {
                     importedAlbums.add(album);
                 }
@@ -136,34 +161,56 @@ public class CollectionService {
     public Album importAlbum(String artistName, UUID artistMusicBrainzId,
                              String albumTitle, UUID albumMusicBrainzId,
                              AlbumFormat format, List<TrackData> tracks) {
-        var existing = albumRepository.findByMusicBrainzId(albumMusicBrainzId);
-        if (existing.isPresent()) {
-            var album = existing.get();
-            if (!album.hasFormat(format)) {
-                album.addFormat(format);
-                albumRepository.save(album);
+        if (albumMusicBrainzId != null) {
+            var existing = albumRepository.findByMusicBrainzId(albumMusicBrainzId);
+            if (existing.isPresent()) {
+                var album = existing.get();
+                if (!album.hasFormat(format)) {
+                    album.addFormat(format);
+                    albumRepository.save(album);
+                }
+                return album;
             }
-            return album;
         }
 
-        var artist = artistRepository.findByMusicBrainzId(artistMusicBrainzId)
-                .orElseGet(() -> artistRepository.save(new Artist(artistName, artistMusicBrainzId)));
+        var artist = artistMusicBrainzId != null
+                ? artistRepository.findByMusicBrainzId(artistMusicBrainzId)
+                        .orElseGet(() -> artistRepository.save(new Artist(artistName, artistMusicBrainzId)))
+                : artistRepository.findByNameIgnoreCase(artistName)
+                        .orElseGet(() -> artistRepository.save(new Artist(artistName)));
 
-        var newAlbum = new Album(albumTitle, albumMusicBrainzId, artist);
-        newAlbum.addFormat(format);
-        var savedAlbum = albumRepository.save(newAlbum);
+        Album savedAlbum;
+        if (albumMusicBrainzId != null) {
+            savedAlbum = new Album(albumTitle, albumMusicBrainzId, artist);
+        } else {
+            // Check for existing by artist+title to avoid duplicates
+            var byArtistTitle = albumRepository.findByTitleAndArtistNameIgnoreCase(albumTitle, artistName);
+            if (byArtistTitle.isPresent()) {
+                var album = byArtistTitle.get();
+                if (!album.hasFormat(format)) {
+                    album.addFormat(format);
+                    albumRepository.save(album);
+                }
+                return album;
+            }
+            savedAlbum = new Album(albumTitle, artist, null);
+        }
+        savedAlbum.addFormat(format);
+        var persisted = albumRepository.save(savedAlbum);
 
         if (!tracks.isEmpty()) {
             var trackEntities = tracks.stream()
-                    .map(td -> new Track(td.title(), td.trackNumber(), td.discNumber(), td.musicBrainzId(), savedAlbum))
+                    .map(td -> new Track(td.title(), td.trackNumber(), td.discNumber(), td.musicBrainzId(), persisted))
                     .toList();
             trackRepository.saveAll(trackEntities);
         }
 
-        eventPublisher.publishEvent(new AlbumDiscoveredEvent(
-                savedAlbum.getId(), savedAlbum.getTitle(), artist.getName(), savedAlbum.getMusicBrainzId()));
+        if (albumMusicBrainzId != null) {
+            eventPublisher.publishEvent(new AlbumDiscoveredEvent(
+                    persisted.getId(), persisted.getTitle(), artist.getName(), persisted.getMusicBrainzId()));
+        }
 
-        return savedAlbum;
+        return persisted;
     }
 
     @Transactional(propagation = org.springframework.transaction.annotation.Propagation.NEVER)
@@ -296,5 +343,21 @@ public class CollectionService {
                 .toList();
         return importAlbum(first.artistName(), first.artistMusicBrainzId(),
                 first.albumTitle(), first.albumMusicBrainzId(), AlbumFormat.DIGITAL, tracks);
+    }
+
+    private Album importFromMetadataWithoutMbid(List<AudioFileMetadata> trackMetadataList) {
+        var first = trackMetadataList.getFirst();
+        var tracks = trackMetadataList.stream()
+                .map(m -> new TrackData(m.trackTitle(), m.trackNumber(), m.discNumber(), m.trackMusicBrainzId()))
+                .toList();
+        var album = importAlbum(first.artistName(), null,
+                first.albumTitle(), null, AlbumFormat.DIGITAL, tracks);
+
+        if (first.year() != null && album.getReleaseDate() == null) {
+            album.updateReleaseDate(LocalDate.of(first.year(), 1, 1));
+            albumRepository.save(album);
+        }
+
+        return album;
     }
 }

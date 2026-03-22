@@ -29,6 +29,7 @@ public class TagReader {
     }
 
     private AudioFileMetadata extractMetadata(Tag tag) {
+        var year = parseYear(tag.getFirst(FieldKey.YEAR));
         return new AudioFileMetadata(
                 tag.getFirst(FieldKey.ARTIST),
                 parseUuid(tag.getFirst(FieldKey.MUSICBRAINZ_ARTISTID)),
@@ -37,7 +38,8 @@ public class TagReader {
                 tag.getFirst(FieldKey.TITLE),
                 parseIntOrDefault(tag.getFirst(FieldKey.TRACK), 0),
                 parseIntOrDefault(tag.getFirst(FieldKey.DISC_NO), 1),
-                parseUuid(tag.getFirst(FieldKey.MUSICBRAINZ_TRACK_ID))
+                parseUuid(tag.getFirst(FieldKey.MUSICBRAINZ_TRACK_ID)),
+                year > 0 ? year : null
         );
     }
 
@@ -48,6 +50,18 @@ public class TagReader {
         try {
             return UUID.fromString(value);
         } catch (IllegalArgumentException e) {
+            return null;
+        }
+    }
+
+    private Integer parseYear(String value) {
+        if (value == null || value.isBlank()) return null;
+        try {
+            // Handle "2015", "2015-01-19", "2015-01" etc. — extract first 4 digits
+            var yearStr = value.length() >= 4 ? value.substring(0, 4) : value;
+            var year = Integer.parseInt(yearStr);
+            return year > 0 ? year : null;
+        } catch (NumberFormatException e) {
             return null;
         }
     }

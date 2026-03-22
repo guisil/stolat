@@ -1,6 +1,7 @@
 package app.stolat.birthday;
 
 import app.stolat.birthday.internal.AlbumBirthdayRepository;
+import app.stolat.birthday.internal.BandcampLookup;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -26,6 +27,9 @@ class BirthdayServiceTest {
 
     @Mock
     private ReleaseDateLookup releaseDateLookup;
+
+    @Mock
+    private BandcampLookup bandcampLookup;
 
     @InjectMocks
     private BirthdayService birthdayService;
@@ -199,5 +203,68 @@ class BirthdayServiceTest {
 
         assertThat(result).isEqualTo(existing);
         then(albumBirthdayRepository).should(never()).save(any());
+    }
+
+    @Test
+    void shouldResolveReleaseDateFromBandcamp() {
+        var albumId = UUID.randomUUID();
+        var releaseDate = LocalDate.of(2015, 1, 19);
+        var url = "https://anushka.bandcamp.com/album/kisses";
+        given(albumBirthdayRepository.findByAlbumId(albumId)).willReturn(Optional.empty());
+        given(bandcampLookup.lookUp(url)).willReturn(Optional.of(releaseDate));
+        given(albumBirthdayRepository.save(any(AlbumBirthday.class)))
+                .willAnswer(invocation -> invocation.getArgument(0));
+
+        var result = birthdayService.resolveReleaseDateFromBandcamp(albumId, "Kisses", "Anushka", url);
+
+        assertThat(result).isPresent();
+        assertThat(result.get().getReleaseDate()).isEqualTo(releaseDate);
+        assertThat(result.get().getReleaseDateSource()).isEqualTo(ReleaseDateSource.BANDCAMP);
+        then(albumBirthdayRepository).should().save(any(AlbumBirthday.class));
+    }
+
+    @Test
+    void shouldSkipBandcampWhenBirthdayAlreadyExists() {
+        var albumId = UUID.randomUUID();
+        var existing = new AlbumBirthday("Kisses", "Anushka",
+                albumId, null, LocalDate.of(2015, 1, 19), ReleaseDateSource.BANDCAMP);
+        given(albumBirthdayRepository.findByAlbumId(albumId)).willReturn(Optional.of(existing));
+
+        var result = birthdayService.resolveReleaseDateFromBandcamp(albumId, "Kisses", "Anushka",
+                "https://anushka.bandcamp.com/album/kisses");
+
+        assertThat(result).isPresent();
+        assertThat(result.get()).isEqualTo(existing);
+        then(bandcampLookup).shouldHaveNoInteractions();
+    }
+
+    @Test
+    void shouldReturnEmptyWhenBandcampLookupFails() {
+        var albumId = UUID.randomUUID();
+        var url = "https://example.bandcamp.com/album/nonexistent";
+        given(albumBirthdayRepository.findByAlbumId(albumId)).willReturn(Optional.empty());
+        given(bandcampLookup.lookUp(url)).willReturn(Optional.empty());
+
+        var result = birthdayService.resolveReleaseDateFromBandcamp(albumId, "X", "Y", url);
+
+        assertThat(result).isEmpty();
+        then(albumBirthdayRepository).should(never()).save(any());
+    }
+
+    @Test
+    void shouldFindAlbumIdsWithBirthdays() {
+        var albumId1 = UUID.randomUUID();
+        var albumId2 = UUID.randomUUID();
+        var b1 = new AlbumBirthday("A", "B", albumId1, UUID.randomUUID(),
+                LocalDate.of(1997, 6, 16), ReleaseDateSource.MUSICBRAINZ);
+        var b2 = new AlbumBirthday("C", "D", albumId2, null,
+                LocalDate.of(2020, 1, 1), ReleaseDateSource.DISCOGS);
+        // Birthday without albumId (legacy)
+        var b3 = new AlbumBirthday("E", "F", UUID.randomUUID(), LocalDate.of(2000, 1, 1));
+        given(albumBirthdayRepository.findAll()).willReturn(List.of(b1, b2, b3));
+
+        var result = birthdayService.findAlbumIdsWithBirthdays();
+
+        assertThat(result).containsExactlyInAnyOrder(albumId1, albumId2);
     }
 }

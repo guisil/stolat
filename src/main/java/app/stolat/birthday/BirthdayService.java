@@ -2,13 +2,16 @@ package app.stolat.birthday;
 
 import java.time.LocalDate;
 import java.time.MonthDay;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import app.stolat.birthday.internal.AlbumBirthdayRepository;
+import app.stolat.birthday.internal.BandcampLookup;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -20,11 +23,14 @@ public class BirthdayService {
 
     private final AlbumBirthdayRepository albumBirthdayRepository;
     private final ReleaseDateLookup releaseDateLookup;
+    private final BandcampLookup bandcampLookup;
 
     public BirthdayService(AlbumBirthdayRepository albumBirthdayRepository,
-                           ReleaseDateLookup releaseDateLookup) {
+                           ReleaseDateLookup releaseDateLookup,
+                           BandcampLookup bandcampLookup) {
         this.albumBirthdayRepository = albumBirthdayRepository;
         this.releaseDateLookup = releaseDateLookup;
+        this.bandcampLookup = bandcampLookup;
     }
 
     public Map<UUID, LocalDate> findReleaseDatesByMusicBrainzId() {
@@ -83,5 +89,30 @@ public class BirthdayService {
                 .orElseGet(() -> albumBirthdayRepository.save(
                         new AlbumBirthday(albumTitle, artistName, albumId, null,
                                 releaseDate, source)));
+    }
+
+    public Optional<AlbumBirthday> resolveReleaseDateFromBandcamp(UUID albumId,
+                                                                    String albumTitle,
+                                                                    String artistName,
+                                                                    String bandcampUrl) {
+        var existing = albumBirthdayRepository.findByAlbumId(albumId);
+        if (existing.isPresent()) {
+            return existing;
+        }
+
+        return bandcampLookup.lookUp(bandcampUrl)
+                .map(releaseDate -> albumBirthdayRepository.save(
+                        new AlbumBirthday(albumTitle, artistName, albumId, null,
+                                releaseDate, ReleaseDateSource.BANDCAMP)));
+    }
+
+    public Set<UUID> findAlbumIdsWithBirthdays() {
+        var result = new HashSet<UUID>();
+        for (var birthday : albumBirthdayRepository.findAll()) {
+            if (birthday.getAlbumId() != null) {
+                result.add(birthday.getAlbumId());
+            }
+        }
+        return result;
     }
 }

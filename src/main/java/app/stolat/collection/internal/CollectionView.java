@@ -1,6 +1,8 @@
 package app.stolat.collection.internal;
 
 import java.nio.file.Path;
+import java.time.MonthDay;
+import java.time.format.DateTimeFormatter;
 import java.util.concurrent.CompletableFuture;
 
 import app.stolat.MainLayout;
@@ -69,11 +71,33 @@ public class CollectionView extends VerticalLayout {
         formatFilter.setValue(savedFormat != null ? savedFormat : ALL);
         formatFilter.setLabel("Format");
 
+        var monthDayFormatter = DateTimeFormatter.ofPattern("MMM dd");
+
         grid = new Grid<>(Album.class, false);
         grid.setMultiSort(true);
         var artistColumn = grid.addColumn(album -> album.getArtist().getName()).setHeader("Artist").setSortable(true);
         grid.addColumn(Album::getTitle).setHeader("Album").setSortable(true);
-        var releaseDateColumn = grid.addColumn(Album::getReleaseDate).setHeader("Release Date").setSortable(true);
+        var birthdayColumn = grid.addColumn(album -> {
+            var date = album.getReleaseDate();
+            if (date == null) return "";
+            // Year-only dates (Jan 1) show empty birthday
+            if (date.getMonthValue() == 1 && date.getDayOfMonth() == 1) return "";
+            return MonthDay.from(date).format(monthDayFormatter);
+        }).setHeader("Birthday").setSortable(true).setWidth("120px").setFlexGrow(0)
+                .setComparator((a, b) -> {
+                    if (a.getReleaseDate() == null && b.getReleaseDate() == null) return 0;
+                    if (a.getReleaseDate() == null) return 1;
+                    if (b.getReleaseDate() == null) return -1;
+                    return MonthDay.from(a.getReleaseDate()).compareTo(MonthDay.from(b.getReleaseDate()));
+                });
+        var yearColumn = grid.addColumn(album -> album.getReleaseDate() != null ? album.getReleaseDate().getYear() : null)
+                .setHeader("Year").setSortable(true).setWidth("90px").setFlexGrow(0)
+                .setComparator((a, b) -> {
+                    if (a.getReleaseDate() == null && b.getReleaseDate() == null) return 0;
+                    if (a.getReleaseDate() == null) return 1;
+                    if (b.getReleaseDate() == null) return -1;
+                    return Integer.compare(a.getReleaseDate().getYear(), b.getReleaseDate().getYear());
+                });
         grid.addComponentColumn(album -> {
             var formats = album.getFormats();
             if (formats.isEmpty()) return new Span();
@@ -97,7 +121,8 @@ public class CollectionView extends VerticalLayout {
         grid.setSizeFull();
         grid.getColumns().forEach(c -> c.setResizable(true));
         grid.sort(GridSortOrder.asc(artistColumn)
-                .thenAsc(releaseDateColumn).build());
+                .thenAsc(yearColumn)
+                .thenAsc(birthdayColumn).build());
 
         refreshGrid();
 

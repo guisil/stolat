@@ -10,6 +10,7 @@ public record AudioFileMetadata(
         String trackTitle,
         int trackNumber,
         int discNumber,
-        UUID trackMusicBrainzId
+        UUID trackMusicBrainzId,
+        Integer year
 ) {
 }
