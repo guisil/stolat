@@ -18,7 +18,7 @@ for migrations, Testcontainers + Karibu Testing for tests.
 **Branch:** `main`
 **Current release:** v0.1.5
 **Dev version:** 0.1.6-SNAPSHOT
-**Tests:** 102 passing (`mvn test -Dsurefire.useFile=false`)
+**Tests:** 104 passing (`mvn test -Dsurefire.useFile=false`)
 **Deployed:** Raspberry Pi (Docker, Ubuntu Server 24.04)
 
 ---
@@ -49,7 +49,9 @@ for migrations, Testcontainers + Karibu Testing for tests.
 
 - **Scan pipeline:** filesystem walk → group by directory → read tags per directory →
   import album → commit (progressive, directory-by-directory). Albums without MusicBrainz
-  tags are imported too (grouped by artist+title, year extracted from date tag).
+  tags are imported too (grouped by artist+title, year extracted from date tag). TagReader
+  prefers ALBUM_ARTIST over ARTIST (fixes compilation album grouping). Re-scan merges
+  newly-added MusicBrainz IDs into existing albums matched by artist+title.
 - **Discogs import:** paginated fetch → match by discogsId/artist+title/MusicBrainz search →
   import with VINYL format. Captures release year as fallback date. Partial fetch skips
   reconciliation. Artist disambiguation stripping handles any parenthesized suffix.
@@ -68,7 +70,8 @@ for migrations, Testcontainers + Karibu Testing for tests.
   multi-sort, full-height grid), CollectionView at `/collection` (format filter,
   scan buttons, search, multi-sort, split Birthday/Year columns),
   MissingBirthdaysView at `/missing-birthdays` (status filter, Bandcamp URL dialog,
-  year column). Filter state persists across navigation via VaadinSession.
+  year column, retry button for all albums). CollectionView shows total album count.
+  Filter state persists across navigation via VaadinSession.
 
 ---
 
@@ -103,6 +106,11 @@ for migrations, Testcontainers + Karibu Testing for tests.
 - Views are @AnonymousAllowed (auth deferred — TODO: DB-backed auth)
 - SecurityConfig has in-memory user (user/stolat) with TODO for replacement
 - Version displayed in drawer footer via BuildProperties
+
+## Known Gaps
+
+- Reconciliation only covers MBID albums — non-MBID digital albums are never removed
+  when files disappear (ghost entries persist with DIGITAL format)
 
 ## What's Next
 
