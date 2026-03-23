@@ -96,6 +96,36 @@ class TagReaderTest {
     }
 
     @Test
+    void shouldReadMetadataWhenYearTagIsMissing() throws Exception {
+        var albumMbid = UUID.randomUUID().toString();
+        var path = Path.of("/music/Artist/Album/01 - Track.flac");
+
+        var audioFile = mock(AudioFile.class);
+        var tag = mock(Tag.class);
+        given(audioFile.getTag()).willReturn(tag);
+        given(tag.getFirst(FieldKey.ALBUM_ARTIST)).willReturn("");
+        given(tag.getFirst(FieldKey.ARTIST)).willReturn("Artist");
+        given(tag.getFirst(FieldKey.MUSICBRAINZ_ARTISTID)).willReturn("");
+        given(tag.getFirst(FieldKey.ALBUM)).willReturn("Album");
+        given(tag.getFirst(FieldKey.MUSICBRAINZ_RELEASE_GROUP_ID)).willReturn(albumMbid);
+        given(tag.getFirst(FieldKey.TITLE)).willReturn("Track");
+        given(tag.getFirst(FieldKey.TRACK)).willReturn("1");
+        given(tag.getFirst(FieldKey.DISC_NO)).willReturn("1");
+        given(tag.getFirst(FieldKey.MUSICBRAINZ_TRACK_ID)).willReturn("");
+        given(tag.getFirst(FieldKey.YEAR)).willReturn("");
+
+        try (MockedStatic<AudioFileIO> audioFileIO = mockStatic(AudioFileIO.class)) {
+            audioFileIO.when(() -> AudioFileIO.read(path.toFile())).thenReturn(audioFile);
+
+            var metadata = tagReader.read(path);
+
+            assertThat(metadata).isPresent();
+            assertThat(metadata.get().albumTitle()).isEqualTo("Album");
+            assertThat(metadata.get().year()).isNull();
+        }
+    }
+
+    @Test
     void shouldReturnEmptyWhenTagIsMissing() throws Exception {
         var path = Path.of("/music/unknown.flac");
         var audioFile = mock(AudioFile.class);

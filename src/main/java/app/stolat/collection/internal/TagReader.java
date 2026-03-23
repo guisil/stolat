@@ -40,7 +40,7 @@ public class TagReader {
                 parseIntOrDefault(tag.getFirst(FieldKey.TRACK), 0),
                 parseIntOrDefault(tag.getFirst(FieldKey.DISC_NO), 1),
                 parseUuid(tag.getFirst(FieldKey.MUSICBRAINZ_TRACK_ID)),
-                year > 0 ? year : null
+                year != null && year > 0 ? year : null
         );
     }
 
