@@ -37,6 +37,7 @@ class TagReaderTest {
         var audioFile = mock(AudioFile.class);
         var tag = mock(Tag.class);
         given(audioFile.getTag()).willReturn(tag);
+        given(tag.getFirst(FieldKey.ALBUM_ARTIST)).willReturn("");
         given(tag.getFirst(FieldKey.ARTIST)).willReturn("Radiohead");
         given(tag.getFirst(FieldKey.MUSICBRAINZ_ARTISTID)).willReturn(artistMbid);
         given(tag.getFirst(FieldKey.ALBUM)).willReturn("OK Computer");
@@ -62,6 +63,35 @@ class TagReaderTest {
             assertThat(metadata.get().discNumber()).isEqualTo(1);
             assertThat(metadata.get().trackMusicBrainzId()).hasToString(trackMbid);
             assertThat(metadata.get().year()).isEqualTo(1997);
+        }
+    }
+
+    @Test
+    void shouldPreferAlbumArtistOverTrackArtist() throws Exception {
+        var albumMbid = UUID.randomUUID().toString();
+        var path = Path.of("/music/Various Artists/[2010] Compilation/01 - Track.flac");
+
+        var audioFile = mock(AudioFile.class);
+        var tag = mock(Tag.class);
+        given(audioFile.getTag()).willReturn(tag);
+        given(tag.getFirst(FieldKey.ALBUM_ARTIST)).willReturn("Various Artists");
+        given(tag.getFirst(FieldKey.ARTIST)).willReturn("Some Track Artist");
+        given(tag.getFirst(FieldKey.MUSICBRAINZ_ARTISTID)).willReturn("");
+        given(tag.getFirst(FieldKey.ALBUM)).willReturn("Compilation");
+        given(tag.getFirst(FieldKey.MUSICBRAINZ_RELEASE_GROUP_ID)).willReturn(albumMbid);
+        given(tag.getFirst(FieldKey.TITLE)).willReturn("Track");
+        given(tag.getFirst(FieldKey.TRACK)).willReturn("1");
+        given(tag.getFirst(FieldKey.DISC_NO)).willReturn("1");
+        given(tag.getFirst(FieldKey.MUSICBRAINZ_TRACK_ID)).willReturn("");
+        given(tag.getFirst(FieldKey.YEAR)).willReturn("2010");
+
+        try (MockedStatic<AudioFileIO> audioFileIO = mockStatic(AudioFileIO.class)) {
+            audioFileIO.when(() -> AudioFileIO.read(path.toFile())).thenReturn(audioFile);
+
+            var metadata = tagReader.read(path);
+
+            assertThat(metadata).isPresent();
+            assertThat(metadata.get().artistName()).isEqualTo("Various Artists");
         }
     }
 

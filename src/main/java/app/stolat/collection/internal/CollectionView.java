@@ -44,6 +44,7 @@ public class CollectionView extends VerticalLayout {
     private final String musicDirectory;
     private final String discogsUsername;
     private Grid<Album> grid;
+    private Span countLabel;
     private TextField searchField;
     private Select<String> formatFilter;
 
@@ -60,6 +61,8 @@ public class CollectionView extends VerticalLayout {
         var savedSearch = (String) session.getAttribute("collection.search");
 
         var heading = new H2("Collection");
+
+        countLabel = new Span();
 
         searchField = new TextField();
         searchField.setPlaceholder("Search...");
@@ -153,7 +156,7 @@ public class CollectionView extends VerticalLayout {
 
         toolbar.add(formatFilter, searchField);
         toolbar.setDefaultVerticalComponentAlignment(Alignment.BASELINE);
-        add(heading, toolbar, grid);
+        add(heading, countLabel, toolbar, grid);
     }
 
     private void startScan() {
@@ -211,6 +214,7 @@ public class CollectionView extends VerticalLayout {
             case VINYL -> collectionService.findAlbumsByFormat(AlbumFormat.VINYL);
             default -> collectionService.findAllActiveAlbums();
         };
+        countLabel.setText(albums.size() + " albums");
         grid.setItems(new ListDataProvider<>(albums));
     }
 

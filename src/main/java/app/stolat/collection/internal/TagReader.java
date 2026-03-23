@@ -30,8 +30,9 @@ public class TagReader {
 
     private AudioFileMetadata extractMetadata(Tag tag) {
         var year = parseYear(tag.getFirst(FieldKey.YEAR));
+        var artistName = firstNonBlank(tag.getFirst(FieldKey.ALBUM_ARTIST), tag.getFirst(FieldKey.ARTIST));
         return new AudioFileMetadata(
-                tag.getFirst(FieldKey.ARTIST),
+                artistName,
                 parseUuid(tag.getFirst(FieldKey.MUSICBRAINZ_ARTISTID)),
                 tag.getFirst(FieldKey.ALBUM),
                 parseUuid(tag.getFirst(FieldKey.MUSICBRAINZ_RELEASE_GROUP_ID)),
@@ -64,6 +65,15 @@ public class TagReader {
         } catch (NumberFormatException e) {
             return null;
         }
+    }
+
+    private String firstNonBlank(String... values) {
+        for (var value : values) {
+            if (value != null && !value.isBlank()) {
+                return value;
+            }
+        }
+        return null;
     }
 
     private int parseIntOrDefault(String value, int defaultValue) {

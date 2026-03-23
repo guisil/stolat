@@ -370,6 +370,27 @@ class CollectionServiceTest {
         assertThat(albums.getFirst().getTitle()).isEqualTo("OK Computer");
     }
 
+    @Test
+    void shouldMergeNewMusicBrainzIdIntoExistingAlbumByArtistAndTitle() {
+        var artistMbid = UUID.randomUUID();
+        var albumMbid = UUID.randomUUID();
+        var existingArtist = new Artist("Some Artist");
+        var existingAlbum = new Album("Some Album", existingArtist, null);
+        existingAlbum.addFormat(AlbumFormat.DIGITAL);
+
+        given(albumRepository.findByMusicBrainzId(albumMbid)).willReturn(Optional.empty());
+        given(artistRepository.findByMusicBrainzId(artistMbid)).willReturn(Optional.of(existingArtist));
+        given(albumRepository.findByTitleAndArtistNameIgnoreCase("Some Album", "Some Artist"))
+                .willReturn(Optional.of(existingAlbum));
+        given(albumRepository.save(existingAlbum)).willReturn(existingAlbum);
+
+        var album = collectionService.importAlbum("Some Artist", artistMbid, "Some Album", albumMbid);
+
+        assertThat(album).isEqualTo(existingAlbum);
+        assertThat(album.getMusicBrainzId()).isEqualTo(albumMbid);
+        then(eventPublisher).should().publishEvent(any(AlbumDiscoveredEvent.class));
+    }
+
     // --- Discogs scan tests ---
 
     @Test

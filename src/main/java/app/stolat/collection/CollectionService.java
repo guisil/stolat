@@ -196,6 +196,19 @@ public class CollectionService {
 
         Album savedAlbum;
         if (albumMusicBrainzId != null) {
+            // Check if album exists by artist+title (e.g., previously imported without MBID)
+            var byArtistTitle = albumRepository.findByTitleAndArtistNameIgnoreCase(albumTitle, artistName);
+            if (byArtistTitle.isPresent()) {
+                var album = byArtistTitle.get();
+                album.assignMusicBrainzId(albumMusicBrainzId);
+                if (!album.hasFormat(format)) {
+                    album.addFormat(format);
+                }
+                albumRepository.save(album);
+                eventPublisher.publishEvent(new AlbumDiscoveredEvent(
+                        album.getId(), album.getTitle(), artist.getName(), albumMusicBrainzId));
+                return album;
+            }
             savedAlbum = new Album(albumTitle, albumMusicBrainzId, artist);
         } else {
             // Check for existing by artist+title to avoid duplicates

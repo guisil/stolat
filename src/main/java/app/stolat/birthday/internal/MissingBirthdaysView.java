@@ -106,13 +106,11 @@ public class MissingBirthdaysView extends VerticalLayout {
             var actions = new HorizontalLayout();
             actions.setSpacing(false);
 
-            if (album.getMusicBrainzId() != null) {
-                var retryButton = new Button(VaadinIcon.REFRESH.create());
-                retryButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-                retryButton.setTooltipText("Retry MusicBrainz lookup");
-                retryButton.addClickListener(e -> retryMusicBrainzLookup(album));
-                actions.add(retryButton);
-            }
+            var retryButton = new Button(VaadinIcon.REFRESH.create());
+            retryButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+            retryButton.setTooltipText("Retry MusicBrainz lookup");
+            retryButton.addClickListener(e -> retryMusicBrainzLookup(album));
+            actions.add(retryButton);
 
             var bandcampButton = new Button(VaadinIcon.SEARCH.create());
             bandcampButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
@@ -217,14 +215,19 @@ public class MissingBirthdaysView extends VerticalLayout {
         var albumIdsWithBirthdays = birthdayService.findAlbumIdsWithBirthdays();
         var releaseDatesByMbid = birthdayService.findReleaseDatesByMusicBrainzId();
 
-        var failedAlbums = collectionService.findAllActiveAlbums().stream()
-                .filter(album -> album.getMusicBrainzId() != null)
+        var missingAlbums = collectionService.findAllActiveAlbums().stream()
                 .filter(album -> !albumIdsWithBirthdays.contains(album.getId()))
-                .filter(album -> !releaseDatesByMbid.containsKey(album.getMusicBrainzId()))
+                .filter(album -> album.getMusicBrainzId() == null
+                        || !releaseDatesByMbid.containsKey(album.getMusicBrainzId()))
                 .toList();
 
         int resolved = 0;
-        for (var album : failedAlbums) {
+        int skipped = 0;
+        for (var album : missingAlbums) {
+            if (album.getMusicBrainzId() == null) {
+                skipped++;
+                continue;
+            }
             var result = birthdayService.resolveReleaseDate(album.getId(), album.getTitle(),
                     album.getArtist().getName(), album.getMusicBrainzId());
             if (result.isPresent()) {
@@ -233,7 +236,13 @@ public class MissingBirthdaysView extends VerticalLayout {
             }
         }
 
-        Notification.show("Retried " + failedAlbums.size() + " lookups, resolved " + resolved);
+        var message = new StringBuilder();
+        message.append(missingAlbums.size()).append(" missing albums: ");
+        message.append("resolved ").append(resolved);
+        if (skipped > 0) {
+            message.append(", skipped ").append(skipped).append(" without MusicBrainz ID");
+        }
+        Notification.show(message.toString());
         searchField.clear();
         refreshGrid();
     }
@@ -241,6 +250,10 @@ public class MissingBirthdaysView extends VerticalLayout {
     private void retryMusicBrainzLookup(Album album) {
         if (collectionService.isScanInProgress()) {
             Notification.show("A scan is in progress — please wait until it finishes");
+            return;
+        }
+        if (album.getMusicBrainzId() == null) {
+            Notification.show("No MusicBrainz ID — re-scan your collection after tagging the files");
             return;
         }
         var result = birthdayService.resolveReleaseDate(album.getId(), album.getTitle(),
