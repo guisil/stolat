@@ -189,7 +189,7 @@ class CollectionServiceTest {
         given(tagReader.read(trackPath)).willReturn(Optional.of(
                 new AudioFileMetadata("Some Artist", null, "Some Album", null,
                         "Track", 1, 1, null, 2020)));
-        given(artistRepository.findByNameIgnoreCase("Some Artist")).willReturn(Optional.empty());
+        given(artistRepository.findByNameIgnoreCase("Some Artist")).willReturn(List.of());
         given(artistRepository.save(any(Artist.class))).willAnswer(invocation -> invocation.getArgument(0));
         given(albumRepository.findByTitleAndArtistNameIgnoreCase("Some Album", "Some Artist"))
                 .willReturn(Optional.empty());
@@ -391,6 +391,23 @@ class CollectionServiceTest {
         then(eventPublisher).should().publishEvent(any(AlbumDiscoveredEvent.class));
     }
 
+    @Test
+    void shouldImportAlbumWithoutMbidWhenDuplicateArtistsExist() {
+        var artistWithoutMbid = new Artist("Some Artist");
+        var artistWithMbid = new Artist("Some Artist", UUID.randomUUID());
+        given(albumRepository.findByTitleAndArtistNameIgnoreCase("Some Album", "Some Artist"))
+                .willReturn(Optional.empty());
+        given(artistRepository.findByNameIgnoreCase("Some Artist"))
+                .willReturn(List.of(artistWithoutMbid, artistWithMbid));
+        given(albumRepository.save(any(Album.class))).willAnswer(invocation -> invocation.getArgument(0));
+
+        var album = collectionService.importAlbum("Some Artist", null, "Some Album", null);
+
+        assertThat(album.getTitle()).isEqualTo("Some Album");
+        assertThat(album.getArtist().getName()).isEqualTo("Some Artist");
+        assertThat(album.getArtist()).isEqualTo(artistWithMbid);
+    }
+
     // --- Discogs scan tests ---
 
     @Test
@@ -402,7 +419,7 @@ class CollectionServiceTest {
                 .willReturn(Optional.empty());
         given(musicBrainzSearchClient.searchReleaseGroup("Radiohead", "OK Computer"))
                 .willReturn(Optional.empty());
-        given(artistRepository.findByNameIgnoreCase("Radiohead")).willReturn(Optional.empty());
+        given(artistRepository.findByNameIgnoreCase("Radiohead")).willReturn(List.of());
         given(artistRepository.save(any(Artist.class))).willAnswer(invocation -> invocation.getArgument(0));
         given(albumRepository.save(any(Album.class))).willAnswer(invocation -> invocation.getArgument(0));
         given(albumRepository.findByFormat(AlbumFormat.VINYL)).willReturn(List.of());
@@ -446,7 +463,7 @@ class CollectionServiceTest {
         given(musicBrainzSearchClient.searchReleaseGroup("Radiohead", "OK Computer"))
                 .willReturn(Optional.of(mbid));
         given(albumRepository.findByMusicBrainzId(mbid)).willReturn(Optional.empty());
-        given(artistRepository.findByNameIgnoreCase("Radiohead")).willReturn(Optional.empty());
+        given(artistRepository.findByNameIgnoreCase("Radiohead")).willReturn(List.of());
         given(artistRepository.save(any(Artist.class))).willAnswer(invocation -> invocation.getArgument(0));
         given(albumRepository.save(any(Album.class))).willAnswer(invocation -> invocation.getArgument(0));
         given(albumRepository.findByFormat(AlbumFormat.VINYL)).willReturn(List.of());
@@ -468,7 +485,7 @@ class CollectionServiceTest {
                 .willReturn(Optional.empty());
         given(musicBrainzSearchClient.searchReleaseGroup("Radiohead", "OK Computer"))
                 .willReturn(Optional.empty());
-        given(artistRepository.findByNameIgnoreCase("Radiohead")).willReturn(Optional.empty());
+        given(artistRepository.findByNameIgnoreCase("Radiohead")).willReturn(List.of());
         given(artistRepository.save(any(Artist.class))).willAnswer(invocation -> invocation.getArgument(0));
         given(albumRepository.save(any(Album.class))).willAnswer(invocation -> invocation.getArgument(0));
         given(albumRepository.findByFormat(AlbumFormat.VINYL)).willReturn(List.of());
@@ -489,7 +506,7 @@ class CollectionServiceTest {
                 .willReturn(Optional.empty());
         given(musicBrainzSearchClient.searchReleaseGroup("Radiohead", "OK Computer"))
                 .willReturn(Optional.empty());
-        given(artistRepository.findByNameIgnoreCase("Radiohead")).willReturn(Optional.empty());
+        given(artistRepository.findByNameIgnoreCase("Radiohead")).willReturn(List.of());
         given(artistRepository.save(any(Artist.class))).willAnswer(invocation -> invocation.getArgument(0));
         given(albumRepository.save(any(Album.class))).willAnswer(invocation -> invocation.getArgument(0));
         given(albumRepository.findByFormat(AlbumFormat.VINYL)).willReturn(List.of());

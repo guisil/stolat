@@ -206,8 +206,7 @@ public class CollectionService {
         var artist = artistMusicBrainzId != null
                 ? artistRepository.findByMusicBrainzId(artistMusicBrainzId)
                         .orElseGet(() -> artistRepository.save(new Artist(artistName, artistMusicBrainzId)))
-                : artistRepository.findByNameIgnoreCase(artistName)
-                        .orElseGet(() -> artistRepository.save(new Artist(artistName)));
+                : findArtistByName(artistName);
 
         Album savedAlbum;
         if (albumMusicBrainzId != null) {
@@ -329,8 +328,7 @@ public class CollectionService {
         var mbid = musicBrainzSearchClient.searchReleaseGroup(release.artistName(), release.albumTitle());
 
         // 4. Import as new album with VINYL format
-        var artist = artistRepository.findByNameIgnoreCase(release.artistName())
-                .orElseGet(() -> artistRepository.save(new Artist(release.artistName())));
+        var artist = findArtistByName(release.artistName());
 
         Album album;
         if (mbid.isPresent()) {
@@ -395,6 +393,18 @@ public class CollectionService {
                 .toList();
         return importAlbum(first.artistName(), first.artistMusicBrainzId(),
                 first.albumTitle(), first.albumMusicBrainzId(), AlbumFormat.DIGITAL, tracks);
+    }
+
+    private Artist findArtistByName(String artistName) {
+        var artists = artistRepository.findByNameIgnoreCase(artistName);
+        if (artists.isEmpty()) {
+            return artistRepository.save(new Artist(artistName));
+        }
+        // Prefer artist with MusicBrainz ID
+        return artists.stream()
+                .filter(a -> a.getMusicBrainzId() != null)
+                .findFirst()
+                .orElse(artists.getFirst());
     }
 
     private Album importFromMetadataWithoutMbid(List<AudioFileMetadata> trackMetadataList) {

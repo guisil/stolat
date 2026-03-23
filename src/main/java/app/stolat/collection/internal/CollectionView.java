@@ -170,6 +170,10 @@ public class CollectionView extends VerticalLayout {
                 refreshGrid();
                 Notification.show("Scan complete: " + albums.size() + " albums imported.");
             });
+        }).exceptionally(ex -> {
+            log.error("Collection scan failed", ex);
+            ui.access(() -> Notification.show("Scan failed: " + ex.getMessage()));
+            return null;
         });
     }
 
@@ -184,6 +188,10 @@ public class CollectionView extends VerticalLayout {
                 refreshGrid();
                 Notification.show("Discogs scan complete: " + albums.size() + " albums processed.");
             });
+        }).exceptionally(ex -> {
+            log.error("Discogs scan failed", ex);
+            ui.access(() -> Notification.show("Discogs scan failed: " + ex.getMessage()));
+            return null;
         });
     }
 

@@ -16,9 +16,9 @@ Modulith for modular architecture, MusicBrainz API for release date lookups, Fly
 for migrations, Testcontainers + Karibu Testing for tests.
 
 **Branch:** `main`
-**Current release:** v0.1.7
-**Dev version:** 0.1.8-SNAPSHOT
-**Tests:** 105 passing (`mvn test -Dsurefire.useFile=false`)
+**Current release:** v0.1.8
+**Dev version:** 0.1.9-SNAPSHOT
+**Tests:** 106 passing (`mvn test -Dsurefire.useFile=false`)
 **Deployed:** Raspberry Pi (Docker, Ubuntu Server 24.04)
 
 ---
@@ -51,7 +51,9 @@ for migrations, Testcontainers + Karibu Testing for tests.
   import album → commit (progressive, directory-by-directory). Albums without MusicBrainz
   tags are imported too (grouped by artist+title, year extracted from date tag). TagReader
   prefers ALBUM_ARTIST over ARTIST (fixes compilation album grouping). Re-scan merges
-  newly-added MusicBrainz IDs into existing albums matched by artist+title.
+  newly-added MusicBrainz IDs into existing albums matched by artist+title. Diagnostic
+  logging reports per-directory tag failures and scan summary. Scan errors logged via
+  CompletableFuture.exceptionally (previously swallowed silently).
 - **Discogs import:** paginated fetch → match by discogsId/artist+title/MusicBrainz search →
   import with VINYL format. Captures release year as fallback date. Partial fetch skips
   reconciliation. Artist disambiguation stripping handles any parenthesized suffix.
@@ -111,6 +113,12 @@ for migrations, Testcontainers + Karibu Testing for tests.
 
 - Reconciliation only covers MBID albums — non-MBID digital albums are never removed
   when files disappear (ghost entries persist with DIGITAL format)
+- **Duplicate artists:** The same artist can have multiple DB rows with different
+  MusicBrainz IDs (e.g., from different release groups or artist credits). The
+  `findArtistByName` helper in CollectionService picks the one with an MBID when
+  importing non-MBID albums, but the duplicates remain in the DB. This could cause
+  albums by the same artist to be split across artist records. A future artist-merge
+  feature or dedup migration may be needed if this causes inconsistencies.
 
 ## What's Next
 
