@@ -120,6 +120,27 @@ for migrations, Testcontainers + Karibu Testing for tests.
   albums by the same artist to be split across artist records. A future artist-merge
   feature or dedup migration may be needed if this causes inconsistencies.
 
+## Immediate Priority — Verify v0.1.8 Scan Fix
+
+v0.1.8 was deployed on 2026-03-23 to fix a scan crash caused by duplicate artists
+(`NonUniqueResultException`). The scan was aborting partway through, leaving ~1400
+directories unprocessed (2450 dirs → only 1007 albums).
+
+**First thing next session:**
+1. Check the scan logs for the `Scan complete:` summary line — did the scan finish?
+2. Check the album count on the Collection page — did it increase beyond 1007?
+3. Check for any new `ERROR` logs (the `CompletableFuture.exceptionally` handler
+   will now surface scan failures).
+4. If the count increased significantly, the fix worked. If not, investigate further.
+5. Check the Missing Birthdays count — with more albums imported, it will initially
+   spike (new albums needing MusicBrainz lookups) then settle down.
+
+**If issues found:** The `findArtistByName` helper prefers artists with a MusicBrainz
+ID when duplicates exist, but this is a heuristic. If albums end up associated with
+the wrong artist record, a dedup migration for the `artists` table may be needed.
+
+---
+
 ## What's Next
 
 - Additional release date sources (Spotify, Discogs API release dates)
