@@ -127,12 +127,26 @@ public class CollectionService {
 
         var importedAlbums = new ArrayList<Album>();
         var scannedMusicBrainzIds = new HashSet<UUID>();
+        int totalTagFailures = 0;
+        int emptyDirectories = 0;
 
-        for (var dirFiles : filesByDirectory.values()) {
+        for (var entry : filesByDirectory.entrySet()) {
+            var directory = entry.getKey();
+            var dirFiles = entry.getValue();
+            int dirFileCount = dirFiles.size();
             var allMetadata = dirFiles.stream()
                     .map(tagReader::read)
                     .flatMap(java.util.Optional::stream)
                     .toList();
+
+            int dirTagFailures = dirFileCount - allMetadata.size();
+            totalTagFailures += dirTagFailures;
+            if (allMetadata.isEmpty()) {
+                emptyDirectories++;
+                log.warn("Directory has 0 readable tags out of {} files: {}", dirFileCount, directory);
+            } else if (dirTagFailures > 0) {
+                log.info("Directory had {}/{} tag failures: {}", dirTagFailures, dirFileCount, directory);
+            }
 
             // Albums with MusicBrainz IDs — group by MBID
             var mbidGroups = allMetadata.stream()
@@ -163,7 +177,8 @@ public class CollectionService {
 
         transactionTemplate.executeWithoutResult(status -> reconcileDigitalFormats(scannedMusicBrainzIds));
 
-        log.info("Scan complete: {} albums processed", importedAlbums.size());
+        log.info("Scan complete: {} albums processed, {} tag read failures across {} files, {} directories with 0 readable tags",
+                importedAlbums.size(), totalTagFailures, files.size(), emptyDirectories);
         return importedAlbums;
     }
 
