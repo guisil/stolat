@@ -10,6 +10,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Span;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,6 +20,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.test.context.support.WithMockUser;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 import static com.github.mvysny.kaributesting.v10.LocatorJ._find;
@@ -69,6 +71,23 @@ class CollectionViewTest {
         Grid<Album> grid = _get(Grid.class);
         var items = grid.getGenericDataView().getItems().toList();
         assertThat(items).hasSize(2);
+    }
+
+    @Test
+    @WithMockUser
+    void shouldDisplayAlbumCountWithBirthdayCount() {
+        var album1 = collectionService.importAlbum("Radiohead", UUID.randomUUID(), "OK Computer", UUID.randomUUID());
+        collectionService.updateAlbumReleaseDate(album1.getMusicBrainzId(), LocalDate.of(1997, 6, 16));
+        collectionService.importAlbum("Portishead", null, "Dummy", null);
+
+        UI.getCurrent().navigate(CollectionView.class);
+
+        var countLabel = _find(Span.class).stream()
+                .filter(s -> s.getText().contains("albums"))
+                .findFirst()
+                .orElseThrow();
+        assertThat(countLabel.getText()).contains("2 albums");
+        assertThat(countLabel.getText()).contains("1 with birthdays");
     }
 
     @Test

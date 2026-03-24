@@ -157,10 +157,16 @@ public class MissingBirthdaysView extends VerticalLayout {
         var releaseDatesByMbid = birthdayService.findReleaseDatesByMusicBrainzId();
         var selectedStatus = statusFilter != null ? statusFilter.getValue() : ALL;
 
-        var missingAlbums = collectionService.findAllActiveAlbums().stream()
+        var allMissing = collectionService.findAllActiveAlbums().stream()
                 .filter(album -> !albumIdsWithBirthdays.contains(album.getId()))
                 .filter(album -> album.getMusicBrainzId() == null
                         || !releaseDatesByMbid.containsKey(album.getMusicBrainzId()))
+                .toList();
+
+        var noMbidCount = allMissing.stream().filter(a -> a.getMusicBrainzId() == null).count();
+        var failedCount = allMissing.size() - noMbidCount;
+
+        var missingAlbums = allMissing.stream()
                 .filter(album -> switch (selectedStatus) {
                     case NO_MBID -> album.getMusicBrainzId() == null;
                     case LOOKUP_FAILED -> album.getMusicBrainzId() != null;
@@ -168,7 +174,8 @@ public class MissingBirthdaysView extends VerticalLayout {
                 })
                 .toList();
 
-        countLabel.setText(missingAlbums.size() + " albums without birthdays");
+        countLabel.setText(missingAlbums.size() + " albums without birthdays ("
+                + noMbidCount + " without MBID, " + failedCount + " failed lookup)");
         grid.setItems(new ListDataProvider<>(missingAlbums));
     }
 

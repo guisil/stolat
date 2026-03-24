@@ -53,6 +53,24 @@ class NotificationServiceTest {
     }
 
     @Test
+    void shouldSortBirthdaysByYearOldestFirst() {
+        var today = LocalDate.of(2026, 6, 16);
+        var newer = new AlbumBirthday("In Rainbows", "Radiohead",
+                UUID.randomUUID(), LocalDate.of(2007, 6, 16));
+        var older = new AlbumBirthday("OK Computer", "Radiohead",
+                UUID.randomUUID(), LocalDate.of(1997, 6, 16));
+        given(birthdayService.findBirthdaysOn(today)).willReturn(List.of(newer, older));
+
+        notificationService().sendDailyDigest(today);
+
+        then(emailSender).should().send(contains("Album Birthdays"), argThat(body -> {
+            int okComputerPos = body.indexOf("OK Computer");
+            int inRainbowsPos = body.indexOf("In Rainbows");
+            return okComputerPos >= 0 && inRainbowsPos >= 0 && okComputerPos < inRainbowsPos;
+        }));
+    }
+
+    @Test
     void shouldNotSendEmailWhenNoBirthdays() {
         var today = LocalDate.of(2026, 1, 1);
         given(birthdayService.findBirthdaysOn(today)).willReturn(List.of());

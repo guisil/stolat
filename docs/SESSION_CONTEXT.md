@@ -18,7 +18,7 @@ for migrations, Testcontainers + Karibu Testing for tests.
 **Branch:** `main`
 **Current release:** v0.1.8
 **Dev version:** 0.1.9-SNAPSHOT
-**Tests:** 106 passing (`mvn test -Dsurefire.useFile=false`)
+**Tests:** 111 passing (`mvn test -Dsurefire.useFile=false`)
 **Deployed:** Raspberry Pi (Docker, Ubuntu Server 24.04)
 
 ---
@@ -72,7 +72,8 @@ for migrations, Testcontainers + Karibu Testing for tests.
   multi-sort, full-height grid), CollectionView at `/collection` (format filter,
   scan buttons, search, multi-sort, split Birthday/Year columns),
   MissingBirthdaysView at `/missing-birthdays` (status filter, Bandcamp URL dialog,
-  year column, retry button for all albums). CollectionView shows total album count.
+  year column, retry button for all albums, count label with status breakdown).
+  CollectionView shows total album count with birthday count.
   Filter state persists across navigation via VaadinSession.
 
 ---
@@ -90,7 +91,7 @@ for migrations, Testcontainers + Karibu Testing for tests.
 | `stolat.musicbrainz.search-score-threshold` | `90` | Min score for MusicBrainz search match |
 | `stolat.notification.recipient` | (required) | Email recipient |
 | `stolat.notification.from` | `StoLat <stolat@noreply.com>` | Email sender |
-| `stolat.notification.cron` | `0 0 8 * * *` | Daily digest (8am) |
+| `stolat.notification.cron` | `0 0 5 * * *` | Daily digest (5am) |
 | `stolat.notification.send-on-startup` | `false` | Send digest on startup |
 | `stolat.volumio.url` | (none, opt-in) | Volumio instance URL |
 | `stolat.user-agent` | `StoLat/0.1.5-SNAPSHOT (...)` | User-Agent for APIs |

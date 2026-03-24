@@ -222,7 +222,8 @@ public class CollectionView extends VerticalLayout {
             case VINYL -> collectionService.findAlbumsByFormat(AlbumFormat.VINYL);
             default -> collectionService.findAllActiveAlbums();
         };
-        countLabel.setText(albums.size() + " albums");
+        var withBirthdays = albums.stream().filter(a -> a.getReleaseDate() != null).count();
+        countLabel.setText(albums.size() + " albums (" + withBirthdays + " with birthdays)");
         grid.setItems(new ListDataProvider<>(albums));
     }
 

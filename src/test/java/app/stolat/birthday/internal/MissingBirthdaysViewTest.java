@@ -20,6 +20,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.test.context.support.WithMockUser;
 
+import app.stolat.birthday.BirthdayService;
 import java.util.List;
 import java.util.UUID;
 
@@ -38,6 +39,9 @@ class MissingBirthdaysViewTest {
 
     @Autowired
     private CollectionService collectionService;
+
+    @Autowired
+    private BirthdayService birthdayService;
 
     private void setupMockVaadin() {
         MockVaadin.setup(UI::new, new MockSpringServlet(routes, ctx, UI::new));
@@ -74,5 +78,27 @@ class MissingBirthdaysViewTest {
         @SuppressWarnings("unchecked")
         Grid<Album> grid = _get(Grid.class);
         assertThat(GridKt._size(grid)).isGreaterThanOrEqualTo(1);
+    }
+
+    @Test
+    @WithMockUser
+    void shouldDisplayStatusBreakdownInCountLabel() {
+        // Album without MBID
+        collectionService.importAlbum("Artist A", null,
+                "Album No MBID", null, AlbumFormat.DIGITAL, List.of());
+        // Album with MBID but no birthday (failed lookup)
+        var mbid = UUID.randomUUID();
+        collectionService.importAlbum("Artist B", UUID.randomUUID(),
+                "Album Failed Lookup", mbid, AlbumFormat.DIGITAL, List.of());
+
+        setupMockVaadin();
+        UI.getCurrent().navigate(MissingBirthdaysView.class);
+
+        var countLabel = _find(Span.class).stream()
+                .filter(s -> s.getText().contains("albums without birthdays"))
+                .findFirst()
+                .orElseThrow();
+        assertThat(countLabel.getText()).contains("without MBID");
+        assertThat(countLabel.getText()).contains("failed lookup");
     }
 }

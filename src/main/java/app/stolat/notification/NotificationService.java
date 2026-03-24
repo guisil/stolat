@@ -1,5 +1,6 @@
 package app.stolat.notification;
 
+import java.util.Comparator;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
@@ -38,6 +39,7 @@ public class NotificationService {
                         b.getAlbumTitle(),
                         b.getReleaseDate(),
                         ChronoUnit.YEARS.between(b.getReleaseDate(), date)))
+                .sorted(Comparator.comparing(BirthdayItem::releaseDate))
                 .toList();
 
         var context = new Context();
