@@ -70,6 +70,7 @@ mvn spring-boot:run -Dspring-boot.run.profiles=dev
 - [ ] "Vinyl" filter shows only vinyl albums (Pink Floyd, Bjork)
 - [ ] Search field filters by artist or album name
 - [ ] All columns are sortable
+- [ ] Count label shows "N albums (M with birthdays)"
 - [ ] "Scan Collection" button is visible
 
 ### Scan a local music folder
@@ -108,7 +109,7 @@ mvn spring-boot:run -Dspring-boot.run.profiles=dev
 
 - [ ] Click "Missing" in side navigation
 - [ ] Page shows "Missing Birthdays" heading
-- [ ] Count label shows "N albums without birthdays"
+- [ ] Count label shows "N albums without birthdays (X without MBID, Y failed lookup)"
 - [ ] Grid displays with columns: Artist, Album, Year, Format, Status, Action
 - [ ] Albums without MusicBrainz tags show status "No MusicBrainz ID"
 - [ ] Albums with MusicBrainz tags but no release date show "Lookup failed"
@@ -150,7 +151,7 @@ mvn spring-boot:run -Dspring-boot.run.profiles=dev
 
 - [ ] Open Mailpit at `http://localhost:8025`
 - [ ] An email with subject "Album Birthdays — {today's date}" is present
-- [ ] Email body is HTML with a table listing today's birthday(s)
+- [ ] Email body is HTML with a table listing today's birthday(s), sorted by year (oldest first)
 - [ ] "Today's Birthday Album" by "Test Artist" appears with anniversary years
 
 ---

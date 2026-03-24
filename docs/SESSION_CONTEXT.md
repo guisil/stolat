@@ -16,8 +16,8 @@ Modulith for modular architecture, MusicBrainz API for release date lookups, Fly
 for migrations, Testcontainers + Karibu Testing for tests.
 
 **Branch:** `main`
-**Current release:** v0.1.8
-**Dev version:** 0.1.9-SNAPSHOT
+**Current release:** v0.1.9
+**Dev version:** 0.1.10-SNAPSHOT
 **Tests:** 111 passing (`mvn test -Dsurefire.useFile=false`)
 **Deployed:** Raspberry Pi (Docker, Ubuntu Server 24.04)
 
@@ -94,7 +94,7 @@ for migrations, Testcontainers + Karibu Testing for tests.
 | `stolat.notification.cron` | `0 0 5 * * *` | Daily digest (5am) |
 | `stolat.notification.send-on-startup` | `false` | Send digest on startup |
 | `stolat.volumio.url` | (none, opt-in) | Volumio instance URL |
-| `stolat.user-agent` | `StoLat/0.1.5-SNAPSHOT (...)` | User-Agent for APIs |
+| `stolat.user-agent` | `StoLat/{version} (...)` | User-Agent for APIs |
 
 ---
 
@@ -120,19 +120,6 @@ for migrations, Testcontainers + Karibu Testing for tests.
   importing non-MBID albums, but the duplicates remain in the DB. This could cause
   albums by the same artist to be split across artist records. A future artist-merge
   feature or dedup migration may be needed if this causes inconsistencies.
-
-## v0.1.8 Scan Fix — Verified (2026-03-24)
-
-v0.1.8 fixed a scan crash caused by duplicate artists (`NonUniqueResultException`).
-Verified on deployed Pi:
-- Scan completes successfully: **2547 albums** scanned
-- Collection grid shows **2540 albums** (small delta from dedup)
-- Missing birthdays: **561** (10 failed lookups, rest without MBID)
-- The ~1500 newly imported albums mostly lack MBIDs, so missing birthdays spiked as expected
-
-**Note:** Duplicate artist rows remain in the DB (same artist, different MusicBrainz IDs).
-The `findArtistByName` heuristic handles import, but a dedup migration may be needed
-if inconsistencies surface.
 
 ---
 
