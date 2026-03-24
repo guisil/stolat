@@ -175,6 +175,22 @@ class BirthdayServiceTest {
     }
 
     @Test
+    void shouldSkipDirectSaveWhenBirthdayAlreadyExistsForAlbumId() {
+        var albumId = UUID.randomUUID();
+        var newMusicBrainzId = UUID.randomUUID();
+        var existing = new AlbumBirthday("Some Album", "Some Artist",
+                albumId, null, LocalDate.of(2020, 1, 1), ReleaseDateSource.DISCOGS);
+        given(albumBirthdayRepository.findByMusicBrainzId(newMusicBrainzId)).willReturn(Optional.empty());
+        given(albumBirthdayRepository.findByAlbumId(albumId)).willReturn(Optional.of(existing));
+
+        var result = birthdayService.resolveReleaseDateDirect(albumId, "Some Album",
+                "Some Artist", newMusicBrainzId, LocalDate.of(1997, 6, 16), ReleaseDateSource.MUSICBRAINZ);
+
+        assertThat(result).isEqualTo(existing);
+        then(albumBirthdayRepository).should(never()).save(any());
+    }
+
+    @Test
     void shouldResolveReleaseDateForAlbumWithoutMbid() {
         var albumId = UUID.randomUUID();
         var releaseDate = LocalDate.of(2020, 1, 1);
@@ -248,6 +264,25 @@ class BirthdayServiceTest {
         var result = birthdayService.resolveReleaseDateFromBandcamp(albumId, "X", "Y", url);
 
         assertThat(result).isEmpty();
+        then(albumBirthdayRepository).should(never()).save(any());
+    }
+
+    @Test
+    void shouldSkipLookupWhenBirthdayAlreadyExistsForAlbumId() {
+        var albumId = UUID.randomUUID();
+        var existingMusicBrainzId = UUID.randomUUID();
+        var newMusicBrainzId = UUID.randomUUID();
+        var existing = new AlbumBirthday("Some Album", "Some Artist",
+                albumId, existingMusicBrainzId, LocalDate.of(2020, 1, 1), ReleaseDateSource.DISCOGS);
+        given(albumBirthdayRepository.findByMusicBrainzId(newMusicBrainzId)).willReturn(Optional.empty());
+        given(albumBirthdayRepository.findByAlbumId(albumId)).willReturn(Optional.of(existing));
+
+        var result = birthdayService.resolveReleaseDate(albumId, "Some Album",
+                "Some Artist", newMusicBrainzId);
+
+        assertThat(result).isPresent();
+        assertThat(result.get()).isEqualTo(existing);
+        then(releaseDateLookup).shouldHaveNoInteractions();
         then(albumBirthdayRepository).should(never()).save(any());
     }
 

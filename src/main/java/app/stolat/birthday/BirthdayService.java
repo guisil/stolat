@@ -67,6 +67,11 @@ public class BirthdayService {
             return existing;
         }
 
+        var existingByAlbum = albumBirthdayRepository.findByAlbumId(albumId);
+        if (existingByAlbum.isPresent()) {
+            return existingByAlbum;
+        }
+
         return releaseDateLookup.lookUp(musicBrainzId)
                 .map(releaseDate -> albumBirthdayRepository.save(
                         new AlbumBirthday(albumTitle, artistName, albumId, musicBrainzId,
@@ -76,10 +81,19 @@ public class BirthdayService {
     public AlbumBirthday resolveReleaseDateDirect(UUID albumId, String albumTitle,
                                                    String artistName, UUID musicBrainzId,
                                                    LocalDate releaseDate, ReleaseDateSource source) {
-        return albumBirthdayRepository.findByMusicBrainzId(musicBrainzId)
-                .orElseGet(() -> albumBirthdayRepository.save(
-                        new AlbumBirthday(albumTitle, artistName, albumId, musicBrainzId,
-                                releaseDate, source)));
+        var existing = albumBirthdayRepository.findByMusicBrainzId(musicBrainzId);
+        if (existing.isPresent()) {
+            return existing.get();
+        }
+
+        var existingByAlbum = albumBirthdayRepository.findByAlbumId(albumId);
+        if (existingByAlbum.isPresent()) {
+            return existingByAlbum.get();
+        }
+
+        return albumBirthdayRepository.save(
+                new AlbumBirthday(albumTitle, artistName, albumId, musicBrainzId,
+                        releaseDate, source));
     }
 
     public AlbumBirthday resolveReleaseDateForAlbum(UUID albumId, String albumTitle,
