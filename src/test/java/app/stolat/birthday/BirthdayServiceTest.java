@@ -327,10 +327,29 @@ class BirthdayServiceTest {
     }
 
     @Test
-    void shouldReturnExistingWhenResolvingFromDiscogsAndAlreadyExists() {
+    void shouldUpgradeYearOnlyWhenResolvingFromDiscogsAndExistingIsYearOnly() {
         var albumId = UUID.randomUUID();
         var existing = new AlbumBirthday("OK Computer", "Radiohead",
                 albumId, null, 12345L, LocalDate.of(1997, 1, 1), ReleaseDateSource.DISCOGS);
+        var fullDate = LocalDate.of(1997, 6, 16);
+        given(albumBirthdayRepository.findByAlbumId(albumId)).willReturn(Optional.of(existing));
+        given(discogsReleaseDateLookup.lookUp(12345L)).willReturn(Optional.of(fullDate));
+        given(albumBirthdayRepository.save(any(AlbumBirthday.class)))
+                .willAnswer(invocation -> invocation.getArgument(0));
+
+        var result = birthdayService.resolveReleaseDateFromDiscogs(albumId, "OK Computer",
+                "Radiohead", 12345L);
+
+        assertThat(result).isPresent();
+        assertThat(result.get().getReleaseDate()).isEqualTo(fullDate);
+        then(albumBirthdayRepository).should().save(any(AlbumBirthday.class));
+    }
+
+    @Test
+    void shouldReturnExistingWhenResolvingFromDiscogsAndAlreadyHasFullDate() {
+        var albumId = UUID.randomUUID();
+        var existing = new AlbumBirthday("OK Computer", "Radiohead",
+                albumId, null, 12345L, LocalDate.of(1997, 6, 16), ReleaseDateSource.DISCOGS);
         given(albumBirthdayRepository.findByAlbumId(albumId)).willReturn(Optional.of(existing));
 
         var result = birthdayService.resolveReleaseDateFromDiscogs(albumId, "OK Computer",
@@ -358,7 +377,7 @@ class BirthdayServiceTest {
         var birthday = new AlbumBirthday("OK Computer", "Radiohead",
                 UUID.randomUUID(), null, 12345L, LocalDate.of(1997, 1, 1), ReleaseDateSource.DISCOGS);
         var fullDate = LocalDate.of(1997, 6, 16);
-        given(albumBirthdayRepository.findDiscogsYearOnlyBirthdays()).willReturn(List.of(birthday));
+        given(albumBirthdayRepository.findDiscogsYearOnlyBirthdays(ReleaseDateSource.DISCOGS)).willReturn(List.of(birthday));
         given(discogsReleaseDateLookup.lookUp(12345L)).willReturn(Optional.of(fullDate));
         given(albumBirthdayRepository.save(any(AlbumBirthday.class)))
                 .willAnswer(invocation -> invocation.getArgument(0));
@@ -373,7 +392,7 @@ class BirthdayServiceTest {
     void shouldNotUpgradeWhenDiscogsReturnsYearOnly() {
         var birthday = new AlbumBirthday("Some Album", "Some Artist",
                 UUID.randomUUID(), null, 99999L, LocalDate.of(2020, 1, 1), ReleaseDateSource.DISCOGS);
-        given(albumBirthdayRepository.findDiscogsYearOnlyBirthdays()).willReturn(List.of(birthday));
+        given(albumBirthdayRepository.findDiscogsYearOnlyBirthdays(ReleaseDateSource.DISCOGS)).willReturn(List.of(birthday));
         given(discogsReleaseDateLookup.lookUp(99999L)).willReturn(Optional.of(LocalDate.of(2020, 1, 1)));
 
         var upgraded = birthdayService.upgradeDiscogsYearOnlyBirthdays();
@@ -386,7 +405,7 @@ class BirthdayServiceTest {
     void shouldNotUpgradeWhenDiscogsLookupFails() {
         var birthday = new AlbumBirthday("Some Album", "Some Artist",
                 UUID.randomUUID(), null, 99999L, LocalDate.of(2020, 1, 1), ReleaseDateSource.DISCOGS);
-        given(albumBirthdayRepository.findDiscogsYearOnlyBirthdays()).willReturn(List.of(birthday));
+        given(albumBirthdayRepository.findDiscogsYearOnlyBirthdays(ReleaseDateSource.DISCOGS)).willReturn(List.of(birthday));
         given(discogsReleaseDateLookup.lookUp(99999L)).willReturn(Optional.empty());
 
         var upgraded = birthdayService.upgradeDiscogsYearOnlyBirthdays();

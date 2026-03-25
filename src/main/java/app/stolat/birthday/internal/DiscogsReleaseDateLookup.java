@@ -13,7 +13,7 @@ import org.springframework.web.client.RestClient;
 @Slf4j
 @Component
 @ConditionalOnProperty("stolat.discogs.token")
-class DiscogsReleaseDateLookup {
+public class DiscogsReleaseDateLookup {
 
     private final RestClient restClient;
 

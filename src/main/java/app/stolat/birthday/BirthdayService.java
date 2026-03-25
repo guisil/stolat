@@ -140,6 +140,15 @@ public class BirthdayService {
 
         var existing = albumBirthdayRepository.findByAlbumId(albumId);
         if (existing.isPresent()) {
+            var birthday = existing.get();
+            if (birthday.isYearOnlyDate() && birthday.getDiscogsId() != null) {
+                var fullDate = discogsReleaseDateLookup.lookUp(discogsId);
+                if (fullDate.isPresent() && !fullDate.get().equals(birthday.getReleaseDate())) {
+                    birthday.updateReleaseDate(fullDate.get(), ReleaseDateSource.DISCOGS);
+                    albumBirthdayRepository.save(birthday);
+                    return Optional.of(birthday);
+                }
+            }
             return existing;
         }
 
@@ -165,18 +174,19 @@ public class BirthdayService {
             return 0;
         }
 
-        var yearOnlyBirthdays = albumBirthdayRepository.findDiscogsYearOnlyBirthdays();
+        var yearOnlyBirthdays = albumBirthdayRepository.findDiscogsYearOnlyBirthdays(ReleaseDateSource.DISCOGS);
         log.info("Found {} Discogs birthdays with year-only dates to upgrade", yearOnlyBirthdays.size());
 
         int upgraded = 0;
         for (var birthday : yearOnlyBirthdays) {
             var fullDate = discogsReleaseDateLookup.lookUp(birthday.getDiscogsId());
             if (fullDate.isPresent() && !fullDate.get().equals(birthday.getReleaseDate())) {
+                var oldDate = birthday.getReleaseDate();
                 birthday.updateReleaseDate(fullDate.get(), ReleaseDateSource.DISCOGS);
                 albumBirthdayRepository.save(birthday);
                 log.info("Upgraded '{}' by '{}' from {} to {}",
                         birthday.getAlbumTitle(), birthday.getArtistName(),
-                        birthday.getReleaseDate(), fullDate.get());
+                        oldDate, fullDate.get());
                 upgraded++;
             }
         }

@@ -13,6 +13,7 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 
 @SpringBootTest
 @Import(TestcontainersConfiguration.class)
@@ -83,6 +84,28 @@ class AlbumBirthdayRepositoryTest {
 
         assertThat(found).isPresent();
         assertThat(found.get().getAlbumTitle()).isEqualTo("Some Album");
+    }
+
+    @Test
+    void shouldFindDiscogsYearOnlyBirthdays() {
+        var yearOnly = new AlbumBirthday("Album A", "Artist A",
+                UUID.randomUUID(), null, 111L, LocalDate.of(2020, 1, 1), ReleaseDateSource.DISCOGS);
+        var fullDate = new AlbumBirthday("Album B", "Artist B",
+                UUID.randomUUID(), null, 222L, LocalDate.of(2020, 6, 15), ReleaseDateSource.DISCOGS);
+        var musicBrainzJanFirst = new AlbumBirthday("Album C", "Artist C",
+                UUID.randomUUID(), UUID.randomUUID(), LocalDate.of(2019, 1, 1), ReleaseDateSource.MUSICBRAINZ);
+        var noDiscogsId = new AlbumBirthday("Album D", "Artist D",
+                UUID.randomUUID(), null, LocalDate.of(2021, 1, 1), ReleaseDateSource.DISCOGS);
+        albumBirthdayRepository.save(yearOnly);
+        albumBirthdayRepository.save(fullDate);
+        albumBirthdayRepository.save(musicBrainzJanFirst);
+        albumBirthdayRepository.save(noDiscogsId);
+
+        var results = albumBirthdayRepository.findDiscogsYearOnlyBirthdays(ReleaseDateSource.DISCOGS);
+
+        assertThat(results).hasSize(1);
+        assertThat(results).extracting(AlbumBirthday::getAlbumTitle, AlbumBirthday::getDiscogsId)
+                .containsExactly(tuple("Album A", 111L));
     }
 
     @Test
