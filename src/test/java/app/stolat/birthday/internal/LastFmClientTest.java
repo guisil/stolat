@@ -96,4 +96,26 @@ class LastFmClientTest {
         assertThat(result.getAsInt()).isEqualTo(0);
         mockServer.verify();
     }
+
+    @Test
+    void shouldHandleSpecialCharactersInArtistAndAlbum() {
+        var responseJson = """
+                {
+                    "album": {
+                        "name": "Back in Black",
+                        "artist": "AC/DC",
+                        "userplaycount": "50"
+                    }
+                }
+                """;
+        mockServer.expect(requestTo(
+                "https://ws.audioscrobbler.com/2.0?method=album.getinfo&api_key=test-api-key&artist=AC%2FDC&album=Back%20in%20Black&username=testuser&format=json"))
+                .andRespond(withSuccess(responseJson, MediaType.APPLICATION_JSON));
+
+        var result = lastFmClient.fetchPlayCount("AC/DC", "Back in Black");
+
+        assertThat(result).isPresent();
+        assertThat(result.getAsInt()).isEqualTo(50);
+        mockServer.verify();
+    }
 }

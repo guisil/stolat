@@ -18,7 +18,7 @@ for migrations, Testcontainers + Karibu Testing for tests.
 **Branch:** `main`
 **Current release:** v0.1.9
 **Dev version:** 0.1.10-SNAPSHOT
-**Tests:** 125 passing (`mvn test -Dsurefire.useFile=false`)
+**Tests:** 166 passing (`mvn test -Dsurefire.useFile=false`)
 **Deployed:** Raspberry Pi (Docker, Ubuntu Server 24.04)
 
 ---
@@ -28,7 +28,7 @@ for migrations, Testcontainers + Karibu Testing for tests.
 | Module | Status | Description |
 |--------|--------|-------------|
 | `collection` | Done | Digital + vinyl collection, filesystem scanning (incl. non-MBID albums), Discogs import (with year capture), format tracking, Volumio playback |
-| `birthday` | Done | Release date lookup (MusicBrainz API + Bandcamp), caching, date range queries, release date source tracking, missing birthdays view |
+| `birthday` | Done | Release date lookup (MusicBrainz API + Bandcamp + Discogs full dates), caching, date range queries, release date source tracking, missing birthdays view, Last.fm play counts |
 | `notification` | Done | Daily email digests via Thymeleaf templates (Gmail SMTP) |
 | `discovery` | Not started (later) | Public-facing album birthday browsing |
 
@@ -76,12 +76,20 @@ for migrations, Testcontainers + Karibu Testing for tests.
 - **Format tracking:** `@ElementCollection` with `Set<AlbumFormat>` (DIGITAL/VINYL).
   Soft delete via format reconciliation — empty formats = removed.
 - **Vaadin Push:** @Push for progressive UI updates during scans (3s polling).
-- **Views:** BirthdayView at `/` (date ranges, format icons, Volumio play button,
-  multi-sort, full-height grid), CollectionView at `/collection` (format filter,
-  scan buttons, search, multi-sort, split Birthday/Year columns),
-  MissingBirthdaysView at `/missing-birthdays` (status filter, Bandcamp URL dialog,
-  year column, retry button for all albums, count label with status breakdown).
-  CollectionView shows total album count with birthday count.
+- **Last.fm play counts:** `LastFmClient` fetches user play counts via `album.getinfo` API.
+  Conditional on `stolat.lastfm.api-key` + `stolat.lastfm.username`. Rate-limited (200ms
+  between requests). `BirthdayService.syncPlayCounts()` updates all birthdays. Scheduled
+  daily (default 6am) + manual "Sync Plays" button in BirthdayView. Play counts stored on
+  `AlbumBirthday` entity (`playCount`, `playCountUpdatedAt`). Shown in BirthdayView Plays
+  column and email digest.
+- **Views:** BirthdayView at `/` (date ranges incl. "All", source filter, play count column,
+  count label, format icons, Volumio play button, conditional Sync Plays button, multi-sort,
+  full-height grid), CollectionView at `/collection` (format filter, scan buttons, search,
+  multi-sort, split Birthday/Year columns, total album count),
+  MissingBirthdaysView at `/missing-birthdays` (status filter, Bandcamp URL dialog with
+  suggested URL and search link, year column, retry button, Discogs upgrade button,
+  count label with status breakdown),
+  StatsView at `/stats` (totals: albums, birthdays by source, missing breakdown).
   Filter state persists across navigation via VaadinSession.
 
 ---
@@ -102,6 +110,9 @@ for migrations, Testcontainers + Karibu Testing for tests.
 | `stolat.notification.cron` | `0 0 5 * * *` | Daily digest (5am) |
 | `stolat.notification.send-on-startup` | `false` | Send digest on startup |
 | `stolat.volumio.url` | (none, opt-in) | Volumio instance URL |
+| `stolat.lastfm.api-key` | (none, opt-in) | Last.fm API key |
+| `stolat.lastfm.username` | (none) | Last.fm username for play counts |
+| `stolat.lastfm.sync-cron` | `0 0 6 * * *` | Last.fm play count sync (6am) |
 | `stolat.user-agent` | `StoLat/{version} (...)` | User-Agent for APIs |
 
 ---
@@ -113,8 +124,9 @@ for migrations, Testcontainers + Karibu Testing for tests.
 - V4 migration: album_birthdays evolution — nullable musicbrainz_id, album_id column,
   release_date_source column (backfilled as MUSICBRAINZ), partial unique indexes
 - V5 migration: add discogs_id column to album_birthdays (with partial index)
+- V6 migration: add play_count and play_count_updated_at columns to album_birthdays
 - JAudioTagger: RouHim fork 2.0.19 via JitPack, logging set to WARN
-- Discogs/Volumio features conditional on config (@ConditionalOnProperty)
+- Discogs/Volumio/Last.fm features conditional on config (@ConditionalOnProperty)
 - Views are @AnonymousAllowed (auth deferred — TODO: DB-backed auth)
 - SecurityConfig has in-memory user (user/stolat) with TODO for replacement
 - Version displayed in drawer footer via BuildProperties
@@ -136,7 +148,6 @@ for migrations, Testcontainers + Karibu Testing for tests.
 
 - Additional release date sources (Spotify)
 - Improve Bandcamp lookup UX (batch lookups)
-- Investigate Last.fm API integration (explore what it could add to the experience)
 - Notification view (settings, history, manual send, multiple recipient emails)
 - Album detail view with tracks
 - DB-backed authentication (replace in-memory user)

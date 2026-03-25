@@ -1,7 +1,5 @@
 package app.stolat.birthday.internal;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.OptionalInt;
 

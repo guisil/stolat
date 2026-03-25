@@ -38,7 +38,7 @@ mvn spring-boot:run -Dspring-boot.run.profiles=dev
 - [ ] Log in with `user` / `stolat`
 - [ ] Redirected to Birthdays view (default route)
 - [ ] Main layout renders with "StoLat" title in navbar
-- [ ] Side navigation has "Birthdays", "Collection", and "Missing" links
+- [ ] Side navigation has "Birthdays", "Collection", "Missing", and "Stats" links
 - [ ] Console shows "Seeding dev data..." log message
 - [ ] Console shows "Sending birthday notification on startup" log message
 
@@ -47,14 +47,34 @@ mvn spring-boot:run -Dspring-boot.run.profiles=dev
 ## 3. Birthday View (`/`)
 
 - [ ] Page shows "Album Birthdays — Today" heading
-- [ ] Grid displays with columns: Artist, Album, Birthday, Year, Format
+- [ ] Grid displays with columns: Artist, Album, Birthday, Year, Source, Plays, Format
 - [ ] "Today's Birthday Album" by "Test Artist" appears in the grid
+- [ ] Source column shows "MusicBrainz", "Discogs", "Bandcamp", or "Manual"
+- [ ] Plays column shows play count (if Last.fm configured and synced)
 - [ ] Format column shows "Digital" badges for digital albums
 - [ ] "Homogenic" by Bjork shows "Digital, Vinyl"
-- [ ] Date range selector works: Today, Last 7 days, Next 7 days, This week,
+- [ ] Count label shows number of visible birthdays
+- [ ] Date range selector works: All, Today, Last 7 days, Next 7 days, This week,
   Last 30 days, Next 30 days, This month
+- [ ] "All" range shows every birthday with total count
+- [ ] Source filter dropdown: All sources / MusicBrainz / Discogs / Bandcamp / Manual
+- [ ] Source filter narrows the grid and updates the count label
 - [ ] Search field filters by artist or album name
 - [ ] All columns are sortable
+
+### Last.fm play counts (optional)
+
+> **Setup:** Add Last.fm credentials to `application-dev.properties`:
+> ```properties
+> stolat.lastfm.api-key=your-api-key
+> stolat.lastfm.username=your-username
+> ```
+
+- [ ] "Sync Plays" button appears in the toolbar
+- [ ] Click "Sync Plays"
+- [ ] Notification toast: "Synced play counts for N albums"
+- [ ] Plays column populates with play counts
+- [ ] Email digest includes play counts ("N plays") for albums with data
 
 ---
 
@@ -70,7 +90,7 @@ mvn spring-boot:run -Dspring-boot.run.profiles=dev
 - [ ] "Vinyl" filter shows only vinyl albums (Pink Floyd, Bjork)
 - [ ] Search field filters by artist or album name
 - [ ] All columns are sortable
-- [ ] Count label shows "N albums (M with birthdays)"
+- [ ] Count label shows "N albums"
 - [ ] "Scan Collection" button is visible
 
 ### Scan a local music folder
@@ -134,9 +154,13 @@ mvn spring-boot:run -Dspring-boot.run.profiles=dev
 ### Bandcamp lookup
 
 - [ ] All albums show a search icon button for Bandcamp lookup
+- [ ] Albums with Discogs ID show a globe icon button for Discogs lookup
 - [ ] Click the search icon button on an album row
 - [ ] Dialog opens with "Look up on Bandcamp" title
-- [ ] Paste a Bandcamp album URL in the text field
+- [ ] URL field is pre-populated with a suggested Bandcamp URL
+- [ ] "Search on Bandcamp" link opens Bandcamp search in new tab
+- [ ] Hint text explains that suggested URL may not be accurate
+- [ ] Adjust URL if needed (using search link to find correct page)
 - [ ] Click "Look up"
 - [ ] Notification toast: "Found release date: YYYY-MM-DD"
 - [ ] Dialog closes, album disappears from the missing birthdays grid
@@ -145,7 +169,18 @@ mvn spring-boot:run -Dspring-boot.run.profiles=dev
 
 ---
 
-## 6. Email Notification (Mailpit)
+## 6. Stats View (`/stats`)
+
+- [ ] Click "Stats" in side navigation
+- [ ] Page shows "Stats" heading
+- [ ] Collection section shows total album count
+- [ ] Birthdays section shows total birthday count and breakdown by source
+- [ ] Missing Birthdays section shows missing count, "No MusicBrainz ID" count, and "Lookup failed" count
+- [ ] Numbers are consistent with Collection, Birthday, and Missing views
+
+---
+
+## 7. Email Notification (Mailpit)
 
 ### Startup notification
 
@@ -156,7 +191,7 @@ mvn spring-boot:run -Dspring-boot.run.profiles=dev
 
 ---
 
-## 7. Format Tracking & Reconciliation
+## 8. Format Tracking & Reconciliation
 
 - [ ] Remove a FLAC folder and re-scan — album loses "Digital" format
 - [ ] Remove a release from Discogs and re-scan — album loses "Vinyl" format
@@ -165,7 +200,7 @@ mvn spring-boot:run -Dspring-boot.run.profiles=dev
 
 ---
 
-## 8. Duplicate Handling
+## 9. Duplicate Handling
 
 - [ ] Click "Scan Collection" twice — no duplicate albums
 - [ ] Click "Scan Discogs" twice — no duplicate albums
@@ -173,7 +208,7 @@ mvn spring-boot:run -Dspring-boot.run.profiles=dev
 
 ---
 
-## 9. Cleanup
+## 10. Cleanup
 
 ```bash
 docker compose down          # Stop PostgreSQL + Mailpit
