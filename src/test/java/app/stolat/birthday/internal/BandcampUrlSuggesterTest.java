@@ -93,10 +93,10 @@ class BandcampUrlSuggesterTest {
 
     @Test
     void shouldStripLeadingAndTrailingHyphensFromSlug() {
-        // Input that starts/ends with special chars
-        var slug = BandcampUrlSuggester.toSlug("--test--");
+        // Artist name with leading/trailing special chars produces clean slug
+        var url = BandcampUrlSuggester.suggestAlbumUrl("!test!", "album");
 
-        assertThat(slug).isEqualTo("test");
+        assertThat(url).isEqualTo("https://test.bandcamp.com/album/album");
     }
 
     @Test
@@ -104,5 +104,19 @@ class BandcampUrlSuggesterTest {
         var url = BandcampUrlSuggester.suggestAlbumUrl("Radiohead", "OK Computer (Deluxe Edition)");
 
         assertThat(url).isEqualTo("https://radiohead.bandcamp.com/album/ok-computer-deluxe-edition");
+    }
+
+    @Test
+    void shouldHandleNullArtistName() {
+        var url = BandcampUrlSuggester.suggestAlbumUrl(null, "Kisses");
+
+        assertThat(url).isEqualTo("https://.bandcamp.com/album/kisses");
+    }
+
+    @Test
+    void shouldHandleNullAlbumTitle() {
+        var url = BandcampUrlSuggester.suggestAlbumUrl("Anushka", null);
+
+        assertThat(url).isEqualTo("https://anushka.bandcamp.com/album/");
     }
 }

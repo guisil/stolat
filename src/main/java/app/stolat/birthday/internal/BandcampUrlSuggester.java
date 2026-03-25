@@ -23,8 +23,8 @@ class BandcampUrlSuggester {
      * Format: https://{artist-slug}.bandcamp.com/album/{album-slug}
      */
     static String suggestAlbumUrl(String artistName, String albumTitle) {
-        var artistSlug = toSlug(stripThePrefix(artistName));
-        var albumSlug = toSlug(albumTitle);
+        var artistSlug = toSlug(stripThePrefix(artistName != null ? artistName : ""));
+        var albumSlug = toSlug(albumTitle != null ? albumTitle : "");
         return "https://" + artistSlug + ".bandcamp.com/album/" + albumSlug;
     }
 
@@ -33,7 +33,7 @@ class BandcampUrlSuggester {
      * Format: https://bandcamp.com/search?q={artist}+{album}
      */
     static String searchUrl(String artistName, String albumTitle) {
-        var query = artistName + " " + albumTitle;
+        var query = (artistName != null ? artistName : "") + " " + (albumTitle != null ? albumTitle : "");
         return "https://bandcamp.com/search?q=" + URLEncoder.encode(query, StandardCharsets.UTF_8);
     }
 
@@ -41,7 +41,7 @@ class BandcampUrlSuggester {
         return LEADING_THE.matcher(name).replaceFirst("");
     }
 
-    static String toSlug(String input) {
+    private static String toSlug(String input) {
         // Normalize unicode (e.g., accented chars) to ASCII equivalents
         var normalized = Normalizer.normalize(input, Normalizer.Form.NFD);
         var asciiOnly = DIACRITICS.matcher(normalized).replaceAll("");

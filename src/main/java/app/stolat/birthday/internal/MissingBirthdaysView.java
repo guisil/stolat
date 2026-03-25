@@ -206,8 +206,7 @@ public class MissingBirthdaysView extends VerticalLayout {
 
         var note = new NativeLabel(
                 "Suggested URL may not be accurate. Use the search link to find the correct page.");
-        note.getStyle().set("font-size", "var(--lumo-font-size-s)");
-        note.getStyle().set("color", "var(--lumo-secondary-text-color)");
+        note.addClassName("hint-text");
 
         var lookupButton = new Button("Look up", event -> {
             var url = urlField.getValue().trim();

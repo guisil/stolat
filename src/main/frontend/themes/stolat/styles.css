@@ -20,6 +20,12 @@
     --vaadin-icon-size: 24px;
 }
 
+/* Hint text in dialogs */
+.hint-text {
+    font-size: var(--lumo-font-size-s);
+    color: var(--lumo-secondary-text-color);
+}
+
 /* Version label in drawer */
 .version-label {
     padding: var(--lumo-space-s);
