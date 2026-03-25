@@ -60,7 +60,8 @@ public class BirthdayView extends VerticalLayout {
     private final TextField searchField;
 
     public BirthdayView(BirthdayService birthdayService, CollectionService collectionService,
-                        @Value("${stolat.volumio.url:}") String volumioUrl) {
+                        @Value("${stolat.volumio.url:}") String volumioUrl,
+                        @Value("${stolat.lastfm.api-key:}") String lastFmApiKey) {
         this.birthdayService = birthdayService;
         this.collectionService = collectionService;
         this.formatsByMusicBrainzId = new HashMap<>();
@@ -118,6 +119,19 @@ public class BirthdayView extends VerticalLayout {
             }
             return layout;
         }).setHeader("Format").setWidth("80px").setFlexGrow(0);
+
+        // Only add plays column if Last.fm is configured
+        if (lastFmApiKey != null && !lastFmApiKey.isEmpty()) {
+            grid.addColumn(b -> b.getPlayCount() != null ? b.getPlayCount() : "")
+                    .setHeader("Plays")
+                    .setSortable(true)
+                    .setWidth("90px").setFlexGrow(0)
+                    .setComparator((a, b) -> {
+                        var aCount = a.getPlayCount() != null ? a.getPlayCount() : 0;
+                        var bCount = b.getPlayCount() != null ? b.getPlayCount() : 0;
+                        return Integer.compare(aCount, bCount);
+                    });
+        }
 
         // Only add play column if Volumio is configured
         if (volumioUrl != null && !volumioUrl.isEmpty()) {

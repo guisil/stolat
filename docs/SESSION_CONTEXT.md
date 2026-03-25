@@ -15,10 +15,10 @@ both digital (local FLAC files) and vinyl (Discogs) collections. Uses Spring
 Modulith for modular architecture, MusicBrainz API for release date lookups, Flyway
 for migrations, Testcontainers + Karibu Testing for tests.
 
-**Branch:** `main`
+**Branch:** `feature/lastfm-integration` (based on `main`)
 **Current release:** v0.1.9
 **Dev version:** 0.1.10-SNAPSHOT
-**Tests:** 111 passing (`mvn test -Dsurefire.useFile=false`)
+**Tests:** 111 + 12 new Last.fm tests (needs verification — `mvn test -Dsurefire.useFile=false`)
 **Deployed:** Raspberry Pi (Docker, Ubuntu Server 24.04)
 
 ---
@@ -28,7 +28,7 @@ for migrations, Testcontainers + Karibu Testing for tests.
 | Module | Status | Description |
 |--------|--------|-------------|
 | `collection` | Done | Digital + vinyl collection, filesystem scanning (incl. non-MBID albums), Discogs import (with year capture), format tracking, Volumio playback |
-| `birthday` | Done | Release date lookup (MusicBrainz API + Bandcamp), caching, date range queries, release date source tracking, missing birthdays view |
+| `birthday` | Done | Release date lookup (MusicBrainz API + Bandcamp), caching, date range queries, release date source tracking, missing birthdays view, Last.fm play count integration |
 | `notification` | Done | Daily email digests via Thymeleaf templates (Gmail SMTP) |
 | `discovery` | Not started (later) | Public-facing album birthday browsing |
 
@@ -68,9 +68,15 @@ for migrations, Testcontainers + Karibu Testing for tests.
 - **Format tracking:** `@ElementCollection` with `Set<AlbumFormat>` (DIGITAL/VINYL).
   Soft delete via format reconciliation — empty formats = removed.
 - **Vaadin Push:** @Push for progressive UI updates during scans (3s polling).
+- **Last.fm integration:** Optional (conditional on `stolat.lastfm.api-key`). LastFmClient
+  fetches user play counts via `album.getinfo` endpoint. LastFmSyncService syncs play counts
+  for all albums with birthdays, skipping recently-updated ones (7-day threshold), rate-limited
+  at 200ms between requests. Play counts stored in `album_birthdays` table (V5 migration).
+  BirthdayView shows "Plays" column when Last.fm is configured. Email notifications include
+  play count when available.
 - **Views:** BirthdayView at `/` (date ranges, format icons, Volumio play button,
-  multi-sort, full-height grid), CollectionView at `/collection` (format filter,
-  scan buttons, search, multi-sort, split Birthday/Year columns),
+  Last.fm play count column, multi-sort, full-height grid), CollectionView at `/collection`
+  (format filter, scan buttons, search, multi-sort, split Birthday/Year columns),
   MissingBirthdaysView at `/missing-birthdays` (status filter, Bandcamp URL dialog,
   year column, retry button for all albums, count label with status breakdown).
   CollectionView shows total album count with birthday count.
@@ -93,6 +99,8 @@ for migrations, Testcontainers + Karibu Testing for tests.
 | `stolat.notification.from` | `StoLat <stolat@noreply.com>` | Email sender |
 | `stolat.notification.cron` | `0 0 5 * * *` | Daily digest (5am) |
 | `stolat.notification.send-on-startup` | `false` | Send digest on startup |
+| `stolat.lastfm.api-key` | (none, opt-in) | Last.fm API key |
+| `stolat.lastfm.username` | (none) | Last.fm username (for user play counts) |
 | `stolat.volumio.url` | (none, opt-in) | Volumio instance URL |
 | `stolat.user-agent` | `StoLat/{version} (...)` | User-Agent for APIs |
 
@@ -105,7 +113,8 @@ for migrations, Testcontainers + Karibu Testing for tests.
 - V4 migration: album_birthdays evolution — nullable musicbrainz_id, album_id column,
   release_date_source column (backfilled as MUSICBRAINZ), partial unique indexes
 - JAudioTagger: RouHim fork 2.0.19 via JitPack, logging set to WARN
-- Discogs/Volumio features conditional on config (@ConditionalOnProperty)
+- V5 migration: play_count and play_count_updated_at columns on album_birthdays
+- Discogs/Volumio/Last.fm features conditional on config (@ConditionalOnProperty)
 - Views are @AnonymousAllowed (auth deferred — TODO: DB-backed auth)
 - SecurityConfig has in-memory user (user/stolat) with TODO for replacement
 - Version displayed in drawer footer via BuildProperties
@@ -127,7 +136,8 @@ for migrations, Testcontainers + Karibu Testing for tests.
 
 - Additional release date sources (Spotify, Discogs API release dates)
 - Improve Bandcamp lookup UX (batch lookups, URL suggestions)
-- Investigate Last.fm API integration (explore what it could add to the experience)
+- Last.fm: add UI button to trigger sync manually, scheduled sync option
+- Last.fm: consider showing play counts on collection view and missing birthdays view
 - Notification view (settings, history, manual send, multiple recipient emails)
 - Album detail view with tracks
 - DB-backed authentication (replace in-memory user)

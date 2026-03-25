@@ -8,11 +8,12 @@
     <table>
         <tr th:each="birthday : ${birthdays}">
             <td th:text="${birthday.artistName}">Radiohead</td>
-            <td> — </td>
+            <td> &mdash; </td>
             <td th:text="${birthday.albumTitle}">OK Computer</td>
             <td> (</td>
             <td th:text="${birthday.years}">29</td>
             <td> years)</td>
+            <td th:if="${birthday.playCount != null}"> &mdash; <span th:text="${birthday.playCount}">142</span> plays</td>
         </tr>
     </table>
 </body>

@@ -15,5 +15,9 @@ stolat.notification.recipient=your-personal-email@example.com
 stolat.discogs.username=
 stolat.discogs.token=
 
+# Last.fm — get an API key at https://www.last.fm/api/account/create
+stolat.lastfm.api-key=
+stolat.lastfm.username=
+
 # Volumio — your Volumio instance URL (e.g., http://volumio.local or http://192.168.1.x)
 stolat.volumio.url=

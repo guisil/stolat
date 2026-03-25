@@ -59,7 +59,10 @@ app.stolat.birthday                   ← Birthday module: release date lookup, 
     ├── BandcampLookup.java           ← User-initiated: JSON-LD datePublished from Bandcamp pages
     ├── AlbumDiscoveredListener.java  ← Listens for new albums, triggers MusicBrainz lookup
     ├── AlbumReleaseDateResolvedListener.java ← Listens for resolved dates (e.g., Discogs year)
-    ├── BirthdayView.java             ← Birthday grid at `/`
+    ├── LastFmConfig.java             ← Conditional config for Last.fm API (@ConditionalOnProperty)
+    ├── LastFmClient.java             ← Last.fm API client (album.getinfo, user play counts)
+    ├── LastFmSyncService.java        ← Syncs play counts for all albums with birthdays
+    ├── BirthdayView.java             ← Birthday grid at `/` (includes play count column)
     ├── MissingBirthdaysView.java     ← Missing birthdays at `/missing-birthdays` (Bandcamp dialog)
     ├── repositories...
     └── ...

@@ -38,7 +38,8 @@ public class NotificationService {
                         b.getArtistName(),
                         b.getAlbumTitle(),
                         b.getReleaseDate(),
-                        ChronoUnit.YEARS.between(b.getReleaseDate(), date)))
+                        ChronoUnit.YEARS.between(b.getReleaseDate(), date),
+                        b.getPlayCount()))
                 .sorted(Comparator.comparing(BirthdayItem::releaseDate))
                 .toList();
 
@@ -52,6 +53,7 @@ public class NotificationService {
         emailSender.send(subject, body);
     }
 
-    public record BirthdayItem(String artistName, String albumTitle, LocalDate releaseDate, long years) {
+    public record BirthdayItem(String artistName, String albumTitle, LocalDate releaseDate,
+                               long years, Integer playCount) {
     }
 }

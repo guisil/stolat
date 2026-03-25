@@ -47,9 +47,10 @@ mvn spring-boot:run -Dspring-boot.run.profiles=dev
 ## 3. Birthday View (`/`)
 
 - [ ] Page shows "Album Birthdays — Today" heading
-- [ ] Grid displays with columns: Artist, Album, Birthday, Year, Format
+- [ ] Grid displays with columns: Artist, Album, Birthday, Year, Format (+ Plays if Last.fm configured)
 - [ ] "Today's Birthday Album" by "Test Artist" appears in the grid
 - [ ] Format column shows "Digital" badges for digital albums
+- [ ] If `stolat.lastfm.api-key` is configured, "Plays" column shows play counts
 - [ ] "Homogenic" by Bjork shows "Digital, Vinyl"
 - [ ] Date range selector works: Today, Last 7 days, Next 7 days, This week,
   Last 30 days, Next 30 days, This month
