@@ -12,10 +12,14 @@ import java.util.stream.Collectors;
 
 import app.stolat.birthday.internal.AlbumBirthdayRepository;
 import app.stolat.birthday.internal.BandcampLookup;
+import app.stolat.birthday.internal.DiscogsReleaseDateLookup;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+@Slf4j
 @Service
 @Transactional
 @Validated
@@ -24,13 +28,16 @@ public class BirthdayService {
     private final AlbumBirthdayRepository albumBirthdayRepository;
     private final ReleaseDateLookup releaseDateLookup;
     private final BandcampLookup bandcampLookup;
+    private final DiscogsReleaseDateLookup discogsReleaseDateLookup;
 
     public BirthdayService(AlbumBirthdayRepository albumBirthdayRepository,
                            ReleaseDateLookup releaseDateLookup,
-                           BandcampLookup bandcampLookup) {
+                           BandcampLookup bandcampLookup,
+                           @Nullable DiscogsReleaseDateLookup discogsReleaseDateLookup) {
         this.albumBirthdayRepository = albumBirthdayRepository;
         this.releaseDateLookup = releaseDateLookup;
         this.bandcampLookup = bandcampLookup;
+        this.discogsReleaseDateLookup = discogsReleaseDateLookup;
     }
 
     public Map<UUID, LocalDate> findReleaseDatesByMusicBrainzId() {
@@ -53,7 +60,6 @@ public class BirthdayService {
                     if (fromMd.compareTo(toMd) <= 0) {
                         return md.compareTo(fromMd) >= 0 && md.compareTo(toMd) <= 0;
                     } else {
-                        // wraps around year boundary (e.g., Dec 15 to Jan 15)
                         return md.compareTo(fromMd) >= 0 || md.compareTo(toMd) <= 0;
                     }
                 })
@@ -99,10 +105,16 @@ public class BirthdayService {
     public AlbumBirthday resolveReleaseDateForAlbum(UUID albumId, String albumTitle,
                                                      String artistName, LocalDate releaseDate,
                                                      ReleaseDateSource source) {
+        return resolveReleaseDateForAlbum(albumId, albumTitle, artistName, releaseDate, source, null);
+    }
+
+    public AlbumBirthday resolveReleaseDateForAlbum(UUID albumId, String albumTitle,
+                                                     String artistName, LocalDate releaseDate,
+                                                     ReleaseDateSource source, Long discogsId) {
         return albumBirthdayRepository.findByAlbumId(albumId)
                 .orElseGet(() -> albumBirthdayRepository.save(
                         new AlbumBirthday(albumTitle, artistName, albumId, null,
-                                releaseDate, source)));
+                                discogsId, releaseDate, source)));
     }
 
     public Optional<AlbumBirthday> resolveReleaseDateFromBandcamp(UUID albumId,
@@ -120,6 +132,32 @@ public class BirthdayService {
                                 releaseDate, ReleaseDateSource.BANDCAMP)));
     }
 
+    public Optional<AlbumBirthday> resolveReleaseDateFromDiscogs(UUID albumId, String albumTitle,
+                                                                   String artistName, long discogsId) {
+        if (discogsReleaseDateLookup == null) {
+            return Optional.empty();
+        }
+
+        var existing = albumBirthdayRepository.findByAlbumId(albumId);
+        if (existing.isPresent()) {
+            var birthday = existing.get();
+            if (birthday.isYearOnlyDate() && birthday.getDiscogsId() != null) {
+                var fullDate = discogsReleaseDateLookup.lookUp(discogsId);
+                if (fullDate.isPresent() && !fullDate.get().equals(birthday.getReleaseDate())) {
+                    birthday.updateReleaseDate(fullDate.get(), ReleaseDateSource.DISCOGS);
+                    albumBirthdayRepository.save(birthday);
+                    return Optional.of(birthday);
+                }
+            }
+            return existing;
+        }
+
+        return discogsReleaseDateLookup.lookUp(discogsId)
+                .map(releaseDate -> albumBirthdayRepository.save(
+                        new AlbumBirthday(albumTitle, artistName, albumId, null,
+                                discogsId, releaseDate, ReleaseDateSource.DISCOGS)));
+    }
+
     public Set<UUID> findAlbumIdsWithBirthdays() {
         var result = new HashSet<UUID>();
         for (var birthday : albumBirthdayRepository.findAll()) {
@@ -128,5 +166,32 @@ public class BirthdayService {
             }
         }
         return result;
+    }
+
+    public List<AlbumBirthday> upgradeDiscogsYearOnlyBirthdays() {
+        if (discogsReleaseDateLookup == null) {
+            log.warn("Discogs release date lookup is not configured — skipping upgrade");
+            return List.of();
+        }
+
+        var yearOnlyBirthdays = albumBirthdayRepository.findDiscogsYearOnlyBirthdays(ReleaseDateSource.DISCOGS);
+        log.info("Found {} Discogs birthdays with year-only dates to upgrade", yearOnlyBirthdays.size());
+
+        var upgraded = new java.util.ArrayList<AlbumBirthday>();
+        for (var birthday : yearOnlyBirthdays) {
+            var fullDate = discogsReleaseDateLookup.lookUp(birthday.getDiscogsId());
+            if (fullDate.isPresent() && !fullDate.get().equals(birthday.getReleaseDate())) {
+                var oldDate = birthday.getReleaseDate();
+                birthday.updateReleaseDate(fullDate.get(), ReleaseDateSource.DISCOGS);
+                albumBirthdayRepository.save(birthday);
+                log.info("Upgraded '{}' by '{}' from {} to {}",
+                        birthday.getAlbumTitle(), birthday.getArtistName(),
+                        oldDate, fullDate.get());
+                upgraded.add(birthday);
+            }
+        }
+
+        log.info("Upgraded {} of {} Discogs year-only birthdays", upgraded.size(), yearOnlyBirthdays.size());
+        return upgraded;
     }
 }
