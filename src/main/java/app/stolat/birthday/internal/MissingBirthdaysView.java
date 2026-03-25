@@ -1,8 +1,5 @@
 package app.stolat.birthday.internal;
 
-import java.util.Set;
-import java.util.UUID;
-
 import app.stolat.MainLayout;
 import app.stolat.birthday.BirthdayService;
 import app.stolat.collection.Album;
@@ -112,6 +109,14 @@ public class MissingBirthdaysView extends VerticalLayout {
             retryButton.addClickListener(e -> retryMusicBrainzLookup(album));
             actions.add(retryButton);
 
+            if (album.getDiscogsId() != null) {
+                var discogsButton = new Button(VaadinIcon.GLOBE.create());
+                discogsButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+                discogsButton.setTooltipText("Look up on Discogs");
+                discogsButton.addClickListener(e -> resolveFromDiscogs(album));
+                actions.add(discogsButton);
+            }
+
             var bandcampButton = new Button(VaadinIcon.SEARCH.create());
             bandcampButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
             bandcampButton.setTooltipText("Look up on Bandcamp");
@@ -119,7 +124,7 @@ public class MissingBirthdaysView extends VerticalLayout {
             actions.add(bandcampButton);
 
             return actions;
-        }).setHeader("").setWidth("100px").setFlexGrow(0);
+        }).setHeader("").setWidth("140px").setFlexGrow(0);
         grid.getColumns().forEach(c -> c.setResizable(true));
         grid.sort(GridSortOrder.asc(artistColumn)
                 .thenAsc(yearColumn).build());
@@ -144,8 +149,9 @@ public class MissingBirthdaysView extends VerticalLayout {
         });
 
         var retryAllButton = new Button("Retry All Lookups", VaadinIcon.REFRESH.create(), event -> retryAllMusicBrainzLookups());
+        var upgradeDiscogsButton = new Button("Upgrade Discogs Dates", VaadinIcon.GLOBE.create(), event -> upgradeDiscogsYearOnlyBirthdays());
 
-        var toolbar = new HorizontalLayout(retryAllButton, statusFilter, searchField);
+        var toolbar = new HorizontalLayout(retryAllButton, upgradeDiscogsButton, statusFilter, searchField);
         toolbar.setDefaultVerticalComponentAlignment(Alignment.BASELINE);
 
         add(heading, countLabel, toolbar, grid);
@@ -212,6 +218,32 @@ public class MissingBirthdaysView extends VerticalLayout {
         dialog.add(content);
         dialog.getFooter().add(new Button("Cancel", e -> dialog.close()), lookupButton);
         dialog.open();
+    }
+
+    private void resolveFromDiscogs(Album album) {
+        if (album.getDiscogsId() == null) {
+            Notification.show("No Discogs ID for this album");
+            return;
+        }
+        var result = birthdayService.resolveReleaseDateFromDiscogs(
+                album.getId(), album.getTitle(), album.getArtist().getName(), album.getDiscogsId());
+
+        if (result.isPresent()) {
+            var birthday = result.get();
+            collectionService.updateAlbumReleaseDateById(album.getId(), birthday.getReleaseDate());
+            Notification.show("Found release date: " + birthday.getReleaseDate());
+            searchField.clear();
+            refreshGrid();
+        } else {
+            Notification.show("Could not find release date on Discogs");
+        }
+    }
+
+    private void upgradeDiscogsYearOnlyBirthdays() {
+        var upgraded = birthdayService.upgradeDiscogsYearOnlyBirthdays();
+        Notification.show("Upgraded " + upgraded + " Discogs year-only birthdays to full dates");
+        searchField.clear();
+        refreshGrid();
     }
 
     private void retryAllMusicBrainzLookups() {

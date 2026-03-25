@@ -359,7 +359,7 @@ public class CollectionService {
             if (release.year() != null) {
                 eventPublisher.publishEvent(new AlbumReleaseDateResolvedEvent(
                         album.getId(), album.getTitle(), artist.getName(),
-                        LocalDate.of(release.year(), 1, 1)));
+                        LocalDate.of(release.year(), 1, 1), release.discogsId()));
             }
         }
 

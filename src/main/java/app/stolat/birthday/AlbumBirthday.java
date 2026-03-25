@@ -36,6 +36,9 @@ public class AlbumBirthday {
     @Column(name = "musicbrainz_id")
     private UUID musicBrainzId;
 
+    @Column(name = "discogs_id")
+    private Long discogsId;
+
     @Column(name = "release_date", nullable = false)
     private LocalDate releaseDate;
 
@@ -55,13 +58,28 @@ public class AlbumBirthday {
 
     public AlbumBirthday(String albumTitle, String artistName, UUID albumId, UUID musicBrainzId,
                          LocalDate releaseDate, ReleaseDateSource releaseDateSource) {
+        this(albumTitle, artistName, albumId, musicBrainzId, null, releaseDate, releaseDateSource);
+    }
+
+    public AlbumBirthday(String albumTitle, String artistName, UUID albumId, UUID musicBrainzId,
+                         Long discogsId, LocalDate releaseDate, ReleaseDateSource releaseDateSource) {
         this.id = UUID.randomUUID();
         this.albumTitle = albumTitle;
         this.artistName = artistName;
         this.albumId = albumId;
         this.musicBrainzId = musicBrainzId;
+        this.discogsId = discogsId;
         this.releaseDate = releaseDate;
         this.releaseDateSource = releaseDateSource;
+    }
+
+    public void updateReleaseDate(LocalDate releaseDate, ReleaseDateSource source) {
+        this.releaseDate = releaseDate;
+        this.releaseDateSource = source;
+    }
+
+    public boolean isYearOnlyDate() {
+        return releaseDate.getMonthValue() == 1 && releaseDate.getDayOfMonth() == 1;
     }
 
     @PrePersist

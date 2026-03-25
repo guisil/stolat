@@ -21,9 +21,9 @@ class AlbumReleaseDateResolvedListener {
     @Async
     @EventListener
     void onAlbumReleaseDateResolved(AlbumReleaseDateResolvedEvent event) {
-        log.info("Storing release date {} for '{}' by '{}' (from external source)",
-                event.releaseDate(), event.albumTitle(), event.artistName());
+        log.info("Storing release date {} for '{}' by '{}' (from external source, discogsId={})",
+                event.releaseDate(), event.albumTitle(), event.artistName(), event.discogsId());
         birthdayService.resolveReleaseDateForAlbum(event.albumId(), event.albumTitle(),
-                event.artistName(), event.releaseDate(), ReleaseDateSource.DISCOGS);
+                event.artistName(), event.releaseDate(), ReleaseDateSource.DISCOGS, event.discogsId());
     }
 }

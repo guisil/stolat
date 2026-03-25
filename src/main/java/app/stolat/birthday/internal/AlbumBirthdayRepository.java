@@ -16,4 +16,9 @@ public interface AlbumBirthdayRepository extends JpaRepository<AlbumBirthday, UU
     Optional<AlbumBirthday> findByMusicBrainzId(UUID musicBrainzId);
 
     Optional<AlbumBirthday> findByAlbumId(UUID albumId);
+
+    @Query("SELECT ab FROM AlbumBirthday ab WHERE ab.discogsId IS NOT NULL " +
+           "AND ab.releaseDateSource = 'DISCOGS' " +
+           "AND MONTH(ab.releaseDate) = 1 AND DAY(ab.releaseDate) = 1")
+    List<AlbumBirthday> findDiscogsYearOnlyBirthdays();
 }

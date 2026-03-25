@@ -63,6 +63,12 @@ for migrations, Testcontainers + Karibu Testing for tests.
 - **Release date sources:** `ReleaseDateSource` enum (MUSICBRAINZ, DISCOGS, BANDCAMP, MANUAL)
   tracked on each AlbumBirthday. Albums without MusicBrainz IDs can now have birthdays
   via albumId-based lookup (e.g., Discogs year fallback, Bandcamp user-initiated lookup).
+- **Discogs full dates:** `DiscogsReleaseDateLookup` in birthday module fetches full release
+  dates from `GET /releases/{discogsId}`. Handles YYYY, YYYY-MM-00, YYYY-MM-DD formats.
+  `AlbumBirthday` entity stores `discogsId` for upgrade tracking. Batch upgrade via
+  `BirthdayService.upgradeDiscogsYearOnlyBirthdays()` finds Jan-1 Discogs entries and
+  re-fetches from API. UI: "Upgrade Discogs Dates" button on MissingBirthdaysView toolbar,
+  per-album Discogs lookup button (globe icon) for albums with discogsId.
 - **Bandcamp lookup:** `BandcampLookup` component fetches album page HTML and extracts
   `datePublished` from JSON-LD. User-initiated only (no automated crawling).
 - **Format tracking:** `@ElementCollection` with `Set<AlbumFormat>` (DIGITAL/VINYL).
@@ -104,6 +110,7 @@ for migrations, Testcontainers + Karibu Testing for tests.
 - V3 migration: indexes on musicbrainz_id, discogs_id columns
 - V4 migration: album_birthdays evolution — nullable musicbrainz_id, album_id column,
   release_date_source column (backfilled as MUSICBRAINZ), partial unique indexes
+- V5 migration: add discogs_id column to album_birthdays (with partial index)
 - JAudioTagger: RouHim fork 2.0.19 via JitPack, logging set to WARN
 - Discogs/Volumio features conditional on config (@ConditionalOnProperty)
 - Views are @AnonymousAllowed (auth deferred — TODO: DB-backed auth)
@@ -125,7 +132,7 @@ for migrations, Testcontainers + Karibu Testing for tests.
 
 ## What's Next
 
-- Additional release date sources (Spotify, Discogs API release dates)
+- Additional release date sources (Spotify)
 - Improve Bandcamp lookup UX (batch lookups, URL suggestions)
 - Investigate Last.fm API integration (explore what it could add to the experience)
 - Notification view (settings, history, manual send, multiple recipient emails)
