@@ -31,6 +31,7 @@ public class MainLayout extends AppLayout {
         nav.addItem(new SideNavItem("Birthdays", ""));
         nav.addItem(new SideNavItem("Collection", "collection"));
         nav.addItem(new SideNavItem("Missing", "missing-birthdays"));
+        nav.addItem(new SideNavItem("Stats", "stats"));
 
         var drawerContent = new VerticalLayout(new Scroller(nav));
         drawerContent.setSizeFull();

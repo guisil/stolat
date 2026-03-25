@@ -75,9 +75,8 @@ class CollectionViewTest {
 
     @Test
     @WithMockUser
-    void shouldDisplayAlbumCountWithBirthdayCount() {
-        var album1 = collectionService.importAlbum("Radiohead", UUID.randomUUID(), "OK Computer", UUID.randomUUID());
-        collectionService.updateAlbumReleaseDate(album1.getMusicBrainzId(), LocalDate.of(1997, 6, 16));
+    void shouldDisplayAlbumCount() {
+        collectionService.importAlbum("Radiohead", UUID.randomUUID(), "OK Computer", UUID.randomUUID());
         collectionService.importAlbum("Portishead", null, "Dummy", null);
 
         UI.getCurrent().navigate(CollectionView.class);
@@ -86,8 +85,7 @@ class CollectionViewTest {
                 .filter(s -> s.getText().contains("albums"))
                 .findFirst()
                 .orElseThrow();
-        assertThat(countLabel.getText()).contains("2 albums");
-        assertThat(countLabel.getText()).contains("1 with birthdays");
+        assertThat(countLabel.getText()).isEqualTo("2 albums");
     }
 
     @Test
