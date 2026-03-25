@@ -168,16 +168,16 @@ public class BirthdayService {
         return result;
     }
 
-    public int upgradeDiscogsYearOnlyBirthdays() {
+    public List<AlbumBirthday> upgradeDiscogsYearOnlyBirthdays() {
         if (discogsReleaseDateLookup == null) {
             log.warn("Discogs release date lookup is not configured — skipping upgrade");
-            return 0;
+            return List.of();
         }
 
         var yearOnlyBirthdays = albumBirthdayRepository.findDiscogsYearOnlyBirthdays(ReleaseDateSource.DISCOGS);
         log.info("Found {} Discogs birthdays with year-only dates to upgrade", yearOnlyBirthdays.size());
 
-        int upgraded = 0;
+        var upgraded = new java.util.ArrayList<AlbumBirthday>();
         for (var birthday : yearOnlyBirthdays) {
             var fullDate = discogsReleaseDateLookup.lookUp(birthday.getDiscogsId());
             if (fullDate.isPresent() && !fullDate.get().equals(birthday.getReleaseDate())) {
@@ -187,11 +187,11 @@ public class BirthdayService {
                 log.info("Upgraded '{}' by '{}' from {} to {}",
                         birthday.getAlbumTitle(), birthday.getArtistName(),
                         oldDate, fullDate.get());
-                upgraded++;
+                upgraded.add(birthday);
             }
         }
 
-        log.info("Upgraded {} of {} Discogs year-only birthdays", upgraded, yearOnlyBirthdays.size());
+        log.info("Upgraded {} of {} Discogs year-only birthdays", upgraded.size(), yearOnlyBirthdays.size());
         return upgraded;
     }
 }

@@ -241,7 +241,12 @@ public class MissingBirthdaysView extends VerticalLayout {
 
     private void upgradeDiscogsYearOnlyBirthdays() {
         var upgraded = birthdayService.upgradeDiscogsYearOnlyBirthdays();
-        Notification.show("Upgraded " + upgraded + " Discogs year-only birthdays to full dates");
+        for (var birthday : upgraded) {
+            if (birthday.getAlbumId() != null) {
+                collectionService.updateAlbumReleaseDateById(birthday.getAlbumId(), birthday.getReleaseDate());
+            }
+        }
+        Notification.show("Upgraded " + upgraded.size() + " Discogs year-only birthdays to full dates");
         searchField.clear();
         refreshGrid();
     }

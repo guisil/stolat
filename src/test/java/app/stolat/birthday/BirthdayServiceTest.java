@@ -346,6 +346,38 @@ class BirthdayServiceTest {
     }
 
     @Test
+    void shouldReturnExistingWhenResolvingFromDiscogsAndYearOnlyButLookupReturnsSameDate() {
+        var albumId = UUID.randomUUID();
+        var existing = new AlbumBirthday("OK Computer", "Radiohead",
+                albumId, null, 12345L, LocalDate.of(1997, 1, 1), ReleaseDateSource.DISCOGS);
+        given(albumBirthdayRepository.findByAlbumId(albumId)).willReturn(Optional.of(existing));
+        given(discogsReleaseDateLookup.lookUp(12345L)).willReturn(Optional.of(LocalDate.of(1997, 1, 1)));
+
+        var result = birthdayService.resolveReleaseDateFromDiscogs(albumId, "OK Computer",
+                "Radiohead", 12345L);
+
+        assertThat(result).isPresent();
+        assertThat(result.get().getReleaseDate()).isEqualTo(LocalDate.of(1997, 1, 1));
+        then(albumBirthdayRepository).should(never()).save(any());
+    }
+
+    @Test
+    void shouldReturnExistingWhenResolvingFromDiscogsAndYearOnlyButLookupFails() {
+        var albumId = UUID.randomUUID();
+        var existing = new AlbumBirthday("OK Computer", "Radiohead",
+                albumId, null, 12345L, LocalDate.of(1997, 1, 1), ReleaseDateSource.DISCOGS);
+        given(albumBirthdayRepository.findByAlbumId(albumId)).willReturn(Optional.of(existing));
+        given(discogsReleaseDateLookup.lookUp(12345L)).willReturn(Optional.empty());
+
+        var result = birthdayService.resolveReleaseDateFromDiscogs(albumId, "OK Computer",
+                "Radiohead", 12345L);
+
+        assertThat(result).isPresent();
+        assertThat(result.get()).isEqualTo(existing);
+        then(albumBirthdayRepository).should(never()).save(any());
+    }
+
+    @Test
     void shouldReturnExistingWhenResolvingFromDiscogsAndAlreadyHasFullDate() {
         var albumId = UUID.randomUUID();
         var existing = new AlbumBirthday("OK Computer", "Radiohead",
@@ -373,6 +405,28 @@ class BirthdayServiceTest {
     }
 
     @Test
+    void shouldReturnEmptyWhenDiscogsNotConfigured() {
+        var service = new BirthdayService(albumBirthdayRepository, releaseDateLookup,
+                bandcampLookup, null);
+
+        var result = service.resolveReleaseDateFromDiscogs(UUID.randomUUID(), "X", "Y", 12345L);
+
+        assertThat(result).isEmpty();
+        then(albumBirthdayRepository).shouldHaveNoInteractions();
+    }
+
+    @Test
+    void shouldReturnEmptyListWhenUpgradingAndDiscogsNotConfigured() {
+        var service = new BirthdayService(albumBirthdayRepository, releaseDateLookup,
+                bandcampLookup, null);
+
+        var result = service.upgradeDiscogsYearOnlyBirthdays();
+
+        assertThat(result).isEmpty();
+        then(albumBirthdayRepository).shouldHaveNoInteractions();
+    }
+
+    @Test
     void shouldUpgradeDiscogsYearOnlyBirthdays() {
         var birthday = new AlbumBirthday("OK Computer", "Radiohead",
                 UUID.randomUUID(), null, 12345L, LocalDate.of(1997, 1, 1), ReleaseDateSource.DISCOGS);
@@ -384,7 +438,8 @@ class BirthdayServiceTest {
 
         var upgraded = birthdayService.upgradeDiscogsYearOnlyBirthdays();
 
-        assertThat(upgraded).isEqualTo(1);
+        assertThat(upgraded).hasSize(1);
+        assertThat(upgraded.getFirst().getReleaseDate()).isEqualTo(fullDate);
         then(albumBirthdayRepository).should().save(any(AlbumBirthday.class));
     }
 
@@ -397,7 +452,7 @@ class BirthdayServiceTest {
 
         var upgraded = birthdayService.upgradeDiscogsYearOnlyBirthdays();
 
-        assertThat(upgraded).isEqualTo(0);
+        assertThat(upgraded).isEmpty();
         then(albumBirthdayRepository).should(never()).save(any());
     }
 
@@ -410,7 +465,7 @@ class BirthdayServiceTest {
 
         var upgraded = birthdayService.upgradeDiscogsYearOnlyBirthdays();
 
-        assertThat(upgraded).isEqualTo(0);
+        assertThat(upgraded).isEmpty();
         then(albumBirthdayRepository).should(never()).save(any());
     }
 
