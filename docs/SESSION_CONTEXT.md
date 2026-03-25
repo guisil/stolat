@@ -18,7 +18,7 @@ for migrations, Testcontainers + Karibu Testing for tests.
 **Branch:** `main`
 **Current release:** v0.1.9
 **Dev version:** 0.1.10-SNAPSHOT
-**Tests:** 111 passing (`mvn test -Dsurefire.useFile=false`)
+**Tests:** 125 passing (`mvn test -Dsurefire.useFile=false`)
 **Deployed:** Raspberry Pi (Docker, Ubuntu Server 24.04)
 
 ---
@@ -71,6 +71,8 @@ for migrations, Testcontainers + Karibu Testing for tests.
   per-album Discogs lookup button (globe icon) for albums with discogsId.
 - **Bandcamp lookup:** `BandcampLookup` component fetches album page HTML and extracts
   `datePublished` from JSON-LD. User-initiated only (no automated crawling).
+  `BandcampUrlSuggester` generates candidate URLs from artist/album names and Bandcamp
+  search links. MissingBirthdaysView dialog pre-populates suggested URL and shows search link.
 - **Format tracking:** `@ElementCollection` with `Set<AlbumFormat>` (DIGITAL/VINYL).
   Soft delete via format reconciliation — empty formats = removed.
 - **Vaadin Push:** @Push for progressive UI updates during scans (3s polling).
@@ -133,7 +135,7 @@ for migrations, Testcontainers + Karibu Testing for tests.
 ## What's Next
 
 - Additional release date sources (Spotify)
-- Improve Bandcamp lookup UX (batch lookups, URL suggestions)
+- Improve Bandcamp lookup UX (batch lookups)
 - Investigate Last.fm API integration (explore what it could add to the experience)
 - Notification view (settings, history, manual send, multiple recipient emails)
 - Album detail view with tracks

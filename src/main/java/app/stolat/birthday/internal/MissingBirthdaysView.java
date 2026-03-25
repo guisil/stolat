@@ -10,7 +10,9 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
@@ -189,9 +191,22 @@ public class MissingBirthdaysView extends VerticalLayout {
         var dialog = new Dialog();
         dialog.setHeaderTitle("Look up on Bandcamp");
 
+        var artistName = album.getArtist().getName();
+        var albumTitle = album.getTitle();
+
         var urlField = new TextField("Bandcamp URL");
         urlField.setPlaceholder("https://artist.bandcamp.com/album/...");
+        urlField.setValue(BandcampUrlSuggester.suggestAlbumUrl(artistName, albumTitle));
         urlField.setWidthFull();
+
+        var searchLink = new Anchor(
+                BandcampUrlSuggester.searchUrl(artistName, albumTitle),
+                "Search on Bandcamp");
+        searchLink.setTarget("_blank");
+
+        var note = new NativeLabel(
+                "Suggested URL may not be accurate. Use the search link to find the correct page.");
+        note.addClassName("hint-text");
 
         var lookupButton = new Button("Look up", event -> {
             var url = urlField.getValue().trim();
@@ -213,7 +228,7 @@ public class MissingBirthdaysView extends VerticalLayout {
         });
         lookupButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
-        var content = new VerticalLayout(urlField);
+        var content = new VerticalLayout(urlField, searchLink, note);
         content.setPadding(false);
         dialog.add(content);
         dialog.getFooter().add(new Button("Cancel", e -> dialog.close()), lookupButton);

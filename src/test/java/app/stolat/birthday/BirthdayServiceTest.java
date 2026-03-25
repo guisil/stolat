@@ -39,6 +39,19 @@ class BirthdayServiceTest {
     private BirthdayService birthdayService;
 
     @Test
+    void shouldReturnAllBirthdays() {
+        var birthday1 = new AlbumBirthday("OK Computer", "Radiohead",
+                UUID.randomUUID(), LocalDate.of(1997, 6, 16));
+        var birthday2 = new AlbumBirthday("Kid A", "Radiohead",
+                UUID.randomUUID(), LocalDate.of(2000, 10, 2));
+        given(albumBirthdayRepository.findAll()).willReturn(List.of(birthday1, birthday2));
+
+        var results = birthdayService.findAllBirthdays();
+
+        assertThat(results).hasSize(2);
+    }
+
+    @Test
     void shouldReturnBirthdaysBetweenDatesWhenRangeWithinSameYear() {
         var birthday1 = new AlbumBirthday("OK Computer", "Radiohead",
                 UUID.randomUUID(), LocalDate.of(1997, 6, 16));

@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 import app.stolat.MainLayout;
 import app.stolat.birthday.AlbumBirthday;
 import app.stolat.birthday.BirthdayService;
+import app.stolat.birthday.ReleaseDateSource;
 import app.stolat.collection.Album;
 import app.stolat.collection.AlbumFormat;
 import app.stolat.collection.CollectionService;
@@ -43,6 +44,7 @@ import org.springframework.beans.factory.annotation.Value;
 @AnonymousAllowed
 public class BirthdayView extends VerticalLayout {
 
+    private static final String ALL = "All";
     private static final String TODAY = "Today";
     private static final String LAST_7_DAYS = "Last 7 days";
     private static final String NEXT_7_DAYS = "Next 7 days";
@@ -51,13 +53,21 @@ public class BirthdayView extends VerticalLayout {
     private static final String NEXT_30_DAYS = "Next 30 days";
     private static final String THIS_MONTH = "This month";
 
+    private static final String ALL_SOURCES = "All sources";
+    private static final String SOURCE_MUSICBRAINZ = "MusicBrainz";
+    private static final String SOURCE_DISCOGS = "Discogs";
+    private static final String SOURCE_BANDCAMP = "Bandcamp";
+    private static final String SOURCE_MANUAL = "Manual";
+
     private final BirthdayService birthdayService;
     private final CollectionService collectionService;
     private Map<UUID, Set<AlbumFormat>> formatsByMusicBrainzId;
     private Map<UUID, Set<AlbumFormat>> formatsByAlbumId;
     private final Grid<AlbumBirthday> grid;
     private final H2 heading;
+    private final Span countLabel;
     private final TextField searchField;
+    private final Select<String> sourceFilter;
 
     public BirthdayView(BirthdayService birthdayService, CollectionService collectionService,
                         @Value("${stolat.volumio.url:}") String volumioUrl) {
@@ -67,6 +77,8 @@ public class BirthdayView extends VerticalLayout {
 
         heading = new H2("Album Birthdays \u2014 Today");
 
+        countLabel = new Span();
+
         searchField = new TextField();
         searchField.setPlaceholder("Search...");
         searchField.setPrefixComponent(VaadinIcon.SEARCH.create());
@@ -75,10 +87,16 @@ public class BirthdayView extends VerticalLayout {
         var session = VaadinSession.getCurrent();
         var savedRange = (String) session.getAttribute("birthday.range");
         var savedSearch = (String) session.getAttribute("birthday.search");
+        var savedSource = (String) session.getAttribute("birthday.source");
 
         var rangeSelect = new Select<String>();
-        rangeSelect.setItems(TODAY, LAST_7_DAYS, NEXT_7_DAYS, THIS_WEEK, LAST_30_DAYS, NEXT_30_DAYS, THIS_MONTH);
+        rangeSelect.setItems(ALL, TODAY, LAST_7_DAYS, NEXT_7_DAYS, THIS_WEEK, LAST_30_DAYS, NEXT_30_DAYS, THIS_MONTH);
         rangeSelect.setValue(savedRange != null ? savedRange : TODAY);
+
+        sourceFilter = new Select<>();
+        sourceFilter.setItems(ALL_SOURCES, SOURCE_MUSICBRAINZ, SOURCE_DISCOGS, SOURCE_BANDCAMP, SOURCE_MANUAL);
+        sourceFilter.setValue(savedSource != null ? savedSource : ALL_SOURCES);
+        sourceFilter.setLabel("Source");
 
         var monthDayFormatter = DateTimeFormatter.ofPattern("MMM dd");
 
@@ -96,6 +114,12 @@ public class BirthdayView extends VerticalLayout {
                 .setSortable(true)
                 .setWidth("90px").setFlexGrow(0)
                 .setComparator((a, b) -> Integer.compare(a.getReleaseDate().getYear(), b.getReleaseDate().getYear()));
+        grid.addColumn(b -> switch (b.getReleaseDateSource()) {
+            case MUSICBRAINZ -> SOURCE_MUSICBRAINZ;
+            case DISCOGS -> SOURCE_DISCOGS;
+            case BANDCAMP -> SOURCE_BANDCAMP;
+            case MANUAL -> SOURCE_MANUAL;
+        }).setHeader("Source").setSortable(true).setWidth("120px").setFlexGrow(0);
         grid.addComponentColumn(b -> {
             var formats = b.getMusicBrainzId() != null
                     ? formatsByMusicBrainzId.get(b.getMusicBrainzId())
@@ -167,13 +191,19 @@ public class BirthdayView extends VerticalLayout {
             updateGrid(event.getValue());
         });
 
-        var toolbar = new HorizontalLayout(rangeSelect, searchField);
+        sourceFilter.addValueChangeListener(event -> {
+            searchField.clear();
+            session.setAttribute("birthday.source", event.getValue());
+            applySourceFilter();
+        });
+
+        var toolbar = new HorizontalLayout(rangeSelect, sourceFilter, searchField);
         toolbar.setDefaultVerticalComponentAlignment(Alignment.BASELINE);
 
         setSizeFull();
         grid.setSizeFull();
 
-        add(heading, toolbar, grid);
+        add(heading, countLabel, toolbar, grid);
         setFlexGrow(1, grid);
     }
 
@@ -188,6 +218,7 @@ public class BirthdayView extends VerticalLayout {
         var today = LocalDate.now();
 
         var birthdays = switch (range) {
+            case ALL -> birthdayService.findAllBirthdays();
             case LAST_7_DAYS -> birthdayService.findBirthdaysBetween(today.minusDays(7), today);
             case NEXT_7_DAYS -> birthdayService.findBirthdaysBetween(today, today.plusDays(7));
             case THIS_WEEK -> birthdayService.findBirthdaysBetween(
@@ -205,20 +236,56 @@ public class BirthdayView extends VerticalLayout {
 
         var dataProvider = new ListDataProvider<>(birthdays);
         grid.setItems(dataProvider);
+
+        if (sourceFilter != null) {
+            applySourceFilter();
+        } else {
+            updateCountLabel(birthdays.size());
+        }
     }
 
     @SuppressWarnings("unchecked")
-    private void applySearchFilter() {
+    private void applySourceFilter() {
         var dp = grid.getDataProvider();
         if (dp instanceof ListDataProvider<?>) {
             var listDataProvider = (ListDataProvider<AlbumBirthday>) dp;
             listDataProvider.clearFilters();
+
+            var selectedSource = sourceFilter != null ? sourceFilter.getValue() : ALL_SOURCES;
+            if (!ALL_SOURCES.equals(selectedSource)) {
+                var source = switch (selectedSource) {
+                    case SOURCE_MUSICBRAINZ -> ReleaseDateSource.MUSICBRAINZ;
+                    case SOURCE_DISCOGS -> ReleaseDateSource.DISCOGS;
+                    case SOURCE_BANDCAMP -> ReleaseDateSource.BANDCAMP;
+                    case SOURCE_MANUAL -> ReleaseDateSource.MANUAL;
+                    default -> null;
+                };
+                if (source != null) {
+                    listDataProvider.addFilter(b -> b.getReleaseDateSource() == source);
+                }
+            }
+
             var filterText = searchField.getValue().trim().toLowerCase();
             if (!filterText.isEmpty()) {
                 listDataProvider.addFilter(birthday ->
                         birthday.getArtistName().toLowerCase().contains(filterText) ||
                         birthday.getAlbumTitle().toLowerCase().contains(filterText));
             }
+
+            var filter = listDataProvider.getFilter();
+            var filteredCount = filter != null
+                    ? (int) listDataProvider.getItems().stream().filter(filter).count()
+                    : listDataProvider.getItems().size();
+            updateCountLabel(filteredCount);
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void applySearchFilter() {
+        applySourceFilter();
+    }
+
+    private void updateCountLabel(int count) {
+        countLabel.setText(count + (count == 1 ? " birthday" : " birthdays"));
     }
 }

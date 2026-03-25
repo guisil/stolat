@@ -40,6 +40,10 @@ public class BirthdayService {
         this.discogsReleaseDateLookup = discogsReleaseDateLookup;
     }
 
+    public List<AlbumBirthday> findAllBirthdays() {
+        return albumBirthdayRepository.findAll();
+    }
+
     public Map<UUID, LocalDate> findReleaseDatesByMusicBrainzId() {
         return albumBirthdayRepository.findAll().stream()
                 .filter(b -> b.getMusicBrainzId() != null)
