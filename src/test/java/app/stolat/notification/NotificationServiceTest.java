@@ -71,6 +71,20 @@ class NotificationServiceTest {
     }
 
     @Test
+    void shouldIncludePlayCountWhenAvailable() {
+        var today = LocalDate.of(2026, 6, 16);
+        var birthday = new AlbumBirthday("OK Computer", "Radiohead",
+                UUID.randomUUID(), LocalDate.of(1997, 6, 16));
+        birthday.updatePlayCount(142);
+        given(birthdayService.findBirthdaysOn(today)).willReturn(List.of(birthday));
+
+        notificationService().sendDailyDigest(today);
+
+        then(emailSender).should().send(contains("Album Birthdays"), argThat(body ->
+                body.contains("142 plays")));
+    }
+
+    @Test
     void shouldNotSendEmailWhenNoBirthdays() {
         var today = LocalDate.of(2026, 1, 1);
         given(birthdayService.findBirthdaysOn(today)).willReturn(List.of());

@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import app.stolat.birthday.internal.AlbumBirthdayRepository;
 import app.stolat.birthday.internal.BandcampLookup;
 import app.stolat.birthday.internal.DiscogsReleaseDateLookup;
+import app.stolat.birthday.internal.LastFmClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
@@ -29,15 +30,18 @@ public class BirthdayService {
     private final ReleaseDateLookup releaseDateLookup;
     private final BandcampLookup bandcampLookup;
     private final DiscogsReleaseDateLookup discogsReleaseDateLookup;
+    private final LastFmClient lastFmClient;
 
     public BirthdayService(AlbumBirthdayRepository albumBirthdayRepository,
                            ReleaseDateLookup releaseDateLookup,
                            BandcampLookup bandcampLookup,
-                           @Nullable DiscogsReleaseDateLookup discogsReleaseDateLookup) {
+                           @Nullable DiscogsReleaseDateLookup discogsReleaseDateLookup,
+                           @Nullable LastFmClient lastFmClient) {
         this.albumBirthdayRepository = albumBirthdayRepository;
         this.releaseDateLookup = releaseDateLookup;
         this.bandcampLookup = bandcampLookup;
         this.discogsReleaseDateLookup = discogsReleaseDateLookup;
+        this.lastFmClient = lastFmClient;
     }
 
     public List<AlbumBirthday> findAllBirthdays() {
@@ -197,5 +201,28 @@ public class BirthdayService {
 
         log.info("Upgraded {} of {} Discogs year-only birthdays", upgraded.size(), yearOnlyBirthdays.size());
         return upgraded;
+    }
+
+    public int syncPlayCounts() {
+        if (lastFmClient == null) {
+            log.warn("Last.fm is not configured — skipping play count sync");
+            return 0;
+        }
+
+        var birthdays = albumBirthdayRepository.findAll();
+        log.info("Syncing play counts for {} birthdays", birthdays.size());
+
+        int synced = 0;
+        for (var birthday : birthdays) {
+            var playCount = lastFmClient.fetchPlayCount(birthday.getArtistName(), birthday.getAlbumTitle());
+            if (playCount.isPresent()) {
+                birthday.updatePlayCount(playCount.getAsInt());
+                albumBirthdayRepository.save(birthday);
+                synced++;
+            }
+        }
+
+        log.info("Synced play counts for {} of {} birthdays", synced, birthdays.size());
+        return synced;
     }
 }

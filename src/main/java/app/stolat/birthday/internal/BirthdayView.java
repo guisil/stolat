@@ -70,7 +70,8 @@ public class BirthdayView extends VerticalLayout {
     private final Select<String> sourceFilter;
 
     public BirthdayView(BirthdayService birthdayService, CollectionService collectionService,
-                        @Value("${stolat.volumio.url:}") String volumioUrl) {
+                        @Value("${stolat.volumio.url:}") String volumioUrl,
+                        @Value("${stolat.lastfm.api-key:}") String lastFmApiKey) {
         this.birthdayService = birthdayService;
         this.collectionService = collectionService;
         this.formatsByMusicBrainzId = new HashMap<>();
@@ -120,6 +121,13 @@ public class BirthdayView extends VerticalLayout {
             case BANDCAMP -> SOURCE_BANDCAMP;
             case MANUAL -> SOURCE_MANUAL;
         }).setHeader("Source").setSortable(true).setWidth("120px").setFlexGrow(0);
+        grid.addColumn(b -> b.getPlayCount() != null ? b.getPlayCount() : "")
+                .setHeader("Plays").setSortable(true).setWidth("90px").setFlexGrow(0)
+                .setComparator((a, b) -> {
+                    var pa = a.getPlayCount() != null ? a.getPlayCount() : 0;
+                    var pb = b.getPlayCount() != null ? b.getPlayCount() : 0;
+                    return Integer.compare(pa, pb);
+                });
         grid.addComponentColumn(b -> {
             var formats = b.getMusicBrainzId() != null
                     ? formatsByMusicBrainzId.get(b.getMusicBrainzId())
@@ -198,6 +206,14 @@ public class BirthdayView extends VerticalLayout {
         });
 
         var toolbar = new HorizontalLayout(rangeSelect, sourceFilter, searchField);
+        if (lastFmApiKey != null && !lastFmApiKey.isEmpty()) {
+            var syncButton = new Button("Sync Plays", event -> {
+                var synced = birthdayService.syncPlayCounts();
+                Notification.show("Synced play counts for " + synced + " albums");
+                updateGrid(rangeSelect.getValue());
+            });
+            toolbar.add(syncButton);
+        }
         toolbar.setDefaultVerticalComponentAlignment(Alignment.BASELINE);
 
         setSizeFull();

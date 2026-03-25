@@ -13,6 +13,8 @@
             <td> (</td>
             <td th:text="${birthday.years}">29</td>
             <td> years)</td>
+            <td th:if="${birthday.playCount != null}"> — </td>
+            <td th:if="${birthday.playCount != null}" th:text="${birthday.playCount} + ' plays'">142 plays</td>
         </tr>
     </table>
 </body>

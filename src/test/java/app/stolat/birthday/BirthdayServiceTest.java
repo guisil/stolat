@@ -3,6 +3,7 @@ package app.stolat.birthday;
 import app.stolat.birthday.internal.AlbumBirthdayRepository;
 import app.stolat.birthday.internal.BandcampLookup;
 import app.stolat.birthday.internal.DiscogsReleaseDateLookup;
+import app.stolat.birthday.internal.LastFmClient;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -12,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,6 +36,9 @@ class BirthdayServiceTest {
 
     @Mock
     private DiscogsReleaseDateLookup discogsReleaseDateLookup;
+
+    @Mock
+    private LastFmClient lastFmClient;
 
     @InjectMocks
     private BirthdayService birthdayService;
@@ -420,7 +425,7 @@ class BirthdayServiceTest {
     @Test
     void shouldReturnEmptyWhenDiscogsNotConfigured() {
         var service = new BirthdayService(albumBirthdayRepository, releaseDateLookup,
-                bandcampLookup, null);
+                bandcampLookup, null, null);
 
         var result = service.resolveReleaseDateFromDiscogs(UUID.randomUUID(), "X", "Y", 12345L);
 
@@ -431,7 +436,7 @@ class BirthdayServiceTest {
     @Test
     void shouldReturnEmptyListWhenUpgradingAndDiscogsNotConfigured() {
         var service = new BirthdayService(albumBirthdayRepository, releaseDateLookup,
-                bandcampLookup, null);
+                bandcampLookup, null, null);
 
         var result = service.upgradeDiscogsYearOnlyBirthdays();
 
@@ -497,5 +502,47 @@ class BirthdayServiceTest {
         assertThat(result.getDiscogsId()).isEqualTo(discogsId);
         assertThat(result.getReleaseDateSource()).isEqualTo(ReleaseDateSource.DISCOGS);
         then(albumBirthdayRepository).should().save(any(AlbumBirthday.class));
+    }
+
+    @Test
+    void shouldSyncPlayCountsForAllBirthdays() {
+        var birthday = new AlbumBirthday("OK Computer", "Radiohead",
+                UUID.randomUUID(), UUID.randomUUID(),
+                LocalDate.of(1997, 6, 16), ReleaseDateSource.MUSICBRAINZ);
+        given(albumBirthdayRepository.findAll()).willReturn(List.of(birthday));
+        given(lastFmClient.fetchPlayCount("Radiohead", "OK Computer")).willReturn(OptionalInt.of(142));
+        given(albumBirthdayRepository.save(any(AlbumBirthday.class)))
+                .willAnswer(invocation -> invocation.getArgument(0));
+
+        var synced = birthdayService.syncPlayCounts();
+
+        assertThat(synced).isEqualTo(1);
+        assertThat(birthday.getPlayCount()).isEqualTo(142);
+        then(albumBirthdayRepository).should().save(birthday);
+    }
+
+    @Test
+    void shouldSkipSyncWhenLastFmNotConfigured() {
+        var service = new BirthdayService(albumBirthdayRepository, releaseDateLookup,
+                bandcampLookup, null, null);
+
+        var synced = service.syncPlayCounts();
+
+        assertThat(synced).isEqualTo(0);
+        then(albumBirthdayRepository).shouldHaveNoInteractions();
+    }
+
+    @Test
+    void shouldSkipSyncWhenLastFmReturnsEmpty() {
+        var birthday = new AlbumBirthday("Unknown", "Unknown",
+                UUID.randomUUID(), UUID.randomUUID(),
+                LocalDate.of(2020, 1, 1), ReleaseDateSource.MUSICBRAINZ);
+        given(albumBirthdayRepository.findAll()).willReturn(List.of(birthday));
+        given(lastFmClient.fetchPlayCount("Unknown", "Unknown")).willReturn(OptionalInt.empty());
+
+        var synced = birthdayService.syncPlayCounts();
+
+        assertThat(synced).isEqualTo(0);
+        then(albumBirthdayRepository).should(never()).save(any());
     }
 }

@@ -109,6 +109,21 @@ class AlbumBirthdayRepositoryTest {
     }
 
     @Test
+    void shouldPersistAndRetrievePlayCount() {
+        var birthday = new AlbumBirthday("OK Computer", "Radiohead",
+                UUID.randomUUID(), UUID.randomUUID(),
+                LocalDate.of(1997, 6, 16), ReleaseDateSource.MUSICBRAINZ);
+        birthday.updatePlayCount(142);
+        albumBirthdayRepository.save(birthday);
+
+        var found = albumBirthdayRepository.findById(birthday.getId());
+
+        assertThat(found).isPresent();
+        assertThat(found.get().getPlayCount()).isEqualTo(142);
+        assertThat(found.get().getPlayCountUpdatedAt()).isNotNull();
+    }
+
+    @Test
     void shouldFindBirthdaysByDateRange() {
         albumBirthdayRepository.save(new AlbumBirthday("OK Computer", "Radiohead",
                 UUID.randomUUID(), LocalDate.of(1997, 6, 16)));

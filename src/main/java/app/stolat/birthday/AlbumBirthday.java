@@ -46,6 +46,12 @@ public class AlbumBirthday {
     @Column(name = "release_date_source", nullable = false)
     private ReleaseDateSource releaseDateSource;
 
+    @Column(name = "play_count")
+    private Integer playCount;
+
+    @Column(name = "play_count_updated_at")
+    private Instant playCountUpdatedAt;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -76,6 +82,11 @@ public class AlbumBirthday {
     public void updateReleaseDate(LocalDate releaseDate, ReleaseDateSource source) {
         this.releaseDate = releaseDate;
         this.releaseDateSource = source;
+    }
+
+    public void updatePlayCount(int playCount) {
+        this.playCount = playCount;
+        this.playCountUpdatedAt = Instant.now();
     }
 
     public boolean isYearOnlyDate() {
