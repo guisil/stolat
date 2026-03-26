@@ -203,6 +203,18 @@ public class BirthdayService {
         return upgraded;
     }
 
+    public Optional<AlbumBirthday> tryBandcampFromSuggestedUrl(UUID albumId, String albumTitle, String artistName) {
+        var existing = albumBirthdayRepository.findByAlbumId(albumId);
+        if (existing.isPresent()) {
+            return Optional.empty();
+        }
+
+        return bandcampLookup.tryLookUpFromSuggestedUrl(artistName, albumTitle)
+                .map(releaseDate -> albumBirthdayRepository.save(
+                        new AlbumBirthday(albumTitle, artistName, albumId, null,
+                                releaseDate, ReleaseDateSource.BANDCAMP)));
+    }
+
     public int syncPlayCounts() {
         if (lastFmClient == null) {
             log.warn("Last.fm is not configured — skipping play count sync");

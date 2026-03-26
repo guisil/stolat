@@ -156,8 +156,10 @@ public class MissingBirthdaysView extends VerticalLayout {
         retryAllButton.addClickListener(event -> retryAllMusicBrainzLookups(retryAllButton));
         var upgradeDiscogsButton = new Button("Upgrade Discogs Dates", VaadinIcon.GLOBE.create());
         upgradeDiscogsButton.addClickListener(event -> upgradeDiscogsYearOnlyBirthdays(upgradeDiscogsButton));
+        var tryBandcampButton = new Button("Try Bandcamp", VaadinIcon.SEARCH.create());
+        tryBandcampButton.addClickListener(event -> tryBandcampForAll(tryBandcampButton));
 
-        var toolbar = new HorizontalLayout(retryAllButton, upgradeDiscogsButton, statusFilter, searchField);
+        var toolbar = new HorizontalLayout(retryAllButton, upgradeDiscogsButton, tryBandcampButton, statusFilter, searchField);
         toolbar.setDefaultVerticalComponentAlignment(Alignment.BASELINE);
 
         add(heading, countLabel, toolbar, grid);
@@ -212,9 +214,21 @@ public class MissingBirthdaysView extends VerticalLayout {
                 "Suggested URL may not be accurate. Use the search link to find the correct page.");
         note.addClassName("hint-text");
 
-        var lookupButton = new Button("Look up", event -> {
+        var lookupButton = new Button("Look up");
+        lookupButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        lookupButton.addClickListener(event -> {
             var url = urlField.getValue().trim();
             if (url.isEmpty()) return;
+
+            if (!BandcampLookup.isValidUrl(url)) {
+                urlField.setErrorMessage("Must be a Bandcamp album URL (https://artist.bandcamp.com/album/...)");
+                urlField.setInvalid(true);
+                return;
+            }
+
+            lookupButton.setEnabled(false);
+            lookupButton.setText("Looking up...");
+            urlField.setInvalid(false);
 
             var result = birthdayService.resolveReleaseDateFromBandcamp(
                     album.getId(), album.getTitle(), album.getArtist().getName(), url);
@@ -228,9 +242,10 @@ public class MissingBirthdaysView extends VerticalLayout {
                 refreshGrid();
             } else {
                 Notification.show("Could not find release date on Bandcamp");
+                lookupButton.setEnabled(true);
+                lookupButton.setText("Look up");
             }
         });
-        lookupButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
         var content = new VerticalLayout(urlField, searchLink, note);
         content.setPadding(false);
@@ -283,6 +298,66 @@ public class MissingBirthdaysView extends VerticalLayout {
                 Notification.show("Discogs upgrade failed: " + ex.getMessage());
                 button.setEnabled(true);
                 button.setText("Upgrade Discogs Dates");
+            });
+            return null;
+        });
+    }
+
+    private void tryBandcampForAll(Button button) {
+        var albumIdsWithBirthdays = birthdayService.findAlbumIdsWithBirthdays();
+
+        var missingAlbums = collectionService.findAllActiveAlbums().stream()
+                .filter(album -> !albumIdsWithBirthdays.contains(album.getId()))
+                .toList();
+
+        if (missingAlbums.isEmpty()) {
+            Notification.show("No missing albums to try");
+            return;
+        }
+
+        button.setEnabled(false);
+        button.setText("Trying...");
+        Notification.show("Trying Bandcamp for " + missingAlbums.size() + " albums...");
+        var ui = UI.getCurrent();
+
+        CompletableFuture.runAsync(() -> {
+            int resolved = 0;
+            int failed = 0;
+            for (int i = 0; i < missingAlbums.size(); i++) {
+                if (i > 0) {
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        break;
+                    }
+                }
+                var album = missingAlbums.get(i);
+                var result = birthdayService.tryBandcampFromSuggestedUrl(
+                        album.getId(), album.getTitle(), album.getArtist().getName());
+                if (result.isPresent()) {
+                    collectionService.updateAlbumReleaseDateById(album.getId(), result.get().getReleaseDate());
+                    resolved++;
+                } else {
+                    failed++;
+                }
+            }
+            int r = resolved;
+            int f = failed;
+            int total = missingAlbums.size();
+            ui.access(() -> {
+                Notification.show("Resolved " + r + " of " + total
+                        + " albums via Bandcamp (" + f + " failed)");
+                searchField.clear();
+                refreshGrid();
+                button.setEnabled(true);
+                button.setText("Try Bandcamp");
+            });
+        }).exceptionally(ex -> {
+            ui.access(() -> {
+                Notification.show("Bandcamp batch failed: " + ex.getMessage());
+                button.setEnabled(true);
+                button.setText("Try Bandcamp");
             });
             return null;
         });

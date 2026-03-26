@@ -24,6 +24,8 @@ import app.stolat.birthday.BirthdayService;
 import java.util.List;
 import java.util.UUID;
 
+import com.vaadin.flow.component.button.Button;
+
 import static com.github.mvysny.kaributesting.v10.LocatorJ._find;
 import static com.github.mvysny.kaributesting.v10.LocatorJ._get;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -78,6 +80,18 @@ class MissingBirthdaysViewTest {
         @SuppressWarnings("unchecked")
         Grid<Album> grid = _get(Grid.class);
         assertThat(GridKt._size(grid)).isGreaterThanOrEqualTo(1);
+    }
+
+    @Test
+    @WithMockUser
+    void shouldDisplayTryBandcampButton() {
+        setupMockVaadin();
+        UI.getCurrent().navigate(MissingBirthdaysView.class);
+
+        var tryBandcampButtons = _find(Button.class).stream()
+                .filter(b -> "Try Bandcamp".equals(b.getText()))
+                .toList();
+        assertThat(tryBandcampButtons).hasSize(1);
     }
 
     @Test

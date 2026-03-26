@@ -63,10 +63,10 @@ class BandcampUrlSuggesterTest {
     }
 
     @Test
-    void shouldCollapseMultipleHyphens() {
+    void shouldReplaceAmpersandWithAnd() {
         var url = BandcampUrlSuggester.suggestAlbumUrl("King Gizzard & The Lizard Wizard", "L.W.");
 
-        assertThat(url).isEqualTo("https://king-gizzard-the-lizard-wizard.bandcamp.com/album/lw");
+        assertThat(url).isEqualTo("https://king-gizzard-and-the-lizard-wizard.bandcamp.com/album/lw");
     }
 
     @Test
@@ -75,6 +75,13 @@ class BandcampUrlSuggesterTest {
         var url = BandcampUrlSuggester.suggestAlbumUrl("Radiohead", "The Bends");
 
         assertThat(url).isEqualTo("https://radiohead.bandcamp.com/album/the-bends");
+    }
+
+    @Test
+    void shouldCollapseMultipleHyphensFromConsecutiveSpecialChars() {
+        var url = BandcampUrlSuggester.suggestAlbumUrl("Test", "A + B");
+
+        assertThat(url).isEqualTo("https://test.bandcamp.com/album/a-b");
     }
 
     @Test
@@ -100,10 +107,10 @@ class BandcampUrlSuggesterTest {
     }
 
     @Test
-    void shouldHandleParenthesesInAlbumTitle() {
+    void shouldStripEditionSuffixFromAlbumTitle() {
         var url = BandcampUrlSuggester.suggestAlbumUrl("Radiohead", "OK Computer (Deluxe Edition)");
 
-        assertThat(url).isEqualTo("https://radiohead.bandcamp.com/album/ok-computer-deluxe-edition");
+        assertThat(url).isEqualTo("https://radiohead.bandcamp.com/album/ok-computer");
     }
 
     @Test
