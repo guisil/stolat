@@ -132,6 +132,10 @@ STOLAT_DISCOGS_TOKEN=your-token
 
 # Volumio (optional)
 STOLAT_VOLUMIO_URL=http://volumio.local
+
+# Last.fm (optional — https://www.last.fm/api/account/create)
+STOLAT_LASTFM_API_KEY=your-api-key
+STOLAT_LASTFM_USERNAME=your-username
 ```
 
 - [ ] `.env` file is configured with all required values
