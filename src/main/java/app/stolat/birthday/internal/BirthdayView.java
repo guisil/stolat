@@ -122,7 +122,7 @@ public class BirthdayView extends VerticalLayout {
             case DISCOGS -> SOURCE_DISCOGS;
             case BANDCAMP -> SOURCE_BANDCAMP;
             case MANUAL -> SOURCE_MANUAL;
-        }).setHeader("Source").setSortable(true).setWidth("120px").setFlexGrow(0);
+        }).setHeader("Source").setSortable(true).setWidth("150px").setFlexGrow(0);
         grid.addColumn(b -> b.getPlayCount() != null ? b.getPlayCount() : "")
                 .setHeader("Plays").setSortable(true).setWidth("90px").setFlexGrow(0)
                 .setComparator((a, b) -> {
@@ -207,7 +207,12 @@ public class BirthdayView extends VerticalLayout {
             applySourceFilter();
         });
 
-        var toolbar = new HorizontalLayout(rangeSelect, sourceFilter, searchField);
+        searchField.setWidth("300px");
+        var toolbar = new HorizontalLayout(searchField, rangeSelect, sourceFilter);
+        toolbar.setWidthFull();
+        var spacer = new Span();
+        toolbar.add(spacer);
+        toolbar.setFlexGrow(1, spacer);
         if (lastFmApiKey != null && !lastFmApiKey.isEmpty()) {
             var syncButton = new Button("Sync Plays");
             syncButton.addClickListener(event -> {

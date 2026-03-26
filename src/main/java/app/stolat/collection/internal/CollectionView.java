@@ -145,16 +145,19 @@ public class CollectionView extends VerticalLayout {
             refreshGrid();
         });
 
+        searchField.setWidth("300px");
         var scanButton = new Button("Scan Collection", event -> startScan());
 
-        var toolbar = new HorizontalLayout(scanButton);
+        var spacer = new Span();
+        var toolbar = new HorizontalLayout(searchField, formatFilter, spacer, scanButton);
+        toolbar.setWidthFull();
+        toolbar.setFlexGrow(1, spacer);
 
         if (!discogsUsername.isEmpty()) {
             var discogsScanButton = new Button("Scan Discogs", event -> startDiscogsScan());
             toolbar.add(discogsScanButton);
         }
 
-        toolbar.add(formatFilter, searchField);
         toolbar.setDefaultVerticalComponentAlignment(Alignment.BASELINE);
         add(heading, countLabel, toolbar, grid);
     }

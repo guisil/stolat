@@ -159,7 +159,11 @@ public class MissingBirthdaysView extends VerticalLayout {
         var tryBandcampButton = new Button("Try Bandcamp", VaadinIcon.SEARCH.create());
         tryBandcampButton.addClickListener(event -> tryBandcampForAll(tryBandcampButton));
 
-        var toolbar = new HorizontalLayout(retryAllButton, upgradeDiscogsButton, tryBandcampButton, statusFilter, searchField);
+        searchField.setWidth("300px");
+        var spacer = new Span();
+        var toolbar = new HorizontalLayout(searchField, statusFilter, spacer, retryAllButton, upgradeDiscogsButton, tryBandcampButton);
+        toolbar.setWidthFull();
+        toolbar.setFlexGrow(1, spacer);
         toolbar.setDefaultVerticalComponentAlignment(Alignment.BASELINE);
 
         add(heading, countLabel, toolbar, grid);
