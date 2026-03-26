@@ -5,7 +5,9 @@ import app.stolat.birthday.BirthdayService;
 import app.stolat.collection.Album;
 import app.stolat.collection.AlbumFormat;
 import app.stolat.collection.CollectionService;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import java.util.concurrent.CompletableFuture;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
@@ -150,8 +152,10 @@ public class MissingBirthdaysView extends VerticalLayout {
             refreshGrid();
         });
 
-        var retryAllButton = new Button("Retry All Lookups", VaadinIcon.REFRESH.create(), event -> retryAllMusicBrainzLookups());
-        var upgradeDiscogsButton = new Button("Upgrade Discogs Dates", VaadinIcon.GLOBE.create(), event -> upgradeDiscogsYearOnlyBirthdays());
+        var retryAllButton = new Button("Retry All Lookups", VaadinIcon.REFRESH.create());
+        retryAllButton.addClickListener(event -> retryAllMusicBrainzLookups(retryAllButton));
+        var upgradeDiscogsButton = new Button("Upgrade Discogs Dates", VaadinIcon.GLOBE.create());
+        upgradeDiscogsButton.addClickListener(event -> upgradeDiscogsYearOnlyBirthdays(upgradeDiscogsButton));
 
         var toolbar = new HorizontalLayout(retryAllButton, upgradeDiscogsButton, statusFilter, searchField);
         toolbar.setDefaultVerticalComponentAlignment(Alignment.BASELINE);
@@ -254,19 +258,37 @@ public class MissingBirthdaysView extends VerticalLayout {
         }
     }
 
-    private void upgradeDiscogsYearOnlyBirthdays() {
-        var upgraded = birthdayService.upgradeDiscogsYearOnlyBirthdays();
-        for (var birthday : upgraded) {
-            if (birthday.getAlbumId() != null) {
-                collectionService.updateAlbumReleaseDateById(birthday.getAlbumId(), birthday.getReleaseDate());
+    private void upgradeDiscogsYearOnlyBirthdays(Button button) {
+        button.setEnabled(false);
+        button.setText("Upgrading...");
+        Notification.show("Upgrading Discogs dates...");
+        var ui = UI.getCurrent();
+
+        CompletableFuture.runAsync(() -> {
+            var upgraded = birthdayService.upgradeDiscogsYearOnlyBirthdays();
+            for (var birthday : upgraded) {
+                if (birthday.getAlbumId() != null) {
+                    collectionService.updateAlbumReleaseDateById(birthday.getAlbumId(), birthday.getReleaseDate());
+                }
             }
-        }
-        Notification.show("Upgraded " + upgraded.size() + " Discogs year-only birthdays to full dates");
-        searchField.clear();
-        refreshGrid();
+            ui.access(() -> {
+                Notification.show("Upgraded " + upgraded.size() + " Discogs year-only birthdays to full dates");
+                searchField.clear();
+                refreshGrid();
+                button.setEnabled(true);
+                button.setText("Upgrade Discogs Dates");
+            });
+        }).exceptionally(ex -> {
+            ui.access(() -> {
+                Notification.show("Discogs upgrade failed: " + ex.getMessage());
+                button.setEnabled(true);
+                button.setText("Upgrade Discogs Dates");
+            });
+            return null;
+        });
     }
 
-    private void retryAllMusicBrainzLookups() {
+    private void retryAllMusicBrainzLookups(Button button) {
         if (collectionService.isScanInProgress()) {
             Notification.show("A scan is in progress — please wait until it finishes");
             return;
@@ -280,30 +302,49 @@ public class MissingBirthdaysView extends VerticalLayout {
                         || !releaseDatesByMbid.containsKey(album.getMusicBrainzId()))
                 .toList();
 
-        int resolved = 0;
-        int skipped = 0;
-        for (var album : missingAlbums) {
-            if (album.getMusicBrainzId() == null) {
-                skipped++;
-                continue;
-            }
-            var result = birthdayService.resolveReleaseDate(album.getId(), album.getTitle(),
-                    album.getArtist().getName(), album.getMusicBrainzId());
-            if (result.isPresent()) {
-                collectionService.updateAlbumReleaseDate(album.getMusicBrainzId(), result.get().getReleaseDate());
-                resolved++;
-            }
-        }
+        button.setEnabled(false);
+        button.setText("Retrying...");
+        Notification.show("Retrying MusicBrainz lookups...");
+        var ui = UI.getCurrent();
 
-        var message = new StringBuilder();
-        message.append(missingAlbums.size()).append(" missing albums: ");
-        message.append("resolved ").append(resolved);
-        if (skipped > 0) {
-            message.append(", skipped ").append(skipped).append(" without MusicBrainz ID");
-        }
-        Notification.show(message.toString());
-        searchField.clear();
-        refreshGrid();
+        CompletableFuture.runAsync(() -> {
+            int resolved = 0;
+            int skipped = 0;
+            for (var album : missingAlbums) {
+                if (album.getMusicBrainzId() == null) {
+                    skipped++;
+                    continue;
+                }
+                var result = birthdayService.resolveReleaseDate(album.getId(), album.getTitle(),
+                        album.getArtist().getName(), album.getMusicBrainzId());
+                if (result.isPresent()) {
+                    collectionService.updateAlbumReleaseDate(album.getMusicBrainzId(), result.get().getReleaseDate());
+                    resolved++;
+                }
+            }
+
+            var message = new StringBuilder();
+            message.append(missingAlbums.size()).append(" missing albums: ");
+            message.append("resolved ").append(resolved);
+            if (skipped > 0) {
+                message.append(", skipped ").append(skipped).append(" without MusicBrainz ID");
+            }
+            var msg = message.toString();
+            ui.access(() -> {
+                Notification.show(msg);
+                searchField.clear();
+                refreshGrid();
+                button.setEnabled(true);
+                button.setText("Retry All Lookups");
+            });
+        }).exceptionally(ex -> {
+            ui.access(() -> {
+                Notification.show("Retry failed: " + ex.getMessage());
+                button.setEnabled(true);
+                button.setText("Retry All Lookups");
+            });
+            return null;
+        });
     }
 
     private void retryMusicBrainzLookup(Album album) {
