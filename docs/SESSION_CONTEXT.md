@@ -18,7 +18,7 @@ for migrations, Testcontainers + Karibu Testing for tests.
 **Branch:** `main`
 **Current release:** v0.2.1
 **Dev version:** 0.2.2-SNAPSHOT
-**Tests:** 167 passing (`mvn test -Dsurefire.useFile=false`)
+**Tests:** 171 passing (`mvn test -Dsurefire.useFile=false`)
 **Deployed:** Raspberry Pi (Docker, Ubuntu Server 24.04)
 
 ---
@@ -72,7 +72,10 @@ for migrations, Testcontainers + Karibu Testing for tests.
 - **Bandcamp lookup:** `BandcampLookup` component fetches album page HTML and extracts
   `datePublished` from JSON-LD. User-initiated only (no automated crawling).
   `BandcampUrlSuggester` generates candidate URLs from artist/album names and Bandcamp
-  search links. MissingBirthdaysView dialog pre-populates suggested URL and shows search link.
+  search links. Slug generation replaces `&` with `and` and strips edition suffixes (Deluxe,
+  Remastered, etc.). MissingBirthdaysView dialog pre-populates suggested URL with inline
+  validation and loading state. "Try Bandcamp" toolbar button batch-tries suggested URLs
+  for all missing albums (async, rate-limited 1s between requests).
 - **Format tracking:** `@ElementCollection` with `Set<AlbumFormat>` (DIGITAL/VINYL).
   Soft delete via format reconciliation — empty formats = removed.
 - **Vaadin Push:** @Push for progressive UI updates during scans (3s polling).
@@ -147,7 +150,6 @@ for migrations, Testcontainers + Karibu Testing for tests.
 ## What's Next
 
 - Additional release date sources (Spotify)
-- Improve Bandcamp lookup UX (batch lookups)
 - Notification view (settings, history, manual send, multiple recipient emails)
 - Album detail view with tracks
 - DB-backed authentication (replace in-memory user)

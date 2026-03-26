@@ -533,6 +533,36 @@ class BirthdayServiceTest {
     }
 
     @Test
+    void shouldTryBandcampFromSuggestedUrlWhenAlbumHasNoBirthday() {
+        var albumId = UUID.randomUUID();
+        var releaseDate = LocalDate.of(2015, 1, 19);
+        given(albumBirthdayRepository.findByAlbumId(albumId)).willReturn(Optional.empty());
+        given(bandcampLookup.tryLookUpFromSuggestedUrl("Anushka", "Kisses"))
+                .willReturn(Optional.of(releaseDate));
+        given(albumBirthdayRepository.save(any(AlbumBirthday.class)))
+                .willAnswer(invocation -> invocation.getArgument(0));
+
+        var result = birthdayService.tryBandcampFromSuggestedUrl(albumId, "Kisses", "Anushka");
+
+        assertThat(result).isPresent();
+        assertThat(result.get().getReleaseDate()).isEqualTo(releaseDate);
+        assertThat(result.get().getReleaseDateSource()).isEqualTo(ReleaseDateSource.BANDCAMP);
+    }
+
+    @Test
+    void shouldReturnEmptyWhenTryingBandcampAndBirthdayAlreadyExists() {
+        var albumId = UUID.randomUUID();
+        var existing = new AlbumBirthday("Kisses", "Anushka",
+                albumId, null, LocalDate.of(2015, 1, 19), ReleaseDateSource.BANDCAMP);
+        given(albumBirthdayRepository.findByAlbumId(albumId)).willReturn(Optional.of(existing));
+
+        var result = birthdayService.tryBandcampFromSuggestedUrl(albumId, "Kisses", "Anushka");
+
+        assertThat(result).isEmpty();
+        then(bandcampLookup).shouldHaveNoInteractions();
+    }
+
+    @Test
     void shouldSkipSyncWhenLastFmReturnsEmpty() {
         var birthday = new AlbumBirthday("Unknown", "Unknown",
                 UUID.randomUUID(), UUID.randomUUID(),

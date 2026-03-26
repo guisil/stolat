@@ -35,6 +35,18 @@ public class BandcampLookup {
         this.objectMapper = new ObjectMapper();
     }
 
+    public static boolean isValidUrl(String url) {
+        return url != null && BANDCAMP_URL_PATTERN.matcher(url).matches();
+    }
+
+    public Optional<LocalDate> tryLookUpFromSuggestedUrl(String artistName, String albumTitle) {
+        var suggestedUrl = BandcampUrlSuggester.suggestAlbumUrl(artistName, albumTitle);
+        if (!isValidUrl(suggestedUrl)) {
+            return Optional.empty();
+        }
+        return lookUp(suggestedUrl);
+    }
+
     public Optional<LocalDate> lookUp(String bandcampUrl) {
         if (!BANDCAMP_URL_PATTERN.matcher(bandcampUrl).matches()) {
             log.warn("Invalid Bandcamp URL: {}", bandcampUrl);
