@@ -98,6 +98,28 @@ class LastFmClientTest {
     }
 
     @Test
+    void shouldReturnPlayCountWhenApiReturnsInteger() {
+        var responseJson = """
+                {
+                    "album": {
+                        "name": "The Album of the Soundtrack of the Trailer of the Film of Monty Python and the Holy Grail: Executive Version",
+                        "artist": "Monty Python",
+                        "userplaycount": 7
+                    }
+                }
+                """;
+        mockServer.expect(requestTo(
+                "https://ws.audioscrobbler.com/2.0?method=album.getinfo&api_key=test-api-key&artist=Monty%20Python&album=Executive%20Version&username=testuser&format=json"))
+                .andRespond(withSuccess(responseJson, MediaType.APPLICATION_JSON));
+
+        var result = lastFmClient.fetchPlayCount("Monty Python", "Executive Version");
+
+        assertThat(result).isPresent();
+        assertThat(result.getAsInt()).isEqualTo(7);
+        mockServer.verify();
+    }
+
+    @Test
     void shouldHandleSpecialCharactersInArtistAndAlbum() {
         var responseJson = """
                 {

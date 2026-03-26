@@ -37,12 +37,12 @@ public class LastFmClient {
                 return OptionalInt.empty();
             }
 
-            var playCountStr = (String) album.get("userplaycount");
-            if (playCountStr == null) {
+            var playCountValue = album.get("userplaycount");
+            if (playCountValue == null) {
                 return OptionalInt.empty();
             }
 
-            return OptionalInt.of(Integer.parseInt(playCountStr));
+            return OptionalInt.of(Integer.parseInt(String.valueOf(playCountValue)));
         } catch (Exception e) {
             log.warn("Failed to fetch Last.fm play count for '{}' by '{}': {}", albumTitle, artistName, e.getMessage());
             return OptionalInt.empty();
