@@ -2,6 +2,7 @@ package app.stolat.birthday;
 
 import java.time.LocalDate;
 import java.time.MonthDay;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -185,7 +186,7 @@ public class BirthdayService {
         var yearOnlyBirthdays = albumBirthdayRepository.findDiscogsYearOnlyBirthdays(ReleaseDateSource.DISCOGS);
         log.info("Found {} Discogs birthdays with year-only dates to upgrade", yearOnlyBirthdays.size());
 
-        var upgraded = new java.util.ArrayList<AlbumBirthday>();
+        var upgraded = new ArrayList<AlbumBirthday>();
         for (var birthday : yearOnlyBirthdays) {
             var fullDate = discogsReleaseDateLookup.lookUp(birthday.getDiscogsId());
             if (fullDate.isPresent() && !fullDate.get().equals(birthday.getReleaseDate())) {
