@@ -1,5 +1,6 @@
 package app.stolat.birthday.internal;
 
+import java.util.concurrent.CompletableFuture;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.MonthDay;
@@ -19,6 +20,7 @@ import app.stolat.birthday.ReleaseDateSource;
 import app.stolat.collection.Album;
 import app.stolat.collection.AlbumFormat;
 import app.stolat.collection.CollectionService;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
@@ -207,10 +209,28 @@ public class BirthdayView extends VerticalLayout {
 
         var toolbar = new HorizontalLayout(rangeSelect, sourceFilter, searchField);
         if (lastFmApiKey != null && !lastFmApiKey.isEmpty()) {
-            var syncButton = new Button("Sync Plays", event -> {
-                var synced = birthdayService.syncPlayCounts();
-                Notification.show("Synced play counts for " + synced + " albums");
-                updateGrid(rangeSelect.getValue());
+            var syncButton = new Button("Sync Plays");
+            syncButton.addClickListener(event -> {
+                syncButton.setEnabled(false);
+                syncButton.setText("Syncing...");
+                Notification.show("Syncing play counts...");
+                var ui = UI.getCurrent();
+                CompletableFuture.runAsync(() -> {
+                    var synced = birthdayService.syncPlayCounts();
+                    ui.access(() -> {
+                        Notification.show("Synced play counts for " + synced + " albums");
+                        updateGrid(rangeSelect.getValue());
+                        syncButton.setEnabled(true);
+                        syncButton.setText("Sync Plays");
+                    });
+                }).exceptionally(ex -> {
+                    ui.access(() -> {
+                        Notification.show("Play count sync failed: " + ex.getMessage());
+                        syncButton.setEnabled(true);
+                        syncButton.setText("Sync Plays");
+                    });
+                    return null;
+                });
             });
             toolbar.add(syncButton);
         }
