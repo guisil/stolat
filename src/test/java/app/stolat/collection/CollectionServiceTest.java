@@ -345,6 +345,35 @@ class CollectionServiceTest {
     }
 
     @Test
+    void shouldReconcileNonMbidDigitalFormatsOnScan() {
+        var rootDir = Path.of("/music");
+        var track1Path = Path.of("/music/Various/Compilation/01 - Track.flac");
+
+        // Album that IS in the scan (no MBID)
+        var scannedArtist = new Artist("Various Artists");
+        var scannedAlbum = new Album("Compilation", scannedArtist, null);
+        scannedAlbum.addFormat(AlbumFormat.DIGITAL);
+        given(fileScanner.scan(rootDir)).willReturn(List.of(track1Path));
+        given(tagReader.read(track1Path)).willReturn(Optional.of(
+                new AudioFileMetadata("Various Artists", null, "Compilation", null,
+                        "Track", 1, 1, null, 2014)));
+        given(albumRepository.findByTitleAndArtistNameIgnoreCase("Compilation", "Various Artists"))
+                .willReturn(Optional.of(scannedAlbum));
+
+        // Non-MBID album that is NOT in the scan but has DIGITAL format
+        var removedArtist = new Artist("Old Artist");
+        var removedAlbum = new Album("Old Album", removedArtist, null);
+        removedAlbum.addFormat(AlbumFormat.DIGITAL);
+        given(albumRepository.findByFormat(AlbumFormat.DIGITAL))
+                .willReturn(List.of(scannedAlbum, removedAlbum));
+
+        collectionService.scanDirectory(rootDir);
+
+        assertThat(scannedAlbum.hasFormat(AlbumFormat.DIGITAL)).isTrue();
+        assertThat(removedAlbum.hasFormat(AlbumFormat.DIGITAL)).isFalse();
+    }
+
+    @Test
     void shouldReturnAlbumsByFormat() {
         var artist = new Artist("Radiohead", UUID.randomUUID());
         var album = new Album("OK Computer", UUID.randomUUID(), artist);

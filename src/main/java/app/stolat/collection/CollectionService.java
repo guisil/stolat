@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -126,7 +127,6 @@ public class CollectionService {
         log.info("Found {} directories", filesByDirectory.size());
 
         var importedAlbums = new ArrayList<Album>();
-        var scannedMusicBrainzIds = new HashSet<UUID>();
         int totalTagFailures = 0;
         int emptyDirectories = 0;
 
@@ -154,7 +154,6 @@ public class CollectionService {
                     .collect(Collectors.groupingBy(AudioFileMetadata::albumMusicBrainzId));
 
             for (var group : mbidGroups.entrySet()) {
-                scannedMusicBrainzIds.add(group.getKey());
                 var album = transactionTemplate.execute(status -> importFromMetadata(group.getValue()));
                 if (album != null) {
                     importedAlbums.add(album);
@@ -175,7 +174,10 @@ public class CollectionService {
             }
         }
 
-        transactionTemplate.executeWithoutResult(status -> reconcileDigitalFormats(scannedMusicBrainzIds));
+        var scannedAlbumIds = importedAlbums.stream()
+                .map(Album::getId)
+                .collect(Collectors.toSet());
+        transactionTemplate.executeWithoutResult(status -> reconcileDigitalFormats(scannedAlbumIds));
 
         log.info("Scan complete: {} albums processed, {} tag read failures across {} files, {} directories with 0 readable tags",
                 importedAlbums.size(), totalTagFailures, files.size(), emptyDirectories);
@@ -366,9 +368,9 @@ public class CollectionService {
         return album;
     }
 
-    private void reconcileDigitalFormats(java.util.Set<UUID> scannedMusicBrainzIds) {
+    private void reconcileDigitalFormats(Set<UUID> scannedAlbumIds) {
         albumRepository.findByFormat(AlbumFormat.DIGITAL).stream()
-                .filter(a -> a.getMusicBrainzId() != null && !scannedMusicBrainzIds.contains(a.getMusicBrainzId()))
+                .filter(a -> !scannedAlbumIds.contains(a.getId()))
                 .forEach(a -> {
                     a.removeFormat(AlbumFormat.DIGITAL);
                     albumRepository.save(a);
