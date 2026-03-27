@@ -18,7 +18,7 @@ for migrations, Testcontainers + Karibu Testing for tests.
 **Branch:** `main`
 **Current release:** v0.2.4
 **Dev version:** 0.2.5-SNAPSHOT
-**Tests:** 175 passing (`mvn test -Dsurefire.useFile=false`)
+**Tests:** 176 passing (`mvn test -Dsurefire.useFile=false`)
 **Deployed:** Raspberry Pi (Docker, Ubuntu Server 24.04)
 
 ---
@@ -140,9 +140,6 @@ for migrations, Testcontainers + Karibu Testing for tests.
 - Version displayed in drawer footer via BuildProperties
 
 ## Known Gaps
-
-- Reconciliation only covers MBID albums — non-MBID digital albums are never removed
-  when files disappear (ghost entries persist with DIGITAL format)
 - **Duplicate artists:** The same artist can have multiple DB rows with different
   MusicBrainz IDs (e.g., from different release groups or artist credits). The
   `findArtistByName` helper in CollectionService picks the one with an MBID when
