@@ -290,22 +290,99 @@ class BirthdayServiceTest {
     }
 
     @Test
-    void shouldSkipLookupWhenBirthdayAlreadyExistsForAlbumId() {
+    void shouldUpgradeToMusicBrainzDateWhenExistingBirthdayHasBandcampSource() {
         var albumId = UUID.randomUUID();
-        var existingMusicBrainzId = UUID.randomUUID();
         var newMusicBrainzId = UUID.randomUUID();
+        var bandcampDate = LocalDate.of(2015, 1, 19);
+        var musicBrainzDate = LocalDate.of(2015, 1, 16);
         var existing = new AlbumBirthday("Some Album", "Some Artist",
-                albumId, existingMusicBrainzId, LocalDate.of(2020, 1, 1), ReleaseDateSource.DISCOGS);
+                albumId, null, bandcampDate, ReleaseDateSource.BANDCAMP);
         given(albumBirthdayRepository.findByMusicBrainzId(newMusicBrainzId)).willReturn(Optional.empty());
         given(albumBirthdayRepository.findByAlbumId(albumId)).willReturn(Optional.of(existing));
+        given(releaseDateLookup.lookUp(newMusicBrainzId)).willReturn(Optional.of(musicBrainzDate));
+        given(albumBirthdayRepository.save(any(AlbumBirthday.class)))
+                .willAnswer(invocation -> invocation.getArgument(0));
 
         var result = birthdayService.resolveReleaseDate(albumId, "Some Album",
                 "Some Artist", newMusicBrainzId);
 
         assertThat(result).isPresent();
-        assertThat(result.get()).isEqualTo(existing);
-        then(releaseDateLookup).shouldHaveNoInteractions();
-        then(albumBirthdayRepository).should(never()).save(any());
+        assertThat(result.get().getReleaseDate()).isEqualTo(musicBrainzDate);
+        assertThat(result.get().getReleaseDateSource()).isEqualTo(ReleaseDateSource.MUSICBRAINZ);
+        assertThat(result.get().getMusicBrainzId()).isEqualTo(newMusicBrainzId);
+        then(albumBirthdayRepository).should().save(existing);
+    }
+
+    @Test
+    void shouldUpgradeToNewMusicBrainzIdWhenExistingBirthdayHasDifferentMbid() {
+        var albumId = UUID.randomUUID();
+        var oldMusicBrainzId = UUID.randomUUID();
+        var newMusicBrainzId = UUID.randomUUID();
+        var oldDate = LocalDate.of(1997, 6, 16);
+        var newDate = LocalDate.of(1997, 6, 17);
+        var existing = new AlbumBirthday("OK Computer", "Radiohead",
+                albumId, oldMusicBrainzId, oldDate, ReleaseDateSource.MUSICBRAINZ);
+        given(albumBirthdayRepository.findByMusicBrainzId(newMusicBrainzId)).willReturn(Optional.empty());
+        given(albumBirthdayRepository.findByAlbumId(albumId)).willReturn(Optional.of(existing));
+        given(releaseDateLookup.lookUp(newMusicBrainzId)).willReturn(Optional.of(newDate));
+        given(albumBirthdayRepository.save(any(AlbumBirthday.class)))
+                .willAnswer(invocation -> invocation.getArgument(0));
+
+        var result = birthdayService.resolveReleaseDate(albumId, "OK Computer",
+                "Radiohead", newMusicBrainzId);
+
+        assertThat(result).isPresent();
+        assertThat(result.get().getReleaseDate()).isEqualTo(newDate);
+        assertThat(result.get().getMusicBrainzId()).isEqualTo(newMusicBrainzId);
+        assertThat(result.get().getReleaseDateSource()).isEqualTo(ReleaseDateSource.MUSICBRAINZ);
+        then(albumBirthdayRepository).should().save(existing);
+    }
+
+    @Test
+    void shouldUpdateMbidButKeepExistingDateWhenMusicBrainzReturnsNoDate() {
+        var albumId = UUID.randomUUID();
+        var oldMusicBrainzId = UUID.randomUUID();
+        var newMusicBrainzId = UUID.randomUUID();
+        var existingDate = LocalDate.of(2015, 1, 19);
+        var existing = new AlbumBirthday("Some Album", "Some Artist",
+                albumId, oldMusicBrainzId, existingDate, ReleaseDateSource.BANDCAMP);
+        given(albumBirthdayRepository.findByMusicBrainzId(newMusicBrainzId)).willReturn(Optional.empty());
+        given(albumBirthdayRepository.findByAlbumId(albumId)).willReturn(Optional.of(existing));
+        given(releaseDateLookup.lookUp(newMusicBrainzId)).willReturn(Optional.empty());
+        given(albumBirthdayRepository.save(any(AlbumBirthday.class)))
+                .willAnswer(invocation -> invocation.getArgument(0));
+
+        var result = birthdayService.resolveReleaseDate(albumId, "Some Album",
+                "Some Artist", newMusicBrainzId);
+
+        assertThat(result).isPresent();
+        assertThat(result.get().getMusicBrainzId()).isEqualTo(newMusicBrainzId);
+        assertThat(result.get().getReleaseDate()).isEqualTo(existingDate);
+        assertThat(result.get().getReleaseDateSource()).isEqualTo(ReleaseDateSource.MB_PENDING);
+        then(albumBirthdayRepository).should().save(existing);
+    }
+
+    @Test
+    void shouldUpgradeFromMbPendingWhenMusicBrainzDateBecomesAvailable() {
+        var albumId = UUID.randomUUID();
+        var musicBrainzId = UUID.randomUUID();
+        var oldDate = LocalDate.of(2015, 1, 19);
+        var newDate = LocalDate.of(2015, 1, 16);
+        var existing = new AlbumBirthday("Some Album", "Some Artist",
+                albumId, musicBrainzId, oldDate, ReleaseDateSource.MB_PENDING);
+        given(albumBirthdayRepository.findByMusicBrainzId(musicBrainzId)).willReturn(Optional.of(existing));
+        given(releaseDateLookup.lookUp(musicBrainzId)).willReturn(Optional.of(newDate));
+        given(albumBirthdayRepository.save(any(AlbumBirthday.class)))
+                .willAnswer(invocation -> invocation.getArgument(0));
+
+        var result = birthdayService.resolveReleaseDate(albumId, "Some Album",
+                "Some Artist", musicBrainzId);
+
+        assertThat(result).isPresent();
+        assertThat(result.get().getReleaseDate()).isEqualTo(newDate);
+        assertThat(result.get().getReleaseDateSource()).isEqualTo(ReleaseDateSource.MUSICBRAINZ);
+        assertThat(result.get().getMusicBrainzId()).isEqualTo(musicBrainzId);
+        then(albumBirthdayRepository).should().save(existing);
     }
 
     @Test

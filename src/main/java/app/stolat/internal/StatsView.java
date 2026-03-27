@@ -43,6 +43,7 @@ public class StatsView extends VerticalLayout {
             var count = countsBySource.getOrDefault(source, 0L);
             var label = switch (source) {
                 case MUSICBRAINZ -> "MusicBrainz";
+                case MB_PENDING -> "MB Pending";
                 case DISCOGS -> "Discogs";
                 case BANDCAMP -> "Bandcamp";
                 case MANUAL -> "Manual";

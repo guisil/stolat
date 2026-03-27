@@ -79,11 +79,13 @@ public class BirthdayService {
                                                        String artistName, UUID musicBrainzId) {
         var existing = albumBirthdayRepository.findByMusicBrainzId(musicBrainzId);
         if (existing.isPresent()) {
+            attemptMusicBrainzUpgrade(existing.get(), musicBrainzId);
             return existing;
         }
 
         var existingByAlbum = albumBirthdayRepository.findByAlbumId(albumId);
         if (existingByAlbum.isPresent()) {
+            attemptMusicBrainzUpgrade(existingByAlbum.get(), musicBrainzId);
             return existingByAlbum;
         }
 
@@ -237,5 +239,19 @@ public class BirthdayService {
 
         log.info("Synced play counts for {} of {} birthdays", synced, birthdays.size());
         return synced;
+    }
+
+    private void attemptMusicBrainzUpgrade(AlbumBirthday birthday, UUID musicBrainzId) {
+        if (birthday.getReleaseDateSource() == ReleaseDateSource.MUSICBRAINZ
+                && musicBrainzId.equals(birthday.getMusicBrainzId())) {
+            return;
+        }
+        var mbDate = releaseDateLookup.lookUp(musicBrainzId);
+        if (mbDate.isPresent()) {
+            birthday.upgradeToMusicBrainz(musicBrainzId, mbDate.get());
+        } else {
+            birthday.assignMusicBrainzId(musicBrainzId);
+        }
+        albumBirthdayRepository.save(birthday);
     }
 }

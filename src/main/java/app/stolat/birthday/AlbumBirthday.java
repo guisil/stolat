@@ -84,6 +84,17 @@ public class AlbumBirthday {
         this.releaseDateSource = source;
     }
 
+    public void upgradeToMusicBrainz(UUID musicBrainzId, LocalDate releaseDate) {
+        this.musicBrainzId = musicBrainzId;
+        this.releaseDate = releaseDate;
+        this.releaseDateSource = ReleaseDateSource.MUSICBRAINZ;
+    }
+
+    public void assignMusicBrainzId(UUID musicBrainzId) {
+        this.musicBrainzId = musicBrainzId;
+        this.releaseDateSource = ReleaseDateSource.MB_PENDING;
+    }
+
     public void updatePlayCount(int playCount) {
         this.playCount = playCount;
         this.playCountUpdatedAt = Instant.now();

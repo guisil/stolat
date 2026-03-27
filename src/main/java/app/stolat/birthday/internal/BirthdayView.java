@@ -59,6 +59,7 @@ public class BirthdayView extends VerticalLayout {
     private static final String SOURCE_MUSICBRAINZ = "MusicBrainz";
     private static final String SOURCE_DISCOGS = "Discogs";
     private static final String SOURCE_BANDCAMP = "Bandcamp";
+    private static final String SOURCE_MB_PENDING = "MB Pending";
     private static final String SOURCE_MANUAL = "Manual";
 
     private final BirthdayService birthdayService;
@@ -119,6 +120,7 @@ public class BirthdayView extends VerticalLayout {
                 .setComparator((a, b) -> Integer.compare(a.getReleaseDate().getYear(), b.getReleaseDate().getYear()));
         grid.addColumn(b -> switch (b.getReleaseDateSource()) {
             case MUSICBRAINZ -> SOURCE_MUSICBRAINZ;
+            case MB_PENDING -> SOURCE_MB_PENDING;
             case DISCOGS -> SOURCE_DISCOGS;
             case BANDCAMP -> SOURCE_BANDCAMP;
             case MANUAL -> SOURCE_MANUAL;
