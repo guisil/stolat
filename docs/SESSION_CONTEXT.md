@@ -18,7 +18,7 @@ for migrations, Testcontainers + Karibu Testing for tests.
 **Branch:** `main`
 **Current release:** v0.2.2
 **Dev version:** 0.2.3-SNAPSHOT
-**Tests:** 171 passing (`mvn test -Dsurefire.useFile=false`)
+**Tests:** 174 passing (`mvn test -Dsurefire.useFile=false`)
 **Deployed:** Raspberry Pi (Docker, Ubuntu Server 24.04)
 
 ---
@@ -60,9 +60,13 @@ for migrations, Testcontainers + Karibu Testing for tests.
 - **MusicBrainz:** shared rate limiter bean (1.1s interval) across birthday lookup and
   collection search clients. Lookups are @Async (non-blocking). Search score threshold
   configurable via `stolat.musicbrainz.search-score-threshold` (default 90).
-- **Release date sources:** `ReleaseDateSource` enum (MUSICBRAINZ, DISCOGS, BANDCAMP, MANUAL)
-  tracked on each AlbumBirthday. Albums without MusicBrainz IDs can now have birthdays
-  via albumId-based lookup (e.g., Discogs year fallback, Bandcamp user-initiated lookup).
+- **Release date sources:** `ReleaseDateSource` enum (MUSICBRAINZ, MB_PENDING, DISCOGS,
+  BANDCAMP, MANUAL) tracked on each AlbumBirthday. Albums without MusicBrainz IDs can now
+  have birthdays via albumId-based lookup (e.g., Discogs year fallback, Bandcamp
+  user-initiated lookup). MusicBrainz dates take priority: on rescan, if an album gains an
+  MBID (or its MBID changes), the system looks up the release date via MusicBrainz API and
+  upgrades the existing birthday. If MusicBrainz has no date yet, the MBID is stored with
+  MB_PENDING source so future rescans retry the lookup.
 - **Discogs full dates:** `DiscogsReleaseDateLookup` in birthday module fetches full release
   dates from `GET /releases/{discogsId}`. Handles YYYY, YYYY-MM-00, YYYY-MM-DD formats.
   `AlbumBirthday` entity stores `discogsId` for upgrade tracking. Batch upgrade via
