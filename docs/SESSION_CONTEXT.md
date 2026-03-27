@@ -18,7 +18,7 @@ for migrations, Testcontainers + Karibu Testing for tests.
 **Branch:** `main`
 **Current release:** v0.2.3
 **Dev version:** 0.2.4-SNAPSHOT
-**Tests:** 174 passing (`mvn test -Dsurefire.useFile=false`)
+**Tests:** 175 passing (`mvn test -Dsurefire.useFile=false`)
 **Deployed:** Raspberry Pi (Docker, Ubuntu Server 24.04)
 
 ---
@@ -74,7 +74,8 @@ for migrations, Testcontainers + Karibu Testing for tests.
   re-fetches from API. UI: "Upgrade Discogs Dates" button on MissingBirthdaysView toolbar,
   per-album Discogs lookup button (globe icon) for albums with discogsId.
 - **Bandcamp lookup:** `BandcampLookup` component fetches album page HTML and extracts
-  `datePublished` from JSON-LD. User-initiated only (no automated crawling).
+  `datePublished` from JSON-LD. Follows 301 redirects for labels with custom domains.
+  User-initiated only (no automated crawling).
   `BandcampUrlSuggester` generates candidate URLs from artist/album names and Bandcamp
   search links. Slug generation replaces `&` with `and` and strips edition suffixes (Deluxe,
   Remastered, etc.). MissingBirthdaysView dialog pre-populates suggested URL with inline
