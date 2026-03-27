@@ -54,10 +54,7 @@ public class BandcampLookup {
         }
 
         try {
-            var html = restClient.get()
-                    .uri(bandcampUrl)
-                    .retrieve()
-                    .body(String.class);
+            var html = fetchWithRedirect(bandcampUrl);
 
             if (html == null) return Optional.empty();
 
@@ -73,6 +70,24 @@ public class BandcampLookup {
             log.warn("Failed to fetch Bandcamp page {}: {}", bandcampUrl, e.getMessage());
             return Optional.empty();
         }
+    }
+
+    private String fetchWithRedirect(String url) {
+        return restClient.get()
+                .uri(url)
+                .exchange((request, response) -> {
+                    if (response.getStatusCode().is3xxRedirection()) {
+                        var location = response.getHeaders().getLocation();
+                        if (location != null) {
+                            return restClient.get()
+                                    .uri(location)
+                                    .retrieve()
+                                    .body(String.class);
+                        }
+                        return null;
+                    }
+                    return new String(response.getBody().readAllBytes());
+                });
     }
 
     private Optional<LocalDate> extractDatePublished(JsonNode jsonLd) {
