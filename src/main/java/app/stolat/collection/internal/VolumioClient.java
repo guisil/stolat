@@ -40,7 +40,7 @@ public class VolumioClient {
         log.debug("Browsing Volumio URI: {}", uri);
         try {
             var browseResponse = restClient.get()
-                    .uri("/api/v1/browse?uri={uri}", uri)
+                    .uri("/api/v1/browse?uri=" + uri)
                     .retrieve()
                     .body(Map.class);
 
