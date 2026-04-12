@@ -55,7 +55,8 @@ public class VolumioClient {
                 // Look for a folder/album match first
                 for (var item : items) {
                     var type = (String) item.get("type");
-                    var title = (String) item.get("title");
+                    var rawTitle = (String) item.get("title");
+                    var title = rawTitle != null ? rawTitle.replaceFirst("^\\[\\d{4}\\]\\s*", "") : null;
                     if ("folder".equals(type) && albumTitle.equalsIgnoreCase(title)) {
                         // Browse into this album folder to get tracks
                         var uri = (String) item.get("uri");

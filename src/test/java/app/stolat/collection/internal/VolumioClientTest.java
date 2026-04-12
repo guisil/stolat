@@ -129,6 +129,61 @@ class VolumioClientTest {
     }
 
     @Test
+    void shouldPlayAlbumWhenFolderTitleHasYearPrefix() {
+        var searchResponseJson = """
+                {
+                    "navigation": {
+                        "lists": [
+                            {
+                                "items": [
+                                    {
+                                        "type": "folder",
+                                        "title": "[1991] Blue Lines",
+                                        "uri": "music-library/FLAC/Massive Attack/[1991] Blue Lines"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+                """;
+        var browseResponseJson = """
+                {
+                    "navigation": {
+                        "lists": [
+                            {
+                                "items": [
+                                    {
+                                        "type": "song",
+                                        "title": "Safe from Harm",
+                                        "uri": "music-library/FLAC/Massive Attack/[1991] Blue Lines/01 - Safe from Harm.flac",
+                                        "service": "mpd",
+                                        "album": "Blue Lines",
+                                        "artist": "Massive Attack"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+                """;
+
+        mockServer.expect(requestTo(org.hamcrest.Matchers.containsString("/api/v1/search")))
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(withSuccess(searchResponseJson, MediaType.APPLICATION_JSON));
+        mockServer.expect(requestTo(org.hamcrest.Matchers.containsString("/api/v1/browse")))
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(withSuccess(browseResponseJson, MediaType.APPLICATION_JSON));
+        mockServer.expect(requestTo(org.hamcrest.Matchers.containsString("/api/v1/replaceAndPlay")))
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess());
+
+        volumioClient.playAlbum("Blue Lines", "Massive Attack");
+
+        mockServer.verify();
+    }
+
+    @Test
     void shouldHandleAlbumNotFound() {
         var searchResponseJson = """
                 {
