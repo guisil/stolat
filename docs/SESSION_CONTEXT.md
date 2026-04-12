@@ -18,7 +18,7 @@ for migrations, Testcontainers + Karibu Testing for tests.
 **Branch:** `main`
 **Current release:** v0.2.7
 **Dev version:** 0.2.8-SNAPSHOT
-**Tests:** 177 passing (`mvn test -Dsurefire.useFile=false`)
+**Tests:** 178 passing (`mvn test -Dsurefire.useFile=false`)
 **Deployed:** Raspberry Pi (Docker, Ubuntu Server 24.04)
 
 ---
@@ -90,6 +90,14 @@ for migrations, Testcontainers + Karibu Testing for tests.
   daily (default 6am) + manual "Sync Plays" button in BirthdayView. Play counts stored on
   `AlbumBirthday` entity (`playCount`, `playCountUpdatedAt`). Shown in BirthdayView Plays
   column and email digest.
+- **Volumio playback:** `Album.folderPath` (relative to music root) stored during filesystem
+  scan. `CollectionService.playAlbumOnVolumio` looks up the album's folder path and passes it
+  to `VolumioClient`, which prepends `stolat.volumio.music-library-uri` (default:
+  `music-library`) to construct the Volumio browse URI. Volumio 4 search API no longer returns
+  local library results, so direct browse replaces the former search-based approach. After
+  upgrading to Volumio 4, set `stolat.volumio.music-library-uri=music-library/NAS` (or
+  whatever your top-level browse path is) and re-run a filesystem scan to populate folder
+  paths.
 - **Views:** BirthdayView at `/` (date ranges incl. "All", source filter, play count column,
   count label, format icons, Volumio play button, conditional Sync Plays button, multi-sort,
   full-height grid), CollectionView at `/collection` (format filter, scan buttons, search,
@@ -118,6 +126,7 @@ for migrations, Testcontainers + Karibu Testing for tests.
 | `stolat.notification.cron` | `0 0 5 * * *` | Daily digest (5am) |
 | `stolat.notification.send-on-startup` | `false` | Send digest on startup |
 | `stolat.volumio.url` | (none, opt-in) | Volumio instance URL |
+| `stolat.volumio.music-library-uri` | `music-library` | Volumio browse URI prefix for the music library (e.g. `music-library/NAS`) |
 | `stolat.lastfm.api-key` | (none, opt-in) | Last.fm API key |
 | `stolat.lastfm.username` | (none) | Last.fm username for play counts |
 | `stolat.lastfm.sync-cron` | `0 0 6 * * *` | Last.fm play count sync (6am) |
@@ -133,6 +142,7 @@ for migrations, Testcontainers + Karibu Testing for tests.
   release_date_source column (backfilled as MUSICBRAINZ), partial unique indexes
 - V5 migration: add discogs_id column to album_birthdays (with partial index)
 - V6 migration: add play_count and play_count_updated_at columns to album_birthdays
+- V7 migration: add folder_path column to albums (populated during filesystem scan)
 - JAudioTagger: RouHim fork 2.0.19 via JitPack, logging set to WARN
 - Discogs/Volumio/Last.fm features conditional on config (@ConditionalOnProperty)
 - Views are @AnonymousAllowed (auth deferred — TODO: DB-backed auth)

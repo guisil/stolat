@@ -181,6 +181,27 @@ class CollectionServiceTest {
     }
 
     @Test
+    void shouldStoreFolderPathWhenScanningDirectory() {
+        var rootDir = Path.of("/music");
+        var artistMbid = UUID.randomUUID();
+        var albumMbid = UUID.randomUUID();
+        var trackPath = Path.of("/music/Radiohead/OK Computer/01 - Airbag.flac");
+
+        given(fileScanner.scan(rootDir)).willReturn(List.of(trackPath));
+        given(tagReader.read(trackPath)).willReturn(Optional.of(
+                new AudioFileMetadata("Radiohead", artistMbid, "OK Computer", albumMbid,
+                        "Airbag", 1, 1, UUID.randomUUID(), null)));
+        given(artistRepository.findByMusicBrainzId(artistMbid)).willReturn(Optional.empty());
+        given(artistRepository.save(any(Artist.class))).willAnswer(invocation -> invocation.getArgument(0));
+        given(albumRepository.save(any(Album.class))).willAnswer(invocation -> invocation.getArgument(0));
+        given(albumRepository.findByFormat(AlbumFormat.DIGITAL)).willReturn(List.of());
+
+        var albums = collectionService.scanDirectory(rootDir);
+
+        assertThat(albums.getFirst().getFolderPath()).isEqualTo("Radiohead/OK Computer");
+    }
+
+    @Test
     void shouldScanAndImportAlbumsWithoutMusicBrainzId() {
         var rootDir = Path.of("/music");
         var trackPath = Path.of("/music/SomeArtist/SomeAlbum/01 - Track.flac");
@@ -577,10 +598,26 @@ class CollectionServiceTest {
     // --- Volumio tests ---
 
     @Test
-    void shouldDelegatePlayAlbumToVolumioClient() {
+    void shouldPassFolderPathToVolumioWhenAlbumFound() {
+        var artist = new Artist("Radiohead", UUID.randomUUID());
+        var album = new Album("OK Computer", UUID.randomUUID(), artist);
+        album.setFolderPath("Radiohead/OK Computer");
+        given(albumRepository.findByTitleAndArtistNameIgnoreCase("OK Computer", "Radiohead"))
+                .willReturn(Optional.of(album));
+
         collectionService.playAlbumOnVolumio("OK Computer", "Radiohead");
 
-        then(volumioClient).should().playAlbum("OK Computer", "Radiohead");
+        then(volumioClient).should().playAlbum("OK Computer", "Radiohead", "Radiohead/OK Computer");
+    }
+
+    @Test
+    void shouldPassNullFolderPathWhenAlbumNotFound() {
+        given(albumRepository.findByTitleAndArtistNameIgnoreCase("OK Computer", "Radiohead"))
+                .willReturn(Optional.empty());
+
+        collectionService.playAlbumOnVolumio("OK Computer", "Radiohead");
+
+        then(volumioClient).should().playAlbum("OK Computer", "Radiohead", null);
     }
 
     @Test

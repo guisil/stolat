@@ -88,7 +88,10 @@ public class CollectionService {
         if (volumioClient == null) {
             throw new IllegalStateException("Volumio is not configured");
         }
-        volumioClient.playAlbum(albumTitle, artistName);
+        var folderPath = albumRepository.findByTitleAndArtistNameIgnoreCase(albumTitle, artistName)
+                .map(Album::getFolderPath)
+                .orElse(null);
+        volumioClient.playAlbum(albumTitle, artistName, folderPath);
     }
 
     public void updateAlbumReleaseDate(UUID albumMusicBrainzId, LocalDate releaseDate) {
@@ -148,13 +151,15 @@ public class CollectionService {
                 log.info("Directory had {}/{} tag failures: {}", dirTagFailures, dirFileCount, directory);
             }
 
+            var folderPath = rootDirectory.relativize(directory).toString();
+
             // Albums with MusicBrainz IDs — group by MBID
             var mbidGroups = allMetadata.stream()
                     .filter(m -> m.albumMusicBrainzId() != null)
                     .collect(Collectors.groupingBy(AudioFileMetadata::albumMusicBrainzId));
 
             for (var group : mbidGroups.entrySet()) {
-                var album = transactionTemplate.execute(status -> importFromMetadata(group.getValue()));
+                var album = transactionTemplate.execute(status -> importFromMetadata(group.getValue(), folderPath));
                 if (album != null) {
                     importedAlbums.add(album);
                 }
@@ -167,7 +172,7 @@ public class CollectionService {
                     .collect(Collectors.groupingBy(m -> m.artistName() + "\0" + m.albumTitle()));
 
             for (var group : noMbidGroups.values()) {
-                var album = transactionTemplate.execute(status -> importFromMetadataWithoutMbid(group));
+                var album = transactionTemplate.execute(status -> importFromMetadataWithoutMbid(group, folderPath));
                 if (album != null) {
                     importedAlbums.add(album);
                 }
@@ -388,13 +393,16 @@ public class CollectionService {
                 });
     }
 
-    private Album importFromMetadata(List<AudioFileMetadata> trackMetadataList) {
+    private Album importFromMetadata(List<AudioFileMetadata> trackMetadataList, String folderPath) {
         var first = trackMetadataList.getFirst();
         var tracks = trackMetadataList.stream()
                 .map(m -> new TrackData(m.trackTitle(), m.trackNumber(), m.discNumber(), m.trackMusicBrainzId()))
                 .toList();
-        return importAlbum(first.artistName(), first.artistMusicBrainzId(),
+        var album = importAlbum(first.artistName(), first.artistMusicBrainzId(),
                 first.albumTitle(), first.albumMusicBrainzId(), AlbumFormat.DIGITAL, tracks);
+        album.setFolderPath(folderPath);
+        albumRepository.save(album);
+        return album;
     }
 
     private Artist findArtistByName(String artistName) {
@@ -409,7 +417,7 @@ public class CollectionService {
                 .orElse(artists.getFirst());
     }
 
-    private Album importFromMetadataWithoutMbid(List<AudioFileMetadata> trackMetadataList) {
+    private Album importFromMetadataWithoutMbid(List<AudioFileMetadata> trackMetadataList, String folderPath) {
         var first = trackMetadataList.getFirst();
         var tracks = trackMetadataList.stream()
                 .map(m -> new TrackData(m.trackTitle(), m.trackNumber(), m.discNumber(), m.trackMusicBrainzId()))
@@ -417,10 +425,11 @@ public class CollectionService {
         var album = importAlbum(first.artistName(), null,
                 first.albumTitle(), null, AlbumFormat.DIGITAL, tracks);
 
+        album.setFolderPath(folderPath);
         if (first.year() != null && album.getReleaseDate() == null) {
             album.updateReleaseDate(LocalDate.of(first.year(), 1, 1));
-            albumRepository.save(album);
         }
+        albumRepository.save(album);
 
         return album;
     }

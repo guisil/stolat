@@ -15,69 +15,21 @@ import org.springframework.web.client.RestClient;
 public class VolumioClient {
 
     private final RestClient restClient;
+    private final String musicLibraryUri;
 
-    VolumioClient(@Qualifier("volumioRestClient") RestClient restClient) {
+    VolumioClient(@Qualifier("volumioRestClient") RestClient restClient,
+                  @org.springframework.beans.factory.annotation.Value("${stolat.volumio.music-library-uri:music-library}") String musicLibraryUri) {
         this.restClient = restClient;
+        this.musicLibraryUri = musicLibraryUri;
     }
 
-    @SuppressWarnings("unchecked")
-    public void playAlbum(String albumTitle, String artistName) {
+    public void playAlbum(String albumTitle, String artistName, String folderPath) {
         try {
-            // Search for the album
-            var searchResponse = restClient.get()
-                    .uri("/api/v1/search?query={query}", albumTitle)
-                    .retrieve()
-                    .body(Map.class);
-
-            if (searchResponse == null) {
-                log.warn("Volumio search returned null for '{}'", albumTitle);
+            if (folderPath != null && !folderPath.isBlank()) {
+                playFromUri(musicLibraryUri + "/" + folderPath);
                 return;
             }
-
-            // Find album items in the navigation lists
-            var navigation = (Map<String, Object>) searchResponse.get("navigation");
-            if (navigation == null) {
-                log.warn("No navigation in Volumio search results for '{}'", albumTitle);
-                return;
-            }
-
-            var lists = (List<Map<String, Object>>) navigation.get("lists");
-            if (lists == null || lists.isEmpty()) {
-                log.warn("No lists in Volumio search results for '{}'", albumTitle);
-                return;
-            }
-
-            // Find tracks matching the album - look through all lists
-            for (var list : lists) {
-                var items = (List<Map<String, Object>>) list.get("items");
-                if (items == null) continue;
-
-                // Look for a folder/album match first
-                for (var item : items) {
-                    var type = (String) item.get("type");
-                    var rawTitle = (String) item.get("title");
-                    var title = rawTitle != null ? rawTitle.replaceFirst("^\\[\\d{4}\\]\\s*", "") : null;
-                    if ("folder".equals(type) && albumTitle.equalsIgnoreCase(title)) {
-                        // Browse into this album folder to get tracks
-                        var uri = (String) item.get("uri");
-                        playFromUri(uri);
-                        return;
-                    }
-                }
-
-                // If no folder match, look for song matches from this album
-                var albumTracks = items.stream()
-                        .filter(i -> "song".equals(i.get("type")))
-                        .filter(i -> albumTitle.equalsIgnoreCase((String) i.get("album")))
-                        .toList();
-
-                if (!albumTracks.isEmpty()) {
-                    replaceAndPlay(albumTracks);
-                    return;
-                }
-            }
-
-            log.warn("Could not find '{}' by '{}' in Volumio", albumTitle, artistName);
+            log.warn("Could not find '{}' by '{}' in Volumio: no folder path available", albumTitle, artistName);
         } catch (Exception e) {
             log.error("Failed to play '{}' on Volumio: {}", albumTitle, e.getMessage());
         }

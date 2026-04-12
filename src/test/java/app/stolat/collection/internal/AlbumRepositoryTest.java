@@ -109,6 +109,20 @@ class AlbumRepositoryTest {
     }
 
     @Test
+    void shouldPersistAndRetrieveFolderPath() {
+        var artist = artistRepository.save(new Artist("Massive Attack", UUID.randomUUID()));
+        var album = new Album("Blue Lines", UUID.randomUUID(), artist);
+        album.setFolderPath("Massive Attack/[1991] Blue Lines");
+        albumRepository.save(album);
+
+        albumRepository.flush();
+        var found = albumRepository.findById(album.getId());
+
+        assertThat(found).isPresent();
+        assertThat(found.get().getFolderPath()).isEqualTo("Massive Attack/[1991] Blue Lines");
+    }
+
+    @Test
     void shouldFindByTitleAndArtistNameIgnoreCase() {
         var artist = artistRepository.save(new Artist("Radiohead", UUID.randomUUID()));
         albumRepository.save(new Album("OK Computer", UUID.randomUUID(), artist));

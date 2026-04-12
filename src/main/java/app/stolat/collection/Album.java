@@ -52,6 +52,9 @@ public class Album {
     @Column(name = "discogs_id")
     private Long discogsId;
 
+    @Column(name = "folder_path")
+    private String folderPath;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -76,6 +79,7 @@ public class Album {
     public void removeFormat(AlbumFormat format) { this.formats.remove(format); }
     public boolean hasFormat(AlbumFormat format) { return this.formats.contains(format); }
     public boolean hasAnyFormat() { return !this.formats.isEmpty(); }
+    public void setFolderPath(String folderPath) { this.folderPath = folderPath; }
     public void assignMusicBrainzId(UUID musicBrainzId) { this.musicBrainzId = musicBrainzId; }
     public void assignDiscogsId(Long discogsId) { this.discogsId = discogsId; }
 
