@@ -37,22 +37,35 @@ public class VolumioClient {
 
     @SuppressWarnings("unchecked")
     private void playFromUri(String uri) {
+        log.debug("Browsing Volumio URI: {}", uri);
         try {
             var browseResponse = restClient.get()
                     .uri("/api/v1/browse?uri={uri}", uri)
                     .retrieve()
                     .body(Map.class);
 
-            if (browseResponse == null) return;
+            if (browseResponse == null) {
+                log.warn("Volumio browse returned null for URI '{}'", uri);
+                return;
+            }
 
             var navigation = (Map<String, Object>) browseResponse.get("navigation");
-            if (navigation == null) return;
+            if (navigation == null) {
+                log.warn("Volumio browse response has no 'navigation' for URI '{}'", uri);
+                return;
+            }
 
             var lists = (List<Map<String, Object>>) navigation.get("lists");
-            if (lists == null || lists.isEmpty()) return;
+            if (lists == null || lists.isEmpty()) {
+                log.warn("Volumio browse response has no lists for URI '{}'", uri);
+                return;
+            }
 
             var items = (List<Map<String, Object>>) lists.getFirst().get("items");
-            if (items == null || items.isEmpty()) return;
+            if (items == null || items.isEmpty()) {
+                log.warn("Volumio browse response has no items for URI '{}'", uri);
+                return;
+            }
 
             replaceAndPlay(items);
         } catch (Exception e) {
