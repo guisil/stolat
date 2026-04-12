@@ -16,8 +16,8 @@ Modulith for modular architecture, MusicBrainz API for release date lookups, Fly
 for migrations, Testcontainers + Karibu Testing for tests.
 
 **Branch:** `main`
-**Current release:** v0.3.0
-**Dev version:** 0.3.1-SNAPSHOT
+**Current release:** v0.3.1
+**Dev version:** 0.3.2-SNAPSHOT
 **Tests:** 178 passing (`mvn test -Dsurefire.useFile=false`)
 **Deployed:** Raspberry Pi (Docker, Ubuntu Server 24.04)
 
