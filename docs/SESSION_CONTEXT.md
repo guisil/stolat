@@ -161,6 +161,32 @@ for migrations, Testcontainers + Karibu Testing for tests.
 
 ## What's Next
 
+- **Verify Volumio browse URI encoding fix (`682ba9d`).** A reproducer test
+  `VolumioClientTest#shouldNotEncodeBracketsInBrowseUri` exists as an
+  uncommitted working-tree change and currently fails locally — the request
+  URL still ends up as `…%5B1991%5D%20Blue%20Lines`, suggesting Spring's
+  `RestClient` re-encodes the string even after switching from `{uri}`
+  template to concatenation. User reports playback was working last time it
+  was checked, so confirm against a real Volumio instance before assuming
+  the fix is broken. If it really is broken, a likely path is building the
+  URI with `UriComponentsBuilder.build(true)` or passing a pre-built `URI`
+  so `RestClient` skips encoding. Commit the reproducer test alongside any
+  real fix.
+- **Use audio file "Comment" tag as default Bandcamp URL.** Bandcamp FLAC/MP3
+  downloads typically embed the album's Bandcamp URL in the Comment tag.
+  Today `BandcampUrlSuggester` guesses from artist/album name, which is rarely
+  right and forces manual entry. Have `TagReader` capture the Comment tag,
+  persist it on `Album` (or `Track`), and let `MissingBirthdaysView` /
+  `BandcampUrlSuggester` prefer that value over the generated slug guess
+  before falling back to the search link.
+- **Scheduled refresh of release dates across all sources.** Today lookups
+  are one-shot per album. Add a recurring job (cron-based, configurable) that
+  retries dates from all sources for albums that might benefit: newly-tagged
+  albums gaining an MBID, MB_PENDING entries, Discogs year-only entries
+  (already partly covered by `upgradeDiscogsYearOnlyBirthdays`), and albums
+  where source websites may have gained data since the last lookup. Consider
+  per-source policy (cadence, max-age, retry budget) and how to surface
+  results without spamming notifications.
 - Additional release date sources (Spotify)
 - Notification view (settings, history, manual send, multiple recipient emails)
 - Album detail view with tracks
