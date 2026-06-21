@@ -11,6 +11,7 @@ public record AudioFileMetadata(
         int trackNumber,
         int discNumber,
         UUID trackMusicBrainzId,
-        Integer year
+        Integer year,
+        String bandcampUrl
 ) {
 }

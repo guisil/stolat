@@ -162,10 +162,10 @@ class CollectionServiceTest {
         given(fileScanner.scan(rootDir)).willReturn(List.of(track1Path, track2Path));
         given(tagReader.read(track1Path)).willReturn(Optional.of(
                 new AudioFileMetadata("Radiohead", artistMbid, "OK Computer", albumMbid,
-                        "Airbag", 1, 1, UUID.randomUUID(), null)));
+                        "Airbag", 1, 1, UUID.randomUUID(), null, null)));
         given(tagReader.read(track2Path)).willReturn(Optional.of(
                 new AudioFileMetadata("Radiohead", artistMbid, "OK Computer", albumMbid,
-                        "Paranoid Android", 2, 1, UUID.randomUUID(), null)));
+                        "Paranoid Android", 2, 1, UUID.randomUUID(), null, null)));
         given(artistRepository.findByMusicBrainzId(artistMbid)).willReturn(Optional.empty());
         given(artistRepository.save(any(Artist.class))).willAnswer(invocation -> invocation.getArgument(0));
         given(albumRepository.save(any(Album.class))).willAnswer(invocation -> invocation.getArgument(0));
@@ -190,7 +190,7 @@ class CollectionServiceTest {
         given(fileScanner.scan(rootDir)).willReturn(List.of(trackPath));
         given(tagReader.read(trackPath)).willReturn(Optional.of(
                 new AudioFileMetadata("Radiohead", artistMbid, "OK Computer", albumMbid,
-                        "Airbag", 1, 1, UUID.randomUUID(), null)));
+                        "Airbag", 1, 1, UUID.randomUUID(), null, null)));
         given(artistRepository.findByMusicBrainzId(artistMbid)).willReturn(Optional.empty());
         given(artistRepository.save(any(Artist.class))).willAnswer(invocation -> invocation.getArgument(0));
         given(albumRepository.save(any(Album.class))).willAnswer(invocation -> invocation.getArgument(0));
@@ -209,7 +209,7 @@ class CollectionServiceTest {
         given(fileScanner.scan(rootDir)).willReturn(List.of(trackPath));
         given(tagReader.read(trackPath)).willReturn(Optional.of(
                 new AudioFileMetadata("Some Artist", null, "Some Album", null,
-                        "Track", 1, 1, null, 2020)));
+                        "Track", 1, 1, null, 2020, null)));
         given(artistRepository.findByNameIgnoreCase("Some Artist")).willReturn(List.of());
         given(artistRepository.save(any(Artist.class))).willAnswer(invocation -> invocation.getArgument(0));
         given(albumRepository.findByTitleAndArtistNameIgnoreCase("Some Album", "Some Artist"))
@@ -238,7 +238,7 @@ class CollectionServiceTest {
         given(fileScanner.scan(rootDir)).willReturn(List.of(goodFile, badFile));
         given(tagReader.read(goodFile)).willReturn(Optional.of(
                 new AudioFileMetadata("Radiohead", artistMbid, "OK Computer", albumMbid,
-                        "Airbag", 1, 1, UUID.randomUUID(), null)));
+                        "Airbag", 1, 1, UUID.randomUUID(), null, null)));
         given(tagReader.read(badFile)).willReturn(Optional.empty());
         given(artistRepository.findByMusicBrainzId(artistMbid)).willReturn(Optional.empty());
         given(artistRepository.save(any(Artist.class))).willAnswer(invocation -> invocation.getArgument(0));
@@ -349,7 +349,7 @@ class CollectionServiceTest {
         given(fileScanner.scan(rootDir)).willReturn(List.of(track1Path));
         given(tagReader.read(track1Path)).willReturn(Optional.of(
                 new AudioFileMetadata("Radiohead", artistMbid, "OK Computer", albumMbid,
-                        "Airbag", 1, 1, UUID.randomUUID(), null)));
+                        "Airbag", 1, 1, UUID.randomUUID(), null, null)));
         given(artistRepository.findByMusicBrainzId(artistMbid)).willReturn(Optional.empty());
         given(artistRepository.save(any(Artist.class))).willAnswer(invocation -> invocation.getArgument(0));
         given(albumRepository.save(any(Album.class))).willAnswer(invocation -> invocation.getArgument(0));
@@ -377,7 +377,7 @@ class CollectionServiceTest {
         given(fileScanner.scan(rootDir)).willReturn(List.of(track1Path));
         given(tagReader.read(track1Path)).willReturn(Optional.of(
                 new AudioFileMetadata("Various Artists", null, "Compilation", null,
-                        "Track", 1, 1, null, 2014)));
+                        "Track", 1, 1, null, 2014, null)));
         given(albumRepository.findByTitleAndArtistNameIgnoreCase("Compilation", "Various Artists"))
                 .willReturn(Optional.of(scannedAlbum));
 

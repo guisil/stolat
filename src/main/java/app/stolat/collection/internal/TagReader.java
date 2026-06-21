@@ -3,6 +3,7 @@ package app.stolat.collection.internal;
 import java.nio.file.Path;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.tag.FieldKey;
@@ -13,6 +14,8 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 public class TagReader {
+
+    private static final Pattern BANDCAMP_URL = Pattern.compile("https://[\\w-]+\\.bandcamp\\.com\\S*");
 
     public Optional<AudioFileMetadata> read(Path audioFile) {
         try {
@@ -40,8 +43,15 @@ public class TagReader {
                 parseIntOrDefault(tag.getFirst(FieldKey.TRACK), 0),
                 parseIntOrDefault(tag.getFirst(FieldKey.DISC_NO), 1),
                 parseUuid(tag.getFirst(FieldKey.MUSICBRAINZ_TRACK_ID)),
-                year != null && year > 0 ? year : null
+                year != null && year > 0 ? year : null,
+                extractBandcampUrl(tag.getFirst(FieldKey.COMMENT))
         );
+    }
+
+    private String extractBandcampUrl(String comment) {
+        if (comment == null || comment.isBlank()) return null;
+        var matcher = BANDCAMP_URL.matcher(comment);
+        return matcher.find() ? matcher.group() : null;
     }
 
     private UUID parseUuid(String value) {

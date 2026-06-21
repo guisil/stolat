@@ -126,6 +126,64 @@ class TagReaderTest {
     }
 
     @Test
+    void shouldExtractBandcampUrlFromCommentTag() throws Exception {
+        var path = Path.of("/music/Lusitanian Ghosts/The Wrath of God/01 - Track.flac");
+
+        var audioFile = mock(AudioFile.class);
+        var tag = mock(Tag.class);
+        given(audioFile.getTag()).willReturn(tag);
+        given(tag.getFirst(FieldKey.ALBUM_ARTIST)).willReturn("Lusitanian Ghosts");
+        given(tag.getFirst(FieldKey.ARTIST)).willReturn("Lusitanian Ghosts");
+        given(tag.getFirst(FieldKey.MUSICBRAINZ_ARTISTID)).willReturn("");
+        given(tag.getFirst(FieldKey.ALBUM)).willReturn("The Wrath of God");
+        given(tag.getFirst(FieldKey.MUSICBRAINZ_RELEASE_GROUP_ID)).willReturn("");
+        given(tag.getFirst(FieldKey.TITLE)).willReturn("Track");
+        given(tag.getFirst(FieldKey.TRACK)).willReturn("1");
+        given(tag.getFirst(FieldKey.DISC_NO)).willReturn("1");
+        given(tag.getFirst(FieldKey.MUSICBRAINZ_TRACK_ID)).willReturn("");
+        given(tag.getFirst(FieldKey.YEAR)).willReturn("2023");
+        given(tag.getFirst(FieldKey.COMMENT)).willReturn("Visit https://lusitanianghosts.bandcamp.com/album/the-wrath-of-god");
+
+        try (MockedStatic<AudioFileIO> audioFileIO = mockStatic(AudioFileIO.class)) {
+            audioFileIO.when(() -> AudioFileIO.read(path.toFile())).thenReturn(audioFile);
+
+            var metadata = tagReader.read(path);
+
+            assertThat(metadata).isPresent();
+            assertThat(metadata.get().bandcampUrl()).isEqualTo("https://lusitanianghosts.bandcamp.com/album/the-wrath-of-god");
+        }
+    }
+
+    @Test
+    void shouldReturnNullBandcampUrlWhenCommentHasNoUrl() throws Exception {
+        var path = Path.of("/music/Artist/Album/01 - Track.flac");
+
+        var audioFile = mock(AudioFile.class);
+        var tag = mock(Tag.class);
+        given(audioFile.getTag()).willReturn(tag);
+        given(tag.getFirst(FieldKey.ALBUM_ARTIST)).willReturn("Artist");
+        given(tag.getFirst(FieldKey.ARTIST)).willReturn("Artist");
+        given(tag.getFirst(FieldKey.MUSICBRAINZ_ARTISTID)).willReturn("");
+        given(tag.getFirst(FieldKey.ALBUM)).willReturn("Album");
+        given(tag.getFirst(FieldKey.MUSICBRAINZ_RELEASE_GROUP_ID)).willReturn("");
+        given(tag.getFirst(FieldKey.TITLE)).willReturn("Track");
+        given(tag.getFirst(FieldKey.TRACK)).willReturn("1");
+        given(tag.getFirst(FieldKey.DISC_NO)).willReturn("1");
+        given(tag.getFirst(FieldKey.MUSICBRAINZ_TRACK_ID)).willReturn("");
+        given(tag.getFirst(FieldKey.YEAR)).willReturn("2020");
+        given(tag.getFirst(FieldKey.COMMENT)).willReturn("Some unrelated comment");
+
+        try (MockedStatic<AudioFileIO> audioFileIO = mockStatic(AudioFileIO.class)) {
+            audioFileIO.when(() -> AudioFileIO.read(path.toFile())).thenReturn(audioFile);
+
+            var metadata = tagReader.read(path);
+
+            assertThat(metadata).isPresent();
+            assertThat(metadata.get().bandcampUrl()).isNull();
+        }
+    }
+
+    @Test
     void shouldReturnEmptyWhenTagIsMissing() throws Exception {
         var path = Path.of("/music/unknown.flac");
         var audioFile = mock(AudioFile.class);
