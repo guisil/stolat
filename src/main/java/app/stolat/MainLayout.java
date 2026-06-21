@@ -33,14 +33,15 @@ public class MainLayout extends AppLayout {
         nav.addItem(new SideNavItem("Missing", "missing-birthdays"));
         nav.addItem(new SideNavItem("Stats", "stats"));
 
-        var drawerContent = new VerticalLayout(new Scroller(nav));
+        var scroller = new Scroller(nav);
+        var drawerContent = new VerticalLayout(scroller);
         drawerContent.setSizeFull();
 
         if (buildProperties != null) {
             var versionLabel = new Span("v" + buildProperties.getVersion());
             versionLabel.addClassName("version-label");
             drawerContent.add(versionLabel);
-            drawerContent.setFlexGrow(1, nav);
+            drawerContent.setFlexGrow(1, scroller);
         }
 
         addToDrawer(drawerContent);
