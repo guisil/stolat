@@ -123,6 +123,21 @@ class AlbumRepositoryTest {
     }
 
     @Test
+    void shouldPersistAndRetrieveBandcampUrl() {
+        var artist = artistRepository.save(new Artist("Lusitanian Ghosts", UUID.randomUUID()));
+        var album = new Album("The Wrath of God", UUID.randomUUID(), artist);
+        album.setBandcampUrl("https://lusitanianghosts.bandcamp.com/album/the-wrath-of-god");
+        albumRepository.save(album);
+
+        albumRepository.flush();
+        var found = albumRepository.findById(album.getId());
+
+        assertThat(found).isPresent();
+        assertThat(found.get().getBandcampUrl())
+                .isEqualTo("https://lusitanianghosts.bandcamp.com/album/the-wrath-of-god");
+    }
+
+    @Test
     void shouldFindByTitleAndArtistNameIgnoreCase() {
         var artist = artistRepository.save(new Artist("Radiohead", UUID.randomUUID()));
         albumRepository.save(new Album("OK Computer", UUID.randomUUID(), artist));

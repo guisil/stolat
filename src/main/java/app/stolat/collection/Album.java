@@ -55,6 +55,9 @@ public class Album {
     @Column(name = "folder_path")
     private String folderPath;
 
+    @Column(name = "bandcamp_url")
+    private String bandcampUrl;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -80,6 +83,7 @@ public class Album {
     public boolean hasFormat(AlbumFormat format) { return this.formats.contains(format); }
     public boolean hasAnyFormat() { return !this.formats.isEmpty(); }
     public void setFolderPath(String folderPath) { this.folderPath = folderPath; }
+    public void setBandcampUrl(String bandcampUrl) { this.bandcampUrl = bandcampUrl; }
     public void assignMusicBrainzId(UUID musicBrainzId) { this.musicBrainzId = musicBrainzId; }
     public void assignDiscogsId(Long discogsId) { this.discogsId = discogsId; }
 
