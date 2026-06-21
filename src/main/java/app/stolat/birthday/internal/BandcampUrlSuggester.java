@@ -32,6 +32,19 @@ class BandcampUrlSuggester {
     }
 
     /**
+     * Combines a stored Bandcamp URL with a generated album slug when the stored URL is
+     * a base-only URL (e.g. https://artist.bandcamp.com). If the URL already contains
+     * an album path, it is returned as-is.
+     */
+    static String combineBaseWithAlbumSlug(String baseUrl, String albumTitle) {
+        if (baseUrl == null) return "";
+        if (baseUrl.contains("/album/")) return baseUrl;
+        var base = baseUrl.replaceAll("/+$", "");
+        var albumSlug = toSlug(stripEditionSuffix(albumTitle != null ? albumTitle : ""));
+        return base + "/album/" + albumSlug;
+    }
+
+    /**
      * Generates a Bandcamp search URL for the given artist and album.
      * Format: https://bandcamp.com/search?q={artist}+{album}
      */

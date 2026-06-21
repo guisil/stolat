@@ -207,7 +207,9 @@ public class MissingBirthdaysView extends VerticalLayout {
         var storedUrl = album.getBandcampUrl();
         var urlField = new TextField("Bandcamp URL");
         urlField.setPlaceholder("https://artist.bandcamp.com/album/...");
-        urlField.setValue(storedUrl != null ? storedUrl : BandcampUrlSuggester.suggestAlbumUrl(artistName, albumTitle));
+        urlField.setValue(storedUrl != null
+                ? BandcampUrlSuggester.combineBaseWithAlbumSlug(storedUrl, albumTitle)
+                : BandcampUrlSuggester.suggestAlbumUrl(artistName, albumTitle));
         urlField.setWidthFull();
 
         var searchLink = new Anchor(
@@ -342,7 +344,8 @@ public class MissingBirthdaysView extends VerticalLayout {
                 var album = missingAlbums.get(i);
                 var result = album.getBandcampUrl() != null
                         ? birthdayService.resolveReleaseDateFromBandcamp(
-                                album.getId(), album.getTitle(), album.getArtist().getName(), album.getBandcampUrl())
+                                album.getId(), album.getTitle(), album.getArtist().getName(),
+                                BandcampUrlSuggester.combineBaseWithAlbumSlug(album.getBandcampUrl(), album.getTitle()))
                         : birthdayService.tryBandcampFromSuggestedUrl(
                                 album.getId(), album.getTitle(), album.getArtist().getName());
                 if (result.isPresent()) {

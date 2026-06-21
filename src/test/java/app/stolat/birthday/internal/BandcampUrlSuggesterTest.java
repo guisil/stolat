@@ -126,4 +126,32 @@ class BandcampUrlSuggesterTest {
 
         assertThat(url).isEqualTo("https://anushka.bandcamp.com/album/");
     }
+
+    @Test
+    void shouldCombineBaseUrlWithAlbumSlug() {
+        var url = BandcampUrlSuggester.combineBaseWithAlbumSlug("https://bonobo.bandcamp.com", "Black Sands");
+
+        assertThat(url).isEqualTo("https://bonobo.bandcamp.com/album/black-sands");
+    }
+
+    @Test
+    void shouldStripTrailingSlashFromBaseUrlWhenCombining() {
+        var url = BandcampUrlSuggester.combineBaseWithAlbumSlug("https://bonobo.bandcamp.com/", "Black Sands");
+
+        assertThat(url).isEqualTo("https://bonobo.bandcamp.com/album/black-sands");
+    }
+
+    @Test
+    void shouldApplyEditionStrippingWhenCombiningBaseUrl() {
+        var url = BandcampUrlSuggester.combineBaseWithAlbumSlug("https://radiohead.bandcamp.com", "OK Computer (Deluxe Edition)");
+
+        assertThat(url).isEqualTo("https://radiohead.bandcamp.com/album/ok-computer");
+    }
+
+    @Test
+    void shouldReturnFullUrlAsIsWhenItAlreadyContainsAlbumPath() {
+        var url = BandcampUrlSuggester.combineBaseWithAlbumSlug("https://bonobo.bandcamp.com/album/black-sands", "Black Sands");
+
+        assertThat(url).isEqualTo("https://bonobo.bandcamp.com/album/black-sands");
+    }
 }
