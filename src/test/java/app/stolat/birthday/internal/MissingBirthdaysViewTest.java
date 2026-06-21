@@ -132,6 +132,19 @@ class MissingBirthdaysViewTest {
 
     @Test
     @WithMockUser
+    void shouldShowOperationStatusLabel() {
+        setupMockVaadin();
+        UI.getCurrent().navigate(MissingBirthdaysView.class);
+
+        var statusLabel = _find(Span.class).stream()
+                .filter(s -> s.hasClassName("operation-status"))
+                .findFirst();
+        assertThat(statusLabel).isPresent();
+        assertThat(statusLabel.get().getText()).isEmpty();
+    }
+
+    @Test
+    @WithMockUser
     void shouldDisplayStatusBreakdownInCountLabel() {
         // Album without MBID
         collectionService.importAlbum("Artist A", null,

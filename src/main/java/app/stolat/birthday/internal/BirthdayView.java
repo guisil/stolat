@@ -69,6 +69,7 @@ public class BirthdayView extends VerticalLayout {
     private final Grid<AlbumBirthday> grid;
     private final H2 heading;
     private final Span countLabel;
+    private final Span statusLabel;
     private final TextField searchField;
     private final Select<String> sourceFilter;
 
@@ -82,6 +83,8 @@ public class BirthdayView extends VerticalLayout {
         heading = new H2("Album Birthdays \u2014 Today");
 
         countLabel = new Span();
+        statusLabel = new Span();
+        statusLabel.addClassName("operation-status");
 
         searchField = new TextField();
         searchField.setPlaceholder("Search...");
@@ -220,19 +223,19 @@ public class BirthdayView extends VerticalLayout {
             syncButton.addClickListener(event -> {
                 syncButton.setEnabled(false);
                 syncButton.setText("Syncing...");
-                Notification.show("Syncing play counts...");
+                statusLabel.setText("Syncing play counts...");
                 var ui = UI.getCurrent();
                 CompletableFuture.runAsync(() -> {
                     var synced = birthdayService.syncPlayCounts();
                     ui.access(() -> {
-                        Notification.show("Synced play counts for " + synced + " albums");
+                        statusLabel.setText("Synced play counts for " + synced + " albums");
                         updateGrid(rangeSelect.getValue());
                         syncButton.setEnabled(true);
                         syncButton.setText("Sync Plays");
                     });
                 }).exceptionally(ex -> {
                     ui.access(() -> {
-                        Notification.show("Play count sync failed: " + ex.getMessage());
+                        statusLabel.setText("Play count sync failed: " + ex.getMessage());
                         syncButton.setEnabled(true);
                         syncButton.setText("Sync Plays");
                     });
@@ -241,6 +244,7 @@ public class BirthdayView extends VerticalLayout {
             });
             toolbar.add(syncButton);
         }
+        toolbar.add(statusLabel);
         toolbar.setDefaultVerticalComponentAlignment(Alignment.BASELINE);
 
         setSizeFull();

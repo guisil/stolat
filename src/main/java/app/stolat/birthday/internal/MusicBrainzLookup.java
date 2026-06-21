@@ -23,6 +23,7 @@ class MusicBrainzLookup implements ReleaseDateLookup {
 
     @Override
     public Optional<LocalDate> lookUp(UUID musicBrainzReleaseGroupId) {
+        log.info("Looking up MusicBrainz release date for {}", musicBrainzReleaseGroupId);
         try {
             var response = restClient.get()
                     .uri("/release-group/{mbid}?fmt=json", musicBrainzReleaseGroupId)
@@ -34,7 +35,9 @@ class MusicBrainzLookup implements ReleaseDateLookup {
             }
 
             var dateStr = (String) response.get("first-release-date");
-            return parseReleaseDate(dateStr);
+            var result = parseReleaseDate(dateStr);
+            result.ifPresent(date -> log.info("Found MusicBrainz release date {} for {}", date, musicBrainzReleaseGroupId));
+            return result;
         } catch (Exception e) {
             log.warn("Failed to look up release date for {}: {}", musicBrainzReleaseGroupId, e.getMessage());
             return Optional.empty();

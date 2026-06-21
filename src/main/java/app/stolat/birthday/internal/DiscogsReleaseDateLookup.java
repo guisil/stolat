@@ -23,6 +23,7 @@ public class DiscogsReleaseDateLookup {
 
     @SuppressWarnings("unchecked")
     public Optional<LocalDate> lookUp(long discogsId) {
+        log.info("Looking up Discogs release date for {}", discogsId);
         try {
             var response = restClient.get()
                     .uri("/releases/{id}", discogsId)
@@ -34,7 +35,9 @@ public class DiscogsReleaseDateLookup {
             }
 
             var dateStr = (String) response.get("released");
-            return parseReleaseDate(dateStr);
+            var result = parseReleaseDate(dateStr);
+            result.ifPresent(date -> log.info("Found Discogs release date {} for {}", date, discogsId));
+            return result;
         } catch (Exception e) {
             log.warn("Failed to look up Discogs release date for {}: {}", discogsId, e.getMessage());
             return Optional.empty();

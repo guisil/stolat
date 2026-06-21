@@ -41,6 +41,7 @@ public class BandcampLookup {
 
     public Optional<LocalDate> tryLookUpFromSuggestedUrl(String artistName, String albumTitle) {
         var suggestedUrl = BandcampUrlSuggester.suggestAlbumUrl(artistName, albumTitle);
+        log.info("Trying Bandcamp lookup from suggested URL for '{}' by '{}': {}", albumTitle, artistName, suggestedUrl);
         if (!isValidUrl(suggestedUrl)) {
             return Optional.empty();
         }
@@ -48,6 +49,7 @@ public class BandcampLookup {
     }
 
     public Optional<LocalDate> lookUp(String bandcampUrl) {
+        log.info("Looking up Bandcamp release date from {}", bandcampUrl);
         if (!BANDCAMP_URL_PATTERN.matcher(bandcampUrl).matches()) {
             log.warn("Invalid Bandcamp URL: {}", bandcampUrl);
             return Optional.empty();
@@ -65,7 +67,9 @@ public class BandcampLookup {
             }
 
             var jsonLd = objectMapper.readTree(matcher.group(1));
-            return extractDatePublished(jsonLd);
+            var result = extractDatePublished(jsonLd);
+            result.ifPresent(date -> log.info("Found Bandcamp release date {} from {}", date, bandcampUrl));
+            return result;
         } catch (Exception e) {
             log.warn("Failed to fetch Bandcamp page {}: {}", bandcampUrl, e.getMessage());
             return Optional.empty();

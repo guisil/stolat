@@ -42,6 +42,7 @@ public class MissingBirthdaysView extends VerticalLayout {
     private final CollectionService collectionService;
     private final Grid<Album> grid;
     private final Span countLabel;
+    private final Span statusLabel;
     private final TextField searchField;
     private final Select<String> statusFilter;
 
@@ -57,6 +58,8 @@ public class MissingBirthdaysView extends VerticalLayout {
         var heading = new H2("Missing Birthdays");
 
         countLabel = new Span();
+        statusLabel = new Span();
+        statusLabel.addClassName("operation-status");
 
         statusFilter = new Select<>();
         statusFilter.setItems(ALL, NO_MBID, LOOKUP_FAILED);
@@ -161,7 +164,7 @@ public class MissingBirthdaysView extends VerticalLayout {
 
         searchField.setWidth("300px");
         var spacer = new Span();
-        var toolbar = new HorizontalLayout(searchField, statusFilter, spacer, retryAllButton, upgradeDiscogsButton, tryBandcampButton);
+        var toolbar = new HorizontalLayout(searchField, statusFilter, spacer, retryAllButton, upgradeDiscogsButton, tryBandcampButton, statusLabel);
         toolbar.setWidthFull();
         toolbar.setFlexGrow(1, spacer);
         toolbar.setDefaultVerticalComponentAlignment(Alignment.BASELINE);
@@ -285,7 +288,7 @@ public class MissingBirthdaysView extends VerticalLayout {
     private void upgradeDiscogsYearOnlyBirthdays(Button button) {
         button.setEnabled(false);
         button.setText("Upgrading...");
-        Notification.show("Upgrading Discogs dates...");
+        statusLabel.setText("Upgrading Discogs dates...");
         var ui = UI.getCurrent();
 
         CompletableFuture.runAsync(() -> {
@@ -296,7 +299,7 @@ public class MissingBirthdaysView extends VerticalLayout {
                 }
             }
             ui.access(() -> {
-                Notification.show("Upgraded " + upgraded.size() + " Discogs year-only birthdays to full dates");
+                statusLabel.setText("Upgraded " + upgraded.size() + " Discogs dates");
                 searchField.clear();
                 refreshGrid();
                 button.setEnabled(true);
@@ -304,7 +307,7 @@ public class MissingBirthdaysView extends VerticalLayout {
             });
         }).exceptionally(ex -> {
             ui.access(() -> {
-                Notification.show("Discogs upgrade failed: " + ex.getMessage());
+                statusLabel.setText("Discogs upgrade failed: " + ex.getMessage());
                 button.setEnabled(true);
                 button.setText("Upgrade Discogs Dates");
             });
@@ -324,9 +327,10 @@ public class MissingBirthdaysView extends VerticalLayout {
             return;
         }
 
+        int total = missingAlbums.size();
         button.setEnabled(false);
         button.setText("Trying...");
-        Notification.show("Trying Bandcamp for " + missingAlbums.size() + " albums...");
+        statusLabel.setText("Bandcamp: 0 / " + total + "...");
         var ui = UI.getCurrent();
 
         CompletableFuture.runAsync(() -> {
@@ -354,13 +358,14 @@ public class MissingBirthdaysView extends VerticalLayout {
                 } else {
                     failed++;
                 }
+                int r = resolved;
+                int done = i + 1;
+                ui.access(() -> statusLabel.setText("Bandcamp: " + done + " / " + total + " (" + r + " resolved)"));
             }
             int r = resolved;
             int f = failed;
-            int total = missingAlbums.size();
             ui.access(() -> {
-                Notification.show("Resolved " + r + " of " + total
-                        + " albums via Bandcamp (" + f + " failed)");
+                statusLabel.setText("Bandcamp done: " + r + " resolved, " + f + " failed");
                 searchField.clear();
                 refreshGrid();
                 button.setEnabled(true);
@@ -368,7 +373,7 @@ public class MissingBirthdaysView extends VerticalLayout {
             });
         }).exceptionally(ex -> {
             ui.access(() -> {
-                Notification.show("Bandcamp batch failed: " + ex.getMessage());
+                statusLabel.setText("Bandcamp batch failed: " + ex.getMessage());
                 button.setEnabled(true);
                 button.setText("Try Bandcamp");
             });
@@ -390,36 +395,37 @@ public class MissingBirthdaysView extends VerticalLayout {
                         || !releaseDatesByMbid.containsKey(album.getMusicBrainzId()))
                 .toList();
 
+        int total = missingAlbums.size();
         button.setEnabled(false);
         button.setText("Retrying...");
-        Notification.show("Retrying MusicBrainz lookups...");
+        statusLabel.setText("MusicBrainz retry: 0 / " + total + "...");
         var ui = UI.getCurrent();
 
         CompletableFuture.runAsync(() -> {
             int resolved = 0;
             int skipped = 0;
-            for (var album : missingAlbums) {
+            for (int i = 0; i < missingAlbums.size(); i++) {
+                var album = missingAlbums.get(i);
                 if (album.getMusicBrainzId() == null) {
                     skipped++;
-                    continue;
+                } else {
+                    var result = birthdayService.resolveReleaseDate(album.getId(), album.getTitle(),
+                            album.getArtist().getName(), album.getMusicBrainzId());
+                    if (result.isPresent()) {
+                        collectionService.updateAlbumReleaseDate(album.getMusicBrainzId(), result.get().getReleaseDate());
+                        resolved++;
+                    }
                 }
-                var result = birthdayService.resolveReleaseDate(album.getId(), album.getTitle(),
-                        album.getArtist().getName(), album.getMusicBrainzId());
-                if (result.isPresent()) {
-                    collectionService.updateAlbumReleaseDate(album.getMusicBrainzId(), result.get().getReleaseDate());
-                    resolved++;
-                }
+                int r = resolved;
+                int done = i + 1;
+                ui.access(() -> statusLabel.setText("MusicBrainz retry: " + done + " / " + total + " (" + r + " resolved)"));
             }
-
-            var message = new StringBuilder();
-            message.append(missingAlbums.size()).append(" missing albums: ");
-            message.append("resolved ").append(resolved);
-            if (skipped > 0) {
-                message.append(", skipped ").append(skipped).append(" without MusicBrainz ID");
-            }
-            var msg = message.toString();
+            int r = resolved;
+            int sk = skipped;
             ui.access(() -> {
-                Notification.show(msg);
+                var msg = "MusicBrainz retry done: " + r + " resolved"
+                        + (sk > 0 ? ", " + sk + " skipped (no MBID)" : "");
+                statusLabel.setText(msg);
                 searchField.clear();
                 refreshGrid();
                 button.setEnabled(true);
@@ -427,7 +433,7 @@ public class MissingBirthdaysView extends VerticalLayout {
             });
         }).exceptionally(ex -> {
             ui.access(() -> {
-                Notification.show("Retry failed: " + ex.getMessage());
+                statusLabel.setText("Retry failed: " + ex.getMessage());
                 button.setEnabled(true);
                 button.setText("Retry All Lookups");
             });

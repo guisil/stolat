@@ -45,8 +45,11 @@ public class CollectionView extends VerticalLayout {
     private final String discogsUsername;
     private Grid<Album> grid;
     private Span countLabel;
+    private Span statusLabel;
     private TextField searchField;
     private Select<String> formatFilter;
+    private Button scanButton;
+    private Button discogsScanButton;
 
     public CollectionView(CollectionService collectionService,
                           @Value("${stolat.collection.music-directory}") String musicDirectory,
@@ -63,6 +66,8 @@ public class CollectionView extends VerticalLayout {
         var heading = new H2("Collection");
 
         countLabel = new Span();
+        statusLabel = new Span();
+        statusLabel.addClassName("operation-status");
 
         searchField = new TextField();
         searchField.setPlaceholder("Search...");
@@ -146,7 +151,7 @@ public class CollectionView extends VerticalLayout {
         });
 
         searchField.setWidth("300px");
-        var scanButton = new Button("Scan Collection", event -> startScan());
+        scanButton = new Button("Scan Collection", event -> startScan());
 
         var spacer = new Span();
         var toolbar = new HorizontalLayout(searchField, formatFilter, spacer, scanButton);
@@ -154,46 +159,69 @@ public class CollectionView extends VerticalLayout {
         toolbar.setFlexGrow(1, spacer);
 
         if (!discogsUsername.isEmpty()) {
-            var discogsScanButton = new Button("Scan Discogs", event -> startDiscogsScan());
+            discogsScanButton = new Button("Scan Discogs", event -> startDiscogsScan());
             toolbar.add(discogsScanButton);
         }
 
+        toolbar.add(statusLabel);
         toolbar.setDefaultVerticalComponentAlignment(Alignment.BASELINE);
         add(heading, countLabel, toolbar, grid);
     }
 
     private void startScan() {
         var ui = UI.getCurrent();
-        Notification.show("Scanning collection...");
+        scanButton.setEnabled(false);
+        scanButton.setText("Scanning...");
+        statusLabel.setText("Scanning collection...");
         startGridPolling(ui);
 
         CompletableFuture.runAsync(() -> {
             var albums = collectionService.scanDirectory(Path.of(musicDirectory));
             ui.access(() -> {
+                statusLabel.setText("Scan complete: " + albums.size() + " albums");
                 refreshGrid();
-                Notification.show("Scan complete: " + albums.size() + " albums imported.");
+                scanButton.setEnabled(true);
+                scanButton.setText("Scan Collection");
             });
         }).exceptionally(ex -> {
             log.error("Collection scan failed", ex);
-            ui.access(() -> Notification.show("Scan failed: " + ex.getMessage()));
+            ui.access(() -> {
+                statusLabel.setText("Scan failed: " + ex.getMessage());
+                scanButton.setEnabled(true);
+                scanButton.setText("Scan Collection");
+            });
             return null;
         });
     }
 
     private void startDiscogsScan() {
         var ui = UI.getCurrent();
-        Notification.show("Scanning Discogs collection...");
+        if (discogsScanButton != null) {
+            discogsScanButton.setEnabled(false);
+            discogsScanButton.setText("Scanning...");
+        }
+        statusLabel.setText("Scanning Discogs collection...");
         startGridPolling(ui);
 
         CompletableFuture.runAsync(() -> {
             var albums = collectionService.scanDiscogs(discogsUsername);
             ui.access(() -> {
+                statusLabel.setText("Discogs scan complete: " + albums.size() + " albums");
                 refreshGrid();
-                Notification.show("Discogs scan complete: " + albums.size() + " albums processed.");
+                if (discogsScanButton != null) {
+                    discogsScanButton.setEnabled(true);
+                    discogsScanButton.setText("Scan Discogs");
+                }
             });
         }).exceptionally(ex -> {
             log.error("Discogs scan failed", ex);
-            ui.access(() -> Notification.show("Discogs scan failed: " + ex.getMessage()));
+            ui.access(() -> {
+                statusLabel.setText("Discogs scan failed: " + ex.getMessage());
+                if (discogsScanButton != null) {
+                    discogsScanButton.setEnabled(true);
+                    discogsScanButton.setText("Scan Discogs");
+                }
+            });
             return null;
         });
     }
