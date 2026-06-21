@@ -161,17 +161,6 @@ for migrations, Testcontainers + Karibu Testing for tests.
 
 ## What's Next
 
-- **Verify Volumio browse URI encoding fix (`682ba9d`).** A reproducer test
-  `VolumioClientTest#shouldNotEncodeBracketsInBrowseUri` exists as an
-  uncommitted working-tree change and currently fails locally — the request
-  URL still ends up as `…%5B1991%5D%20Blue%20Lines`, suggesting Spring's
-  `RestClient` re-encodes the string even after switching from `{uri}`
-  template to concatenation. User reports playback was working last time it
-  was checked, so confirm against a real Volumio instance before assuming
-  the fix is broken. If it really is broken, a likely path is building the
-  URI with `UriComponentsBuilder.build(true)` or passing a pre-built `URI`
-  so `RestClient` skips encoding. Commit the reproducer test alongside any
-  real fix.
 - **Use audio file "Comment" tag as default Bandcamp URL.** Bandcamp FLAC/MP3
   downloads typically embed the album's Bandcamp URL in the Comment tag.
   Today `BandcampUrlSuggester` guesses from artist/album name, which is rarely
