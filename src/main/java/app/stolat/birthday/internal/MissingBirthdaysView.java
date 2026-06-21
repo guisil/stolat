@@ -128,7 +128,7 @@ public class MissingBirthdaysView extends VerticalLayout {
             actions.add(bandcampButton);
 
             return actions;
-        }).setHeader("").setWidth("140px").setFlexGrow(0);
+        }).setHeader("").setWidth("140px").setFlexGrow(0).setKey("actions");
         grid.getColumns().forEach(c -> c.setResizable(true));
         grid.sort(GridSortOrder.asc(artistColumn)
                 .thenAsc(yearColumn).build());
@@ -204,9 +204,10 @@ public class MissingBirthdaysView extends VerticalLayout {
         var artistName = album.getArtist().getName();
         var albumTitle = album.getTitle();
 
+        var storedUrl = album.getBandcampUrl();
         var urlField = new TextField("Bandcamp URL");
         urlField.setPlaceholder("https://artist.bandcamp.com/album/...");
-        urlField.setValue(BandcampUrlSuggester.suggestAlbumUrl(artistName, albumTitle));
+        urlField.setValue(storedUrl != null ? storedUrl : BandcampUrlSuggester.suggestAlbumUrl(artistName, albumTitle));
         urlField.setWidthFull();
 
         var searchLink = new Anchor(
@@ -214,8 +215,10 @@ public class MissingBirthdaysView extends VerticalLayout {
                 "Search on Bandcamp");
         searchLink.setTarget("_blank");
 
-        var note = new NativeLabel(
-                "Suggested URL may not be accurate. Use the search link to find the correct page.");
+        var noteText = storedUrl != null
+                ? "URL found in audio file comment tag. Edit if incorrect."
+                : "Suggested URL may not be accurate. Use the search link to find the correct page.";
+        var note = new NativeLabel(noteText);
         note.addClassName("hint-text");
 
         var lookupButton = new Button("Look up");
@@ -337,8 +340,11 @@ public class MissingBirthdaysView extends VerticalLayout {
                     }
                 }
                 var album = missingAlbums.get(i);
-                var result = birthdayService.tryBandcampFromSuggestedUrl(
-                        album.getId(), album.getTitle(), album.getArtist().getName());
+                var result = album.getBandcampUrl() != null
+                        ? birthdayService.resolveReleaseDateFromBandcamp(
+                                album.getId(), album.getTitle(), album.getArtist().getName(), album.getBandcampUrl())
+                        : birthdayService.tryBandcampFromSuggestedUrl(
+                                album.getId(), album.getTitle(), album.getArtist().getName());
                 if (result.isPresent()) {
                     collectionService.updateAlbumReleaseDateById(album.getId(), result.get().getReleaseDate());
                     resolved++;

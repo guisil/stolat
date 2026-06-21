@@ -18,7 +18,7 @@ for migrations, Testcontainers + Karibu Testing for tests.
 **Branch:** `main`
 **Current release:** v0.3.1
 **Dev version:** 0.3.2-SNAPSHOT
-**Tests:** 178 passing (`mvn test -Dsurefire.useFile=false`)
+**Tests:** 183 passing (`mvn test -Dsurefire.useFile=false`)
 **Deployed:** Raspberry Pi (Docker, Ubuntu Server 24.04)
 
 ---
@@ -78,9 +78,11 @@ for migrations, Testcontainers + Karibu Testing for tests.
   User-initiated only (no automated crawling).
   `BandcampUrlSuggester` generates candidate URLs from artist/album names and Bandcamp
   search links. Slug generation replaces `&` with `and` and strips edition suffixes (Deluxe,
-  Remastered, etc.). MissingBirthdaysView dialog pre-populates suggested URL with inline
-  validation and loading state. "Try Bandcamp" toolbar button batch-tries suggested URLs
-  for all missing albums (async, rate-limited 1s between requests).
+  Remastered, etc.). MissingBirthdaysView dialog pre-populates with the stored `Album.bandcampUrl`
+  (read from audio file comment tag during scan) when available, falling back to the generated
+  slug guess. Hint text indicates when the URL came from the file. "Try Bandcamp" toolbar button
+  batch-tries stored URLs first, then generated slugs for albums without one (async,
+  rate-limited 1s between requests).
 - **Format tracking:** `@ElementCollection` with `Set<AlbumFormat>` (DIGITAL/VINYL).
   Soft delete via format reconciliation — empty formats = removed.
 - **Vaadin Push:** @Push for progressive UI updates during scans (3s polling).
@@ -143,6 +145,7 @@ for migrations, Testcontainers + Karibu Testing for tests.
 - V5 migration: add discogs_id column to album_birthdays (with partial index)
 - V6 migration: add play_count and play_count_updated_at columns to album_birthdays
 - V7 migration: add folder_path column to albums (populated during filesystem scan)
+- V8 migration: add bandcamp_url column to albums (populated from COMMENT audio tag during scan)
 - JAudioTagger: RouHim fork 2.0.19 via JitPack, logging set to WARN
 - Discogs/Volumio/Last.fm features conditional on config (@ConditionalOnProperty)
 - Views are @AnonymousAllowed (auth deferred — TODO: DB-backed auth)
@@ -161,13 +164,6 @@ for migrations, Testcontainers + Karibu Testing for tests.
 
 ## What's Next
 
-- **Use audio file "Comment" tag as default Bandcamp URL.** Bandcamp FLAC/MP3
-  downloads typically embed the album's Bandcamp URL in the Comment tag.
-  Today `BandcampUrlSuggester` guesses from artist/album name, which is rarely
-  right and forces manual entry. Have `TagReader` capture the Comment tag,
-  persist it on `Album` (or `Track`), and let `MissingBirthdaysView` /
-  `BandcampUrlSuggester` prefer that value over the generated slug guess
-  before falling back to the search link.
 - **Scheduled refresh of release dates across all sources.** Today lookups
   are one-shot per album. Add a recurring job (cron-based, configurable) that
   retries dates from all sources for albums that might benefit: newly-tagged

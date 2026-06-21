@@ -110,6 +110,14 @@ public class CollectionService {
                 });
     }
 
+    public void updateBandcampUrl(UUID albumId, String bandcampUrl) {
+        albumRepository.findById(albumId)
+                .ifPresent(album -> {
+                    album.setBandcampUrl(bandcampUrl);
+                    albumRepository.save(album);
+                });
+    }
+
     @Transactional(propagation = org.springframework.transaction.annotation.Propagation.NEVER)
     public List<Album> scanDirectory(Path rootDirectory) {
         activeScans.incrementAndGet();

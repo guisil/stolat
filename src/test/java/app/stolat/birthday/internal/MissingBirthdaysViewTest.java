@@ -21,6 +21,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.security.test.context.support.WithMockUser;
 
 import app.stolat.birthday.BirthdayService;
+import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.textfield.TextField;
 import java.util.List;
 import java.util.UUID;
 
@@ -28,6 +30,9 @@ import com.vaadin.flow.component.button.Button;
 
 import static com.github.mvysny.kaributesting.v10.LocatorJ._find;
 import static com.github.mvysny.kaributesting.v10.LocatorJ._get;
+import static com.github.mvysny.kaributesting.v10.LocatorJ._click;
+import static com.github.mvysny.kaributesting.v10.GridKt._getCellComponent;
+import static com.github.mvysny.kaributesting.v10.GridKt._get;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -92,6 +97,37 @@ class MissingBirthdaysViewTest {
                 .filter(b -> "Try Bandcamp".equals(b.getText()))
                 .toList();
         assertThat(tryBandcampButtons).hasSize(1);
+    }
+
+    @Test
+    @WithMockUser
+    void shouldPrePopulateBandcampDialogWithStoredUrl() {
+        var album = collectionService.importAlbum("Lusitanian Ghosts", null,
+                "The Wrath of God", null, AlbumFormat.DIGITAL, List.of());
+        collectionService.updateBandcampUrl(album.getId(),
+                "https://lusitanianghosts.bandcamp.com/album/the-wrath-of-god");
+
+        setupMockVaadin();
+        UI.getCurrent().navigate(MissingBirthdaysView.class);
+
+        @SuppressWarnings("unchecked")
+        Grid<Album> grid = _get(Grid.class);
+        int rowIndex = -1;
+        for (int i = 0; i < GridKt._size(grid); i++) {
+            if ("The Wrath of God".equals(GridKt._get(grid, i).getTitle())) {
+                rowIndex = i;
+                break;
+            }
+        }
+        assertThat(rowIndex).as("album row not found in grid").isGreaterThanOrEqualTo(0);
+        var actionsCell = _getCellComponent(grid, rowIndex, "actions");
+        var buttons = _find(actionsCell, Button.class);
+        // Buttons in actions: [retry, bandcamp] (no discogsId) — bandcamp is last
+        _click(buttons.getLast());
+
+        var urlField = _get(TextField.class, spec -> spec.withPlaceholder("https://artist.bandcamp.com/album/..."));
+        assertThat(urlField.getValue())
+                .isEqualTo("https://lusitanianghosts.bandcamp.com/album/the-wrath-of-god");
     }
 
     @Test
