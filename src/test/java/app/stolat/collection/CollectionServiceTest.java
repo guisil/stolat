@@ -202,6 +202,29 @@ class CollectionServiceTest {
     }
 
     @Test
+    void shouldStoreBandcampUrlWhenScanningDirectory() {
+        var rootDir = Path.of("/music");
+        var artistMbid = UUID.randomUUID();
+        var albumMbid = UUID.randomUUID();
+        var trackPath = Path.of("/music/Lusitanian Ghosts/The Wrath of God/01 - Track.flac");
+
+        given(fileScanner.scan(rootDir)).willReturn(List.of(trackPath));
+        given(tagReader.read(trackPath)).willReturn(Optional.of(
+                new AudioFileMetadata("Lusitanian Ghosts", artistMbid, "The Wrath of God", albumMbid,
+                        "Track", 1, 1, UUID.randomUUID(), null,
+                        "https://lusitanianghosts.bandcamp.com/album/the-wrath-of-god")));
+        given(artistRepository.findByMusicBrainzId(artistMbid)).willReturn(Optional.empty());
+        given(artistRepository.save(any(Artist.class))).willAnswer(invocation -> invocation.getArgument(0));
+        given(albumRepository.save(any(Album.class))).willAnswer(invocation -> invocation.getArgument(0));
+        given(albumRepository.findByFormat(AlbumFormat.DIGITAL)).willReturn(List.of());
+
+        var albums = collectionService.scanDirectory(rootDir);
+
+        assertThat(albums.getFirst().getBandcampUrl())
+                .isEqualTo("https://lusitanianghosts.bandcamp.com/album/the-wrath-of-god");
+    }
+
+    @Test
     void shouldScanAndImportAlbumsWithoutMusicBrainzId() {
         var rootDir = Path.of("/music");
         var trackPath = Path.of("/music/SomeArtist/SomeAlbum/01 - Track.flac");

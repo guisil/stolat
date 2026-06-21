@@ -401,6 +401,7 @@ public class CollectionService {
         var album = importAlbum(first.artistName(), first.artistMusicBrainzId(),
                 first.albumTitle(), first.albumMusicBrainzId(), AlbumFormat.DIGITAL, tracks);
         album.setFolderPath(folderPath);
+        album.setBandcampUrl(first.bandcampUrl());
         albumRepository.save(album);
         return album;
     }
@@ -426,6 +427,7 @@ public class CollectionService {
                 first.albumTitle(), null, AlbumFormat.DIGITAL, tracks);
 
         album.setFolderPath(folderPath);
+        album.setBandcampUrl(first.bandcampUrl());
         if (first.year() != null && album.getReleaseDate() == null) {
             album.updateReleaseDate(LocalDate.of(first.year(), 1, 1));
         }
