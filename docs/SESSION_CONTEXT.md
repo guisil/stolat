@@ -138,6 +138,11 @@ for migrations, Testcontainers + Karibu Testing for tests.
 
 ## Key Technical Notes
 
+- **Dependency versions (as of 2026-09-11):** Spring Boot 4.1.1, Vaadin 25.2.7,
+  Spring Modulith 2.1.1, JAudioTagger 2.0.34. `tsconfig.json` is auto-regenerated
+  by the vaadin-maven-plugin whenever the Vaadin version changes (`_version` field
+  and `paths` format may shift) — commit it alongside `pom.xml` version bumps, no
+  manual edits needed. Full suite (188 tests) verified passing after this bump.
 - V2 migration: all tables (artists, albums, tracks, album_birthdays, album_formats)
 - V3 migration: indexes on musicbrainz_id, discogs_id columns
 - V4 migration: album_birthdays evolution — nullable musicbrainz_id, album_id column,
