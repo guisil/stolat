@@ -177,6 +177,10 @@ for migrations, Testcontainers + Karibu Testing for tests.
   where source websites may have gained data since the last lookup. Consider
   per-source policy (cadence, max-age, retry budget) and how to surface
   results without spamming notifications.
+- **"Add to queue in Volumio" button.** Birthday list currently has a "Play in
+  Volumio" button (immediate playback). Add a second button to add the album
+  to the queue instead of playing it now. Also reword the existing button's
+  tooltip to be more explicit, e.g. "Play Now in Volumio".
 - Additional release date sources (Spotify)
 - Notification view (settings, history, manual send, multiple recipient emails)
 - Album detail view with tracks
