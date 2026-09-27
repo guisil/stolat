@@ -2,6 +2,7 @@ package app.stolat.collection.internal;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -24,19 +25,28 @@ public class VolumioClient {
     }
 
     public void playAlbum(String albumTitle, String artistName, String folderPath) {
+        browseAndConsume(albumTitle, artistName, folderPath, "play", this::replaceAndPlay);
+    }
+
+    public void addAlbumToQueue(String albumTitle, String artistName, String folderPath) {
+        browseAndConsume(albumTitle, artistName, folderPath, "queue", this::addToQueue);
+    }
+
+    private void browseAndConsume(String albumTitle, String artistName, String folderPath,
+                                   String action, Consumer<List<Map<String, Object>>> itemsConsumer) {
         try {
             if (folderPath != null && !folderPath.isBlank()) {
-                playFromUri(musicLibraryUri + "/" + folderPath);
+                browseFromUri(musicLibraryUri + "/" + folderPath, itemsConsumer);
                 return;
             }
             log.warn("Could not find '{}' by '{}' in Volumio: no folder path available", albumTitle, artistName);
         } catch (Exception e) {
-            log.error("Failed to play '{}' on Volumio: {}", albumTitle, e.getMessage());
+            log.error("Failed to {} '{}' on Volumio: {}", action, albumTitle, e.getMessage());
         }
     }
 
     @SuppressWarnings("unchecked")
-    private void playFromUri(String uri) {
+    private void browseFromUri(String uri, Consumer<List<Map<String, Object>>> itemsConsumer) {
         log.debug("Browsing Volumio URI: {}", uri);
         try {
             var browseResponse = restClient.get()
@@ -67,10 +77,20 @@ public class VolumioClient {
                 return;
             }
 
-            replaceAndPlay(items);
+            itemsConsumer.accept(items);
         } catch (Exception e) {
             log.error("Failed to browse Volumio URI '{}': {}", uri, e.getMessage());
         }
+    }
+
+    private void addToQueue(List<Map<String, Object>> items) {
+        restClient.post()
+                .uri("/api/v1/addToQueue")
+                .body(items)
+                .retrieve()
+                .toBodilessEntity();
+
+        log.info("Added album to Volumio queue ({} tracks)", items.size());
     }
 
     private void replaceAndPlay(List<Map<String, Object>> items) {

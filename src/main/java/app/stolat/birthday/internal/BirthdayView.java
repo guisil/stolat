@@ -158,7 +158,7 @@ public class BirthdayView extends VerticalLayout {
             return layout;
         }).setHeader("Format").setWidth("80px").setFlexGrow(0);
 
-        // Only add play column if Volumio is configured
+        // Only add play/queue columns if Volumio is configured
         if (volumioUrl != null && !volumioUrl.isEmpty()) {
             grid.addComponentColumn(birthday -> {
                 var formats = birthday.getMusicBrainzId() != null
@@ -171,7 +171,7 @@ public class BirthdayView extends VerticalLayout {
                 var playButton = new Button(playIcon);
                 playButton.addClassName("play-button");
                 playButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-                playButton.setTooltipText("Play in Volumio");
+                playButton.setTooltipText("Play Now in Volumio");
                 playButton.addClickListener(e -> {
                     try {
                         collectionService.playAlbumOnVolumio(birthday.getAlbumTitle(), birthday.getArtistName());
@@ -181,6 +181,29 @@ public class BirthdayView extends VerticalLayout {
                     }
                 });
                 return playButton;
+            }).setHeader("").setWidth("60px").setFlexGrow(0);
+
+            grid.addComponentColumn(birthday -> {
+                var formats = birthday.getMusicBrainzId() != null
+                        ? formatsByMusicBrainzId.get(birthday.getMusicBrainzId())
+                        : formatsByAlbumId.get(birthday.getAlbumId());
+                if (formats == null || !formats.contains(AlbumFormat.DIGITAL)) {
+                    return new Span(); // empty for non-digital
+                }
+                var queueIcon = VaadinIcon.PLUS_CIRCLE.create();
+                var queueButton = new Button(queueIcon);
+                queueButton.addClassName("queue-button");
+                queueButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+                queueButton.setTooltipText("Add to Queue in Volumio");
+                queueButton.addClickListener(e -> {
+                    try {
+                        collectionService.addAlbumToVolumioQueue(birthday.getAlbumTitle(), birthday.getArtistName());
+                        Notification.show("Added '" + birthday.getAlbumTitle() + "' to Volumio queue");
+                    } catch (Exception ex) {
+                        Notification.show("Could not add to Volumio queue: " + ex.getMessage());
+                    }
+                });
+                return queueButton;
             }).setHeader("").setWidth("60px").setFlexGrow(0);
         }
 

@@ -18,7 +18,7 @@ for migrations, Testcontainers + Karibu Testing for tests.
 **Branch:** `main`
 **Current release:** v0.3.4
 **Dev version:** 0.3.5-SNAPSHOT
-**Tests:** 188 passing (`mvn test -Dsurefire.useFile=false`)
+**Tests:** 192 passing (`mvn test -Dsurefire.useFile=false`)
 **Deployed:** Raspberry Pi (Docker, Ubuntu Server 24.04)
 
 ---
@@ -93,17 +93,19 @@ for migrations, Testcontainers + Karibu Testing for tests.
   `AlbumBirthday` entity (`playCount`, `playCountUpdatedAt`). Shown in BirthdayView Plays
   column and email digest.
 - **Volumio playback:** `Album.folderPath` (relative to music root) stored during filesystem
-  scan. `CollectionService.playAlbumOnVolumio` looks up the album's folder path and passes it
-  to `VolumioClient`, which prepends `stolat.volumio.music-library-uri` (default:
-  `music-library`) to construct the Volumio browse URI. Volumio 4 search API no longer returns
-  local library results, so direct browse replaces the former search-based approach. After
-  upgrading to Volumio 4, set `stolat.volumio.music-library-uri=music-library/NAS` (or
-  whatever your top-level browse path is) and re-run a filesystem scan to populate folder
+  scan. `CollectionService.playAlbumOnVolumio` / `addAlbumToVolumioQueue` look up the album's
+  folder path and pass it to `VolumioClient`, which prepends `stolat.volumio.music-library-uri`
+  (default: `music-library`) to construct the Volumio browse URI, then either
+  `POST /api/v1/replaceAndPlay` (play now) or `POST /api/v1/addToQueue` (queue — takes the bare
+  browsed items array/object per Volumio's REST API, no wrapper key). Volumio 4 search API no
+  longer returns local library results, so direct browse replaces the former search-based
+  approach. After upgrading to Volumio 4, set `stolat.volumio.music-library-uri=music-library/NAS`
+  (or whatever your top-level browse path is) and re-run a filesystem scan to populate folder
   paths.
 - **Views:** BirthdayView at `/` (date ranges incl. "All", source filter, play count column,
-  count label, format icons, Volumio play button, conditional Sync Plays button, multi-sort,
-  full-height grid), CollectionView at `/collection` (format filter, scan buttons, search,
-  multi-sort, split Birthday/Year columns, total album count),
+  count label, format icons, Volumio "Play Now" and "Add to Queue" buttons, conditional Sync
+  Plays button, multi-sort, full-height grid), CollectionView at `/collection` (format filter,
+  scan buttons, search, multi-sort, split Birthday/Year columns, total album count),
   MissingBirthdaysView at `/missing-birthdays` (status filter, Bandcamp URL dialog with
   suggested URL and search link, year column, retry button, Discogs upgrade button,
   count label with status breakdown),
@@ -178,10 +180,6 @@ for migrations, Testcontainers + Karibu Testing for tests.
   where source websites may have gained data since the last lookup. Consider
   per-source policy (cadence, max-age, retry budget) and how to surface
   results without spamming notifications.
-- **"Add to queue in Volumio" button.** Birthday list currently has a "Play in
-  Volumio" button (immediate playback). Add a second button to add the album
-  to the queue instead of playing it now. Also reword the existing button's
-  tooltip to be more explicit, e.g. "Play Now in Volumio".
 - Additional release date sources (Spotify)
 - Notification view (settings, history, manual send, multiple recipient emails)
 - Album detail view with tracks

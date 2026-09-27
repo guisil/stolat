@@ -85,4 +85,39 @@ class VolumioClientTest {
 
         mockServer.verify();
     }
+
+    @Test
+    void shouldAddAlbumToQueueWhenFolderPathProvided() {
+        var browseResponseJson = """
+                {
+                    "navigation": {
+                        "lists": [
+                            {
+                                "items": [
+                                    {
+                                        "type": "song",
+                                        "title": "Safe from Harm",
+                                        "uri": "music-library/NAS/Massive Attack/[1991] Blue Lines/01 - Safe from Harm.flac",
+                                        "service": "mpd",
+                                        "album": "Blue Lines",
+                                        "artist": "Massive Attack"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+                """;
+
+        mockServer.expect(requestTo(org.hamcrest.Matchers.containsString("/api/v1/browse")))
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(withSuccess(browseResponseJson, MediaType.APPLICATION_JSON));
+        mockServer.expect(requestTo(org.hamcrest.Matchers.containsString("/api/v1/addToQueue")))
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess());
+
+        volumioClient.addAlbumToQueue("Blue Lines", "Massive Attack", "Massive Attack/[1991] Blue Lines");
+
+        mockServer.verify();
+    }
 }

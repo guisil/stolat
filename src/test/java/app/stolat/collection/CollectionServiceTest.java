@@ -653,4 +653,38 @@ class CollectionServiceTest {
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("Volumio is not configured");
     }
+
+    @Test
+    void shouldPassFolderPathToVolumioQueueWhenAlbumFound() {
+        var artist = new Artist("Radiohead", UUID.randomUUID());
+        var album = new Album("OK Computer", UUID.randomUUID(), artist);
+        album.setFolderPath("Radiohead/OK Computer");
+        given(albumRepository.findByTitleAndArtistNameIgnoreCase("OK Computer", "Radiohead"))
+                .willReturn(Optional.of(album));
+
+        collectionService.addAlbumToVolumioQueue("OK Computer", "Radiohead");
+
+        then(volumioClient).should().addAlbumToQueue("OK Computer", "Radiohead", "Radiohead/OK Computer");
+    }
+
+    @Test
+    void shouldPassNullFolderPathToQueueWhenAlbumNotFound() {
+        given(albumRepository.findByTitleAndArtistNameIgnoreCase("OK Computer", "Radiohead"))
+                .willReturn(Optional.empty());
+
+        collectionService.addAlbumToVolumioQueue("OK Computer", "Radiohead");
+
+        then(volumioClient).should().addAlbumToQueue("OK Computer", "Radiohead", null);
+    }
+
+    @Test
+    void shouldThrowWhenVolumioNotConfiguredForQueue() {
+        var noVolumioService = new CollectionService(fileScanner, tagReader, artistRepository,
+                albumRepository, trackRepository, eventPublisher, null, musicBrainzSearchClient,
+                null, new TransactionTemplate());
+
+        assertThatThrownBy(() -> noVolumioService.addAlbumToVolumioQueue("OK Computer", "Radiohead"))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Volumio is not configured");
+    }
 }

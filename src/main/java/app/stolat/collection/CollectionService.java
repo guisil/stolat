@@ -94,6 +94,16 @@ public class CollectionService {
         volumioClient.playAlbum(albumTitle, artistName, folderPath);
     }
 
+    public void addAlbumToVolumioQueue(String albumTitle, String artistName) {
+        if (volumioClient == null) {
+            throw new IllegalStateException("Volumio is not configured");
+        }
+        var folderPath = albumRepository.findByTitleAndArtistNameIgnoreCase(albumTitle, artistName)
+                .map(Album::getFolderPath)
+                .orElse(null);
+        volumioClient.addAlbumToQueue(albumTitle, artistName, folderPath);
+    }
+
     public void updateAlbumReleaseDate(UUID albumMusicBrainzId, LocalDate releaseDate) {
         albumRepository.findByMusicBrainzId(albumMusicBrainzId)
                 .ifPresent(album -> {
