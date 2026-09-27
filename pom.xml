@@ -18,10 +18,10 @@
 
 	<properties>
 		<java.version>25</java.version>
-		<vaadin.version>25.2.7</vaadin.version>
+		<vaadin.version>25.3.0</vaadin.version>
 		<spring-modulith.version>2.1.1</spring-modulith.version>
-		<jaudiotagger.version>2.0.34</jaudiotagger.version>
-		<karibu-testing.version>2.7.0</karibu-testing.version>
+		<jaudiotagger.version>2.0.36</jaudiotagger.version>
+		<karibu-testing.version>2.7.3</karibu-testing.version>
 		<testcontainers.version>2.0.5</testcontainers.version>
 		<awaitility.version>4.3.0</awaitility.version>
 	</properties>
