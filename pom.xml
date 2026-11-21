@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>4.1.1</version>
+		<version>4.2.0</version>
 		<relativePath/>
 	</parent>
 
@@ -18,9 +18,9 @@
 
 	<properties>
 		<java.version>25</java.version>
-		<vaadin.version>25.3.0</vaadin.version>
-		<spring-modulith.version>2.1.1</spring-modulith.version>
-		<jaudiotagger.version>2.0.36</jaudiotagger.version>
+		<vaadin.version>25.3.5</vaadin.version>
+		<spring-modulith.version>2.2.0</spring-modulith.version>
+		<jaudiotagger.version>2.0.41</jaudiotagger.version>
 		<karibu-testing.version>2.7.3</karibu-testing.version>
 		<testcontainers.version>2.0.5</testcontainers.version>
 		<awaitility.version>4.3.0</awaitility.version>
